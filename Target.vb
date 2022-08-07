@@ -25,7 +25,7 @@
                 .Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & x + 4), New Size(75, 90))
             End With
             Controls.Add(enemy(x))
-            AddHandler enemy(x).Click, AddressOf ClickEnemy
+            AddHandler enemy(x).Click, AddressOf ChangeTarget
             AddHandler enemy(x).MouseEnter, AddressOf ShowName
         Next x
 
@@ -71,7 +71,7 @@
         End If
     End Sub
 
-    Private Sub ClickEnemy(sender As Object, e As EventArgs)
+    Private Sub ChangeTarget(sender As Object, e As EventArgs)
         Main.ChangeTarget(sender.Tag, 0, True)
         If My.Settings.TargetAutoClose Then
             Close()

@@ -1,7 +1,7 @@
 ﻿Public Class Settings
     Public row(31), setting(7) As CheckBox
     Dim tooltips(5), heavenlapse(9), aphelion_dustwake(13) As CheckBox
-    Dim random_hits(20), tooltips_label As Label
+    Dim random_hits(20), tooltips_label, version As Label
     Dim show_all, hide_all, documentation As Button
     Dim panel As Panel
 
@@ -25,7 +25,7 @@
             With setting(x)
                 .Size = New Size(350, 24)
                 .Location = New Point(10, 10 + x * 25)
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
                 .Tag = x
             End With
@@ -69,7 +69,7 @@
                     .Location = New Point(10, random_hits_ypos + 25 * (x - 17))
                     .TextAlign = ContentAlignment.MiddleLeft
                 End If
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                .BackColor = Main.default_color
             End With
             Controls.Add(random_hits(x))
             AddHandler random_hits(x).Click, AddressOf ChangeFocus
@@ -85,14 +85,14 @@
             With heavenlapse(x)
                 .Size = New Size(24, 24)
                 .Location = New Point(135 + x * 25, random_hits_ypos + 25)
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
                 .Tag = x
                 If My.Settings.Heavenlapse.ElementAt(x) = "1" Then
                     .Checked = True
                     .BackColor = Color.LightGreen
                 Else
-                    .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                    .BackColor = Main.default_color
                 End If
             End With
             Controls.Add(heavenlapse(x))
@@ -103,14 +103,14 @@
             With aphelion_dustwake(x)
                 .Size = New Size(24, 24)
                 .Location = New Point(135 + x * 25, random_hits_ypos + 50)
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
                 .Tag = x
                 If My.Settings.AphelionDustwake.ElementAt(x) = "1" Then
                     .Checked = True
                     .BackColor = Color.LightGreen
                 Else
-                    .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                    .BackColor = Main.default_color
                 End If
             End With
             Controls.Add(aphelion_dustwake(x))
@@ -137,7 +137,7 @@
             With tooltips(x)
                 .Size = New Size(120, 24)
                 .Location = New Point(10, tooltips_ypos + (x + 1) * 25)
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
                 .Tag = x + 7
             End With
@@ -157,10 +157,22 @@
             AddHandler tooltips(x).CheckedChanged, AddressOf ChangeSetting
         Next
 
+        version = New Label()
+        With version
+            .Size = New Size(80, 24)
+            .Location = New Point(268, tooltips_ypos)
+            .TextAlign = ContentAlignment.MiddleCenter
+            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            .Text = "Version 1.1"
+            .BackColor = Color.Transparent
+        End With
+        Controls.Add(version)
+        AddHandler version.Click, AddressOf ChangeFocus
+
         documentation = New Button()
         With documentation
             .Size = New Size(150, 30)
-            .Location = New Point(233, tooltips_ypos + 24)
+            .Location = New Point(233, tooltips_ypos + 30)
             .Text = "View documentation"
             .UseVisualStyleBackColor = True
         End With
@@ -206,7 +218,7 @@
             With row(x)
                 .Size = New Size(175, 24)
                 .Location = New Point(0, x * 25)
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
                 .Tag = x
                 .Text = Main.variable(x)
@@ -268,7 +280,7 @@
             row(sender.Tag).BackColor = Color.LightGreen
         Else
             temp = temp.Insert(sender.Tag, "0")
-            row(sender.Tag).BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+            row(sender.Tag).BackColor = Main.default_color
         End If
         My.Settings.ResultsRow = temp
         Main.UpdateRows()
@@ -372,7 +384,7 @@
         For x = 0 To 31
             RemoveHandler row(x).CheckedChanged, AddressOf ToggleRow
             row(x).Checked = False
-            row(x).BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+            row(x).BackColor = Main.default_color
             AddHandler row(x).CheckedChanged, AddressOf ToggleRow
         Next
         My.Settings.ResultsRow = "00000000000000000000000000000000"
@@ -387,7 +399,7 @@
             heavenlapse(sender.Tag).BackColor = Color.LightGreen
         Else
             temp = temp.Insert(sender.Tag, "0")
-            heavenlapse(sender.Tag).BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+            heavenlapse(sender.Tag).BackColor = Main.default_color
         End If
         My.Settings.Heavenlapse = temp
         Main.Calculate()
@@ -401,14 +413,15 @@
             aphelion_dustwake(sender.Tag).BackColor = Color.LightGreen
         Else
             temp = temp.Insert(sender.Tag, "0")
-            aphelion_dustwake(sender.Tag).BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+            aphelion_dustwake(sender.Tag).BackColor = Main.default_color
         End If
         My.Settings.AphelionDustwake = temp
         Main.Calculate()
     End Sub
 
     Private Sub ViewDocumentation(sender As Object, e As EventArgs)
-        Process.Start("https://docs.google.com/document/d/16S6PzD7il28LaEgBUjuSPb0oKtzHl5pvsfDkeBqQ8bk/view")
+        'Process.Start("https://docs.google.com/document/d/16S6PzD7il28LaEgBUjuSPb0oKtzHl5pvsfDkeBqQ8bk/view")
+        Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator/blob/master/README.md")
     End Sub
 
     Private Sub ResizePanel(sender As Object, e As EventArgs)

@@ -1991,9 +1991,6 @@
     <None Include="Resources\target_140.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\target_blank.png" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="Resources\500.png" />
   </ItemGroup>
   <ItemGroup>
@@ -2535,33 +2532,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\699.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\700.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_1.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_2.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_6.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_7.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_8.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_9.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_10.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\aura_11.png" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="icon.ico" />

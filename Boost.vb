@@ -101,7 +101,6 @@
             label(x) = New Label
             With label(x)
                 .Size = New Size(69, 23)
-                '.BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
                 .Font = New Font("Segoe UI", 9, FontStyle.Bold)
                 .TextAlign = ContentAlignment.MiddleCenter
             End With
@@ -335,6 +334,8 @@
             boost(4, 0, 1).Text = "0"
             If boost(4, 0, 0).Text = "0" Then
                 boost(4, 0, 0).Font = New Font("Segoe UI", 9, FontStyle.Regular)
+            Else
+                boost(4, 0, 0).Font = New Font("Segoe UI", 9, FontStyle.Bold)
             End If
             boost(4, 0, 1).Font = New Font("Segoe UI", 9, FontStyle.Regular)
             AddHandler boost(4, 0, 0).TextChanged, AddressOf ChangeBoost
@@ -354,6 +355,8 @@
                 boost(sender.Tag, x, 1).Text = "0"
                 If boost(sender.Tag, x, 0).Text = "0" Then
                     boost(sender.Tag, x, 0).Font = New Font("Segoe UI", 9, FontStyle.Regular)
+                Else
+                    boost(sender.Tag, x, 0).Font = New Font("Segoe UI", 9, FontStyle.Bold)
                 End If
                 boost(sender.Tag, x, 1).Font = New Font("Segoe UI", 9, FontStyle.Regular)
                 AddHandler boost(sender.Tag, x, 0).TextChanged, AddressOf ChangeBoost

@@ -7,6 +7,7 @@
     Dim panel As DoubleBufferPanel
     Dim clear As Button
     Public hover As ToolTip
+    ReadOnly effects() As Integer = {9, 10, 11, 12, 13, 14, 15, 22, 36, 37, 38, 41, 42, 43, 48}
 
     Private Sub QuestMagnus_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Hide()
@@ -22,7 +23,7 @@
         clear = New Button
         With clear
             .Text = "Reset"
-            .Location = New Point(817, 45)
+            .Location = New Point(817, 33)
             .Size = New Size(88, 29)
             .UseVisualStyleBackColor = True
         End With
@@ -61,7 +62,11 @@
         Next
         magnus(0) = New Bitmap(My.Resources.ResourceManager.GetObject("_500"), New Size(50, 80))
         For x = 1 To 180
-            card(x).Image = magnus(x)
+            If effects.Contains(Main.QM_effect(x)) Then
+                card(x).Image = magnus(x)
+            Else
+                card(x).Image = Main.ChangeOpacity(magnus(x), 0.5)
+            End If
         Next
 
         For x = 0 To 23
@@ -86,15 +91,19 @@
             With result(x)
                 If x < 9 Then
                     .Width = 109
-                    .Location = New Point(600, 46 + x * 25)
+                    .Location = New Point(600, 34 + x * 25)
                     .TextAlign = ContentAlignment.MiddleLeft
                 Else
                     .Width = 49
-                    .Location = New Point(710, 46 + (x - 9) * 25)
+                    .Location = New Point(710, 34 + (x - 9) * 25)
                     .TextAlign = ContentAlignment.MiddleCenter
                 End If
                 .Height = 24
-                .BackColor = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
+                If x < 6 Then
+                    .BackColor = Main.element_color(x)
+                Else
+                    .BackColor = Main.default_color
+                End If
             End With
             Controls.Add(result(x))
         Next
@@ -132,6 +141,7 @@
         AddHandler panel.Scroll, AddressOf SaveWindowData
         AddHandler panel.MouseWheel, AddressOf SaveWindowData
         panel.VerticalScroll.Value = My.Settings.QMWindowScroll
+        panel.Focus()
     End Sub
 
     Private Sub LoadWindowData()

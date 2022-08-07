@@ -48,7 +48,7 @@
                 magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
             End With
             Controls.Add(card(x))
-            AddHandler card(x).Click, AddressOf ClickCard
+            AddHandler card(x).Click, AddressOf ToggleCard
             AddHandler card(x).MouseEnter, AddressOf ShowName
         Next x
         For x = 1 To 454
@@ -133,7 +133,7 @@
         End If
     End Sub
 
-    Public Sub ClickCard(sender As Object, e As EventArgs)
+    Public Sub ToggleCard(sender As Object, e As EventArgs)
         If active(sender.Tag) Then
             card(sender.Tag).Image = Main.ChangeOpacity(magnus(sender.Tag), 0.5)
             active(sender.Tag) = False
@@ -149,7 +149,7 @@
     Private Sub EnableGroup(sender As Object, e As EventArgs)
         For x = index(sender.Tag) To index(sender.Tag + 1) - 1
             If Not active(x) Then
-                ClickCard(card(x), e)
+                ToggleCard(card(x), e)
             End If
         Next
         Main.ShowDeck()
@@ -158,7 +158,7 @@
     Private Sub DisableGroup(sender As Object, e As EventArgs)
         For x = index(sender.Tag) To index(sender.Tag + 1) - 1
             If active(x) Then
-                ClickCard(card(x), e)
+                ToggleCard(card(x), e)
             End If
         Next
         Main.ShowDeck()
