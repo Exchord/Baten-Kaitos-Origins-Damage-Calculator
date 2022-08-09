@@ -1,5 +1,7 @@
 ﻿Imports System.Drawing.Imaging
 Public Class Main
+    Inherits Form
+
     Dim target_data(13), combo_results As Label
     Dim enemy_HP As TextBox
     Dim final_phase, shield, secondary_target, down As CheckBox
@@ -165,6 +167,7 @@ Public Class Main
     Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Hide()
         Text = "Baten Kaitos Origins Damage Calculator"
+        Icon = New Icon(Me.GetType(), "icon.ico")
         Application.CurrentCulture = New Globalization.CultureInfo("EN-US")
         Font = New Font("Segoe UI", 9, FontStyle.Regular)
         DoubleBuffered = True
@@ -592,6 +595,7 @@ Public Class Main
                     Next
                 End With
             Next
+            hit_card(x) = -1
         Next
         For x = 0 To rows - 1
             With table(0, x)
@@ -599,6 +603,7 @@ Public Class Main
                 .Width = 150
                 .TextAlign = ContentAlignment.MiddleLeft
                 .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+                .Text = variable(x)
                 .Tag = x
                 .Show()
             End With
@@ -606,6 +611,9 @@ Public Class Main
             AddHandler table(0, x).MouseClick, AddressOf ChangeFocus
             AddHandler table(0, x).MouseEnter, AddressOf ShowDescription
         Next
+        If My.Settings.EffectiveHPRemaining Then
+            table(0, rows - 1).Text = "Effective HP remaining"
+        End If
         For x = 1 To 999
             For y = 0 To rows - 1
                 table(x, y) = New Label
@@ -620,13 +628,6 @@ Public Class Main
                 AddHandler table(x, y).MouseClick, AddressOf ChangeFocus
             Next
         Next
-
-        For x = 0 To rows - 1
-            table(0, x).Text = variable(x)
-        Next
-        If My.Settings.EffectiveHPRemaining Then
-            table(0, rows - 1).Text = "Effective HP remaining"
-        End If
         For x = 0 To 7
             table(0, clickable_rows(x)).Cursor = Cursors.Hand
         Next
@@ -706,7 +707,6 @@ Public Class Main
             deck_magnus(238) = "1"      'Firedrake Regalia
             My.Settings.MagnusActive.AddRange(deck_magnus)
         End If
-
         Dim temp() As Char = String.Join("", My.Settings.MagnusActive.OfType(Of String)).ToCharArray
         For x = 0 To 454
             deck_magnus(x) = temp(x)
@@ -1697,10 +1697,10 @@ Public Class Main
                 End If
 
                 'damage output
-                If total_offense >= total_defense + armor_defense Then
+                If total_offense > total_defense + armor_defense Then
                     damage_output = Math.Floor(Math.Round((total_offense - total_defense * 0.775 - armor_defense) * multiplier, 4, MidpointRounding.AwayFromZero))
                 Else
-                    damage_output = Math.Floor(Math.Round((total_offense * 0.25 - total_defense * 0.025 - armor_defense * 0.25) * multiplier, 4, MidpointRounding.AwayFromZero))
+                    damage_output = Math.Floor(Math.Round((total_offense - total_defense * 0.1 - armor_defense) * 0.25 * multiplier, 4, MidpointRounding.AwayFromZero))
                 End If
                 If min_one(hits + 1) And armor_defense = 0 And multiplier = 1 Then
                     damage_output = Math.Max(1, damage_output)
@@ -1710,10 +1710,10 @@ Public Class Main
                 total_damage += damage_output
 
                 'crush output
-                If total_crush >= total_defense * 0.5 + armor_defense Then
+                If total_crush > total_defense * 0.5 + armor_defense Then
                     crush_output = Math.Max(0, (total_crush - total_defense * 0.3875 - armor_defense) * multiplier)
                 Else
-                    crush_output = Math.Max(0, (total_crush * 0.25 - total_defense * 0.0125 - armor_defense * 0.25) * multiplier)
+                    crush_output = Math.Max(0, (total_crush - total_defense * 0.05 - armor_defense) * 0.25 * multiplier)
                 End If
 
                 'Rabbit Dash 2nd hit knockdown
@@ -1913,10 +1913,10 @@ Public Class Main
                     End If
 
                     'damage output
-                    If total_offense >= total_defense + armor_defense Then
+                    If total_offense > total_defense + armor_defense Then
                         damage_output = Math.Floor(Math.Round((total_offense - total_defense * 0.775 - armor_defense) * multiplier, 4, MidpointRounding.AwayFromZero))
                     Else
-                        damage_output = Math.Floor(Math.Round((total_offense * 0.25 - total_defense * 0.025 - armor_defense * 0.25) * multiplier, 4, MidpointRounding.AwayFromZero))
+                        damage_output = Math.Floor(Math.Round((total_offense - total_defense * 0.1 - armor_defense) * 0.25 * multiplier, 4, MidpointRounding.AwayFromZero))
                     End If
                     If min_one(hits + 1) And armor_defense = 0 And multiplier = 1 Then
                         damage_output = Math.Max(1, damage_output)
@@ -1951,12 +1951,6 @@ Public Class Main
                 End If
             End If
         Next
-
-        If cards = 0 Then
-            next_combo.Enabled = False
-        Else
-            next_combo.Enabled = True
-        End If
 
         'save stats for next combo
         If cards > 0 Then
@@ -2029,6 +2023,10 @@ Public Class Main
 
             post_combo_enemy_offense_boost(0) = enemy_offense_boost(0)
             post_combo_enemy_offense_boost(1) = enemy_offense_boost(1)
+
+            next_combo.Enabled = True
+        Else
+            next_combo.Enabled = False
         End If
 
         Clear(hits_prev)    'clear data beyond the current combo
@@ -4041,7 +4039,7 @@ Public Class Main
                         Else
                             output &= "=max(0;"
                         End If
-                        output &= "trunc(round(if(" & C & "23>" & C & "25+" & C & "27;(" & C & "23-0.775*" & C & "25-" & C & "26)*" & C & "27;(0.25*" & C & "23-0.025*" & C & "25-0.25*" & C & "26)*" & C & "27);4)))"
+                        output &= "trunc(round(if(" & C & "23>" & C & "25+" & C & "27;(" & C & "23-0.775*" & C & "25-" & C & "26)*" & C & "27;(" & C & "23-0.1*" & C & "25-" & C & "26)*0.25*" & C & "27);4)))"
                     Case 28     'crush output
                         If table(x, 2).Text = "50" AndAlso combo(hit_card(x)).Tag = 10 Then   'Rabbit Dash 2nd hit
                             If shield.Visible And shield.Checked Then
@@ -4054,7 +4052,7 @@ Public Class Main
                         Else
                             output &= "=max(0;"
                         End If
-                        output &= "if(" & C & "24>0.5*" & C & "25+" & C & "27;(" & C & "24-0.3875*" & C & "25-" & C & "26)*" & C & "27;(0.25*" & C & "24-0.0125*" & C & "25-0.25*" & C & "26)*" & C & "27))"
+                        output &= "if(" & C & "24>0.5*" & C & "25+" & C & "27;(" & C & "24-0.3875*" & C & "25-" & C & "26)*" & C & "27;(" & C & "24-0.05*" & C & "25-" & C & "26)*0.25*" & C & "27))"
                     Case 29     'total damage output
                         output &= "=sum($B28:" & C & "28)"
                     Case 30     'total crush output

@@ -1,4 +1,6 @@
 ﻿Public Class Deck
+    Inherits Form
+
     Dim card(455), all_on(25), all_off(25) As PictureBox
     Dim magnus(455) As Bitmap
     Public hover As ToolTip
@@ -13,6 +15,7 @@
         KeyPreview = True
         MinimumSize = New Size(923, 486)
         Text = "Deck"
+        Icon = New Icon(Me.GetType(), "icon.ico")
         LoadWindowData()
 
         Dim range As Integer

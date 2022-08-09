@@ -1,4 +1,6 @@
 ﻿Public Class Settings
+    Inherits Form
+
     Public row(31), setting(7) As CheckBox
     Dim tooltips(5), heavenlapse(9), aphelion_dustwake(13) As CheckBox
     Dim random_hits(20), tooltips_label, version As Label
@@ -12,6 +14,7 @@
         KeyPreview = True
         MaximizeBox = False
         Text = "Settings"
+        Icon = New Icon(Me.GetType(), "icon.ico")
         MinimumSize = New Size(700, 523)
         MaximumSize = New Size(700, 856)
         LoadWindowData()
@@ -202,7 +205,7 @@
         AddHandler hide_all.Click, AddressOf HideAll
 
 
-        ' RESULTS ROWS
+        ' RESULT ROWS
 
         panel = New Panel
         With panel

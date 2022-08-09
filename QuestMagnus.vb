@@ -1,4 +1,6 @@
 ﻿Public Class QuestMagnus
+    Inherits Form
+
     Public inventory(24) As PictureBox
     Dim card(181) As PictureBox
     Public magnus(181) As Bitmap
@@ -16,6 +18,7 @@
         MaximizeBox = False
         Font = New Font("Segoe UI", 9, FontStyle.Regular)
         Text = "Quest Magnus"
+        Icon = New Icon(Me.GetType(), "icon.ico")
         MinimumSize = New Size(1053, 699)
         MaximumSize = New Size(1053, 1149)
         LoadWindowData()
@@ -100,6 +103,7 @@
                 End If
                 .Height = 24
                 If x < 6 Then
+                    .Text = Main.element_name(x) & " offense"
                     .BackColor = Main.element_color(x)
                 Else
                     .BackColor = Main.default_color
@@ -107,12 +111,6 @@
             End With
             Controls.Add(result(x))
         Next
-        result(0).Text = "Physical offense"
-        result(1).Text = "Fire offense"
-        result(2).Text = "Ice offense"
-        result(3).Text = "Lightning offense"
-        result(4).Text = "Light offense"
-        result(5).Text = "Dark offense"
         result(6).Text = "Extra hit offense"
         result(7).Text = "Critical hit chance"
         result(8).Text = "Level"

@@ -1,4 +1,6 @@
 ﻿Public Class Boost
+    Inherits Form
+
     Public chars(4) As PictureBox
     Dim card(10) As PictureBox
     Dim element(6), label(3) As Label
@@ -15,6 +17,7 @@
         KeyPreview = True
         MaximizeBox = False
         Text = "Temporary Boost"
+        Icon = New Icon(Me.GetType(), "icon.ico")
         Size = New Size(696, 599)
         LoadWindowData()
 

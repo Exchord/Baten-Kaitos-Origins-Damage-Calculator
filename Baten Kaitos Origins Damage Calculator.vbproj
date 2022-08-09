@@ -107,14 +107,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ApplicationEvents.vb" />
-    <Compile Include="Deck.Designer.vb">
-      <DependentUpon>Deck.vb</DependentUpon>
-    </Compile>
     <Compile Include="Deck.vb">
       <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Boost.Designer.vb">
-      <DependentUpon>Boost.vb</DependentUpon>
     </Compile>
     <Compile Include="Boost.vb">
       <SubType>Form</SubType>
@@ -122,17 +116,10 @@
     <Compile Include="DoubleBufferPanel.vb">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Options.Designer.vb">
-      <DependentUpon>Options.vb</DependentUpon>
-    </Compile>
     <Compile Include="Options.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Main.vb">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Main.Designer.vb">
-      <DependentUpon>Main.vb</DependentUpon>
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="My Project\AssemblyInfo.vb" />
@@ -150,46 +137,20 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="QuestMagnus.Designer.vb">
-      <DependentUpon>QuestMagnus.vb</DependentUpon>
-    </Compile>
     <Compile Include="QuestMagnus.vb">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Settings.vb" />
-    <Compile Include="Target.Designer.vb">
-      <DependentUpon>Target.vb</DependentUpon>
-    </Compile>
     <Compile Include="Target.vb">
       <SubType>Form</SubType>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Deck.resx">
-      <DependentUpon>Deck.vb</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Boost.resx">
-      <DependentUpon>Boost.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Options.resx">
-      <DependentUpon>Options.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Main.resx">
-      <DependentUpon>Main.vb</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
     <EmbeddedResource Include="My Project\Resources.resx">
       <Generator>VbMyResourcesResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.vb</LastGenOutput>
       <CustomToolNamespace>My.Resources</CustomToolNamespace>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="QuestMagnus.resx">
-      <DependentUpon>QuestMagnus.vb</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Target.resx">
-      <DependentUpon>Target.vb</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -2534,7 +2495,7 @@
     <None Include="Resources\699.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="icon.ico" />
+    <EmbeddedResource Include="icon.ico" />
     <None Include="Resources\minus.png" />
     <None Include="Resources\plus.png" />
     <None Include="Resources\spreadsheet.png" />

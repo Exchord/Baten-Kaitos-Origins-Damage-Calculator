@@ -1,4 +1,6 @@
 ﻿Public Class Target
+    Inherits Form
+
     Dim enemy(140) As PictureBox
     Public hover As ToolTip
 
@@ -12,6 +14,7 @@
         MinimumSize = New Size(783, 669)
         MaximumSize = New Size(783, 1299)
         Text = "Target"
+        Icon = New Icon(Me.GetType(), "icon.ico")
         LoadWindowData()
 
         For x = 0 To 139
