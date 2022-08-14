@@ -21,7 +21,7 @@
             enemy(x) = New PictureBox()
             With enemy(x)
                 .Size = New Size(75, 90)
-                .Location = New Point(75 * (x - (x - (x Mod 10))), 90 * (x - (x Mod 10)) / 10)
+                .Location = New Point(75 * (x Mod 10), 90 * Math.Floor(x / 10))
                 .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Tag = x + 4
@@ -30,7 +30,7 @@
             Controls.Add(enemy(x))
             AddHandler enemy(x).Click, AddressOf ChangeTarget
             AddHandler enemy(x).MouseEnter, AddressOf ShowName
-        Next x
+        Next
 
         hover = New ToolTip()
         With hover

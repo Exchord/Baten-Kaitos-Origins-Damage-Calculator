@@ -75,7 +75,7 @@
             AddHandler card(x).Click, AddressOf Add
             AddHandler card(x).MouseEnter, AddressOf ShowName
             AddHandler card(x).Click, AddressOf ChangeFocus
-        Next x
+        Next
         For x = 0 To 9
             card(x).Image = New Bitmap(My.Resources.ResourceManager.GetObject("_" & magnus(x)), New Size(50, 80))
         Next
@@ -260,7 +260,7 @@
     End Sub
 
     Private Sub Add(sender As Object, e As MouseEventArgs)
-        Dim result As Single
+        Dim result As Double
         If sender.Tag < 8 Then
             For x = 0 To 5
                 For y = 0 To 1
@@ -423,7 +423,7 @@
         x = sender.Tag
         y = sender.Name.ToString.ElementAt(0).ToString
         z = sender.Name.ToString.ElementAt(1).ToString
-        Dim new_value As Single
+        Dim new_value As Double
         If Not IsNumeric(boost(x, y, z).Text) Then
             boost(x, y, z).Font = New Font("Segoe UI", 9, FontStyle.Regular)
             boost(x, y, z).ForeColor = Color.Red
@@ -486,12 +486,12 @@
             sender.Text = "0"
             Return
         End If
-        Dim value As Single = Round(sender.Text)
+        Dim value As Double = Round(sender.Text)
         sender.Text = value
     End Sub
 
-    Private Function Round(input As Single) As Single
-        Return Math.Round(input, 3, MidpointRounding.AwayFromZero)
+    Private Function Round(input As Double) As Double
+        Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
     End Function
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown

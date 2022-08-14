@@ -37,8 +37,8 @@ Public Class Main
 
     Dim cards, hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense, turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
     Public combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
-    Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Single
-    Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2) As Single
+    Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Double
+    Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2) As Double
     Dim post_combo_down, post_combo_shield As Boolean
     Public deck_magnus(455) As String
     Dim hProcess As IntPtr
@@ -78,20 +78,20 @@ Public Class Main
     ReadOnly knockdown() As Integer = {0, 745, 678, 671, 40, 300, 100, 450, 400, 30, 270, 480, 100, 510, 250, 280, 590, 40, 350, 620, 40, 310, 720, 230, 480, 520, 230, 500, 890, 350, 90, 190, 280, 320, 200, 480, 410, 470, 180, 230, 100, 170, 700, 940, 480, 540, 580, 150, 180, 260, 250, 150, 290, 700, 910, 440, 590, 60, 260, 280, 330, 440, 900, 190, 340, 720, 700, 0, 0, 660, 850, 240, 270, 400, 1210, 1520, 280, 400, 480, 240, 280, 430, 100, 180, 270, 330, 80, 250, 570, 320, 420, 820, 940, 1600, 1480, 510, 530, 1860, 2270, 1070, 3360, 250, 520, 890, 1390, 0, 280, 690, 780, 650, 1480, 650, 1410, 320, 1340, 0, 0, 2900, 0, 2480, 0, 0, 0, 0, 2010, 1530, 700, 1930, 1310, 1990, 440, 790, 1490, 1650, 2960, 3030, 2270, 1270, 1420, 790, 0, 0, 0, 40, 0, 0}
     ReadOnly knockout() As Integer = {0, 1118, 986, 1043, 60, 450, 150, 670, 600, 40, 400, 720, 150, 760, 370, 420, 890, 50, 530, 930, 80, 470, 1090, 340, 720, 790, 340, 740, 1340, 520, 190, 390, 560, 480, 300, 720, 620, 700, 260, 340, 210, 340, 1040, 1410, 720, 810, 870, 220, 270, 390, 370, 220, 430, 1040, 1360, 650, 880, 90, 390, 420, 500, 660, 1350, 280, 520, 1080, 1050, 0, 0, 990, 1270, 360, 400, 600, 1810, 2270, 420, 590, 720, 360, 420, 650, 160, 270, 400, 500, 120, 370, 850, 480, 640, 1230, 1410, 2400, 2220, 770, 800, 2790, 3410, 1600, 5040, 0, 0, 0, 0, 0, 420, 1030, 1170, 970, 2220, 970, 2120, 490, 2010, 0, 0, 4340, 0, 3720, 0, 0, 0, 0, 3020, 2290, 1050, 2890, 1960, 2980, 650, 0, 0, 2480, 4440, 4540, 3410, 1900, 2140, 1190, 4940, 0, 0, 50, 0, 0}
     ReadOnly crush_limit() As Integer = {0, 1490, 1233, 1490, 90, 600, 200, 900, 790, 60, 540, 960, 250, 1280, 620, 710, 1480, 70, 710, 1240, 90, 750, 1740, 460, 960, 1050, 460, 710, 1280, 490, 190, 390, 560, 640, 400, 960, 820, 940, 350, 460, 280, 460, 2090, 2810, 960, 1080, 1160, 400, 480, 700, 590, 300, 580, 870, 1140, 1740, 2340, 120, 520, 560, 660, 880, 1800, 380, 690, 1450, 1410, 900, 1170, 1320, 1700, 640, 720, 1070, 2890, 3640, 560, 790, 960, 480, 560, 870, 210, 360, 540, 660, 170, 790, 1820, 640, 850, 1640, 1880, 3200, 2960, 1030, 1070, 4970, 6060, 2130, 6720, 500, 1040, 1780, 2780, 2890, 680, 1870, 2120, 1300, 2960, 1040, 2830, 650, 2690, 990, 2670, 5790, 2360, 5510, 1750, 5240, 5240, 3930, 6720, 4080, 1400, 4100, 2610, 4970, 870, 1670, 3180, 3520, 4440, 6060, 5450, 2530, 2850, 1580, 6590, 10000, 2310, 70, 0, 2260}
-    ReadOnly enemy_offense() As Single = {0, 4.2, 3.7, 4.2, 1.5, 5, 2.3, 9.5, 10.5, 1, 5.8, 12.4, 2.5, 17, 7.9, 9.8, 21.1, 1, 7.5, 16.6, 1.9, 9.2, 20.6, 8.3, 17.4, 16.1, 8.3, 9.8, 17, 6.4, 2.4, 5.5, 7.9, 6.8, 5.9, 14.9, 13, 14.5, 4.3, 7.1, 2.6, 4.7, 7.3, 12.1, 11.1, 12.3, 13.2, 4.9, 6.2, 9.2, 6.9, 5.4, 11.2, 11, 15.3, 10.1, 14.5, 1.6, 7.3, 7.9, 10.3, 6, 13.3, 3.6, 8.3, 17.4, 16.9, 13.3, 16.9, 16, 20.1, 11.9, 13.3, 17.9, 18.6, 23.1, 4.6, 7.9, 10, 10.2, 11.8, 19.1, 3.3, 6.2, 9.5, 11.4, 1.8, 6.4, 13, 17.8, 23, 15.1, 17.4, 20, 25.6, 8.6, 13.3, 23, 27.7, 17.8, 32.3, 2.6, 5.9, 8.9, 14.7, 16.2, 4.3, 11.8, 13.6, 9.6, 27.1, 9.6, 24.5, 5.5, 22, 6.1, 18.4, 28, 14.9, 28.1, 10.1, 17.4, 13.4, 13.4, 19.2, 19.1, 6.4, 21.6, 12.8, 20.7, 10.1, 9.4, 17.8, 20.6, 30.1, 28.9, 27.7, 25.6, 25.6, 19.2, 31.3, 0, 16.2, 1, 0, 14.7}
-    ReadOnly HP_limit() As Single = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 _
+    ReadOnly enemy_offense() As Double = {0, 4.2, 3.7, 4.2, 1.5, 5, 2.3, 9.5, 10.5, 1, 5.8, 12.4, 2.5, 17, 7.9, 9.8, 21.1, 1, 7.5, 16.6, 1.9, 9.2, 20.6, 8.3, 17.4, 16.1, 8.3, 9.8, 17, 6.4, 2.4, 5.5, 7.9, 6.8, 5.9, 14.9, 13, 14.5, 4.3, 7.1, 2.6, 4.7, 7.3, 12.1, 11.1, 12.3, 13.2, 4.9, 6.2, 9.2, 6.9, 5.4, 11.2, 11, 15.3, 10.1, 14.5, 1.6, 7.3, 7.9, 10.3, 6, 13.3, 3.6, 8.3, 17.4, 16.9, 13.3, 16.9, 16, 20.1, 11.9, 13.3, 17.9, 18.6, 23.1, 4.6, 7.9, 10, 10.2, 11.8, 19.1, 3.3, 6.2, 9.5, 11.4, 1.8, 6.4, 13, 17.8, 23, 15.1, 17.4, 20, 25.6, 8.6, 13.3, 23, 27.7, 17.8, 32.3, 2.6, 5.9, 8.9, 14.7, 16.2, 4.3, 11.8, 13.6, 9.6, 27.1, 9.6, 24.5, 5.5, 22, 6.1, 18.4, 28, 14.9, 28.1, 10.1, 17.4, 13.4, 13.4, 19.2, 19.1, 6.4, 21.6, 12.8, 20.7, 10.1, 9.4, 17.8, 20.6, 30.1, 28.9, 27.7, 25.6, 25.6, 19.2, 31.3, 0, 16.2, 1, 0, 14.7}
+    ReadOnly HP_limit() As Double = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 _
             , 0.5, 0.5, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.9, 0.9, 0.9, 0.925, 0.925, 0.95, 0.95, 0, 0, 0.6, 0, 0, 0, 0, 0, 0, 0.5, 0, 0.95, 0, 0, 0.9, 0, 0, 0, 0.9, 0, 0, 0, 0, 0}
-    ReadOnly shield_limit() As Single = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 _
+    ReadOnly shield_limit() As Double = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 _
             , 0.75, 0.75, 0.75, 0.5, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0, 0.5, 0.5, 0.5, 0, 0.5, 0, 0, 0, 0.5, 0.5, 0, 0, 0, 0, 0}
 
-    ReadOnly attack_data(,) As Single = {{1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {2, 10, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {2, 25, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 20, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {2, 30, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {7, 15, 13, 11, 9, 7.5, 5, 45, 0, 0, 0, 0, 0, 0, 30, 20, 20, 10, 5, 5, 0, 0, 0, 0, 0, 0, 0, 2}, {6, 40, 30, 20, 20, 20, 150, 0, 0, 0, 0, 0, 0, 0, 150, 50, 30, 20, 20, 10, 0, 0, 0, 0, 0, 0, 0, 4} _
+    ReadOnly attack_data(,) As Double = {{1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {2, 10, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {2, 25, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 20, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {2, 30, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {7, 15, 13, 11, 9, 7.5, 5, 45, 0, 0, 0, 0, 0, 0, 30, 20, 20, 10, 5, 5, 0, 0, 0, 0, 0, 0, 0, 2}, {6, 40, 30, 20, 20, 20, 150, 0, 0, 0, 0, 0, 0, 0, 150, 50, 30, 20, 20, 10, 0, 0, 0, 0, 0, 0, 0, 4} _
             , {2, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 10, 10, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 12.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 6, 8, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 10, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 10, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {4, 5, 5, 5, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {3, 6, 8, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 10, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {4, 10, 10, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12.5, 12.5, 17.5, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {4, 10, 10, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12.5, 12.5, 17.5, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {4, 5, 8, 10, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7.5, 10, 12.5, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 7.5, 12.5, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 15, 15, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 25, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {4, 15, 5, 5, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 10, 10, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {2, 15, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22.5, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 8, 8, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {6, 5, 5, 10, 10, 13, 20, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 15, 30, 0, 0, 0, 0, 0, 0, 0, 3}, {1, 35, 35, 35, 35, 35, 0, 0, 0, 0, 0, 0, 0, 0, 40, 40, 40, 40, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 37.5, 37.5, 37.5, 37.5, 37.5, 0, 0, 0, 0, 0, 0, 0, 0, 35, 35, 35, 35, 35, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 33, 33, 33, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {2, 20, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {3, 15, 17, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 20, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {3, 20, 25, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {3, 18, 22, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 40, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3} _
             , {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {1, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {1, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4}, {1, 42, 42, 42, 42, 42, 0, 0, 0, 0, 0, 0, 0, 0, 21, 21, 21, 21, 21, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {2, 30, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {1, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {1, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 37.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4}, {1, 75, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5}, {9, 30, 40, 30, 40, 30, 40, 30, 30, 40, 0, 0, 0, 0, 15, 20, 15, 20, 15, 20, 15, 20, 20, 0, 0, 0, 0, 6}, {1, 55, 55, 55, 55, 55, 0, 0, 0, 0, 0, 0, 0, 0, 25, 25, 25, 25, 25, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 55, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {1, 52, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {6, 20, 10, 10, 10, 20, 50, 0, 0, 0, 0, 0, 0, 0, 30, 15, 10, 5, 5, 5, 0, 0, 0, 0, 0, 0, 0, 4}, {4, 20, 20, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 15, 10, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5}, {13, 60, 53, 60, 68, 60, 53, 60, 68, 60, 53, 60, 60, 68, 30, 23, 30, 30, 30, 30, 30, 30, 30, 23, 30, 30, 30, 2}}
     'attack data (0-27): number of hits, offense (1-13), crush (14-26), element
 
     Public ReadOnly element_name() As String = {"Physical", "Fire", "Ice", "Lightning", "Light", "Darkness"}
     Public ReadOnly element_color() As Color = {Color.FromArgb(&H90, &HA8, &H5A, &H2A), Color.FromArgb(&H90, &HFF, &H20, &H0), Color.FromArgb(&H90, &H0, &HB0, &HFF), Color.FromArgb(&H90, &H0, &HB0, &H0), Color.FromArgb(&H90, &HC0, &HC0, &HC0), Color.FromArgb(&H90, &HC0, &H0, &HFF)}
-    ReadOnly element_compatibility(,) As Single = {{1, 0.9, 0.9, 0.9, 0.9, 0.9, 1}, {0.9, 1, 0.5, 0.75, 0.75, 0.75, 1}, {0.9, 0.5, 1, 0.75, 0.75, 0.75, 1}, {0.9, 0.75, 0.75, 1, 0.75, 0.75, 1}, {0.9, 0.75, 0.75, 0.75, 1, 0.5, 1}, {0.9, 0.75, 0.75, 0.75, 0.5, 1, 1}}
+    ReadOnly element_compatibility(,) As Double = {{1, 0.9, 0.9, 0.9, 0.9, 0.9, 1}, {0.9, 1, 0.5, 0.75, 0.75, 0.75, 1}, {0.9, 0.5, 1, 0.75, 0.75, 0.75, 1}, {0.9, 0.75, 0.75, 1, 0.75, 0.75, 1}, {0.9, 0.75, 0.75, 0.75, 1, 0.5, 1}, {0.9, 0.75, 0.75, 0.75, 0.5, 1, 1}}
 
     ReadOnly status_name = {"Normal", "Flames", "Frozen", "Shock", "Blind"}
     ReadOnly status_crit(,) As Boolean = {{False, False, False, False, False, False} _      'normal
@@ -260,7 +260,7 @@ Public Class Main
             With equipment(x)
                 .Hide()
                 .Size = New Size(40, 64)
-                .Location = New Point(235, 15 + x * 75)
+                .Location = New Point(235, 16 + x * 75)
                 .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Name = x + 1
@@ -307,7 +307,7 @@ Public Class Main
             AddHandler aura_level(x).SelectedIndexChanged, AddressOf ChangeAuraLevel
             AddHandler equipment(x).Click, AddressOf RemoveEquipment
             AddHandler eq_durability(x).SelectedIndexChanged, AddressOf ChangeDurability
-        Next x
+        Next
 
         Dim target_x As Integer = 340
         Dim target_y As Integer = 15
@@ -373,16 +373,14 @@ Public Class Main
         target_data(1).Text = "Knockdown"
 
         target_data(2).Size = New Size(84, 24)
-        target_data(2).Location = New Point(target_x + 220, target_y + 25)
-        target_data(2).Text = ""                                                'knockdown
+        target_data(2).Location = New Point(target_x + 220, target_y + 25)      'knockdown
 
         target_data(3).Size = New Size(84, 24)
         target_data(3).Location = New Point(target_x + 135, target_y + 50)
         target_data(3).Text = "Knockout"
 
         target_data(4).Size = New Size(84, 24)
-        target_data(4).Location = New Point(target_x + 220, target_y + 50)
-        target_data(4).Text = ""                                                'knockout
+        target_data(4).Location = New Point(target_x + 220, target_y + 50)      'knockout
 
         target_data(5).Size = New Size(74, 24)
         target_data(5).Location = New Point(target_x, 175)
@@ -393,16 +391,13 @@ Public Class Main
         target_data(6).Text = "Effective HP"
 
         target_data(7).Size = New Size(59, 24)
-        target_data(7).Location = New Point(target_x + 75, 200)
-        target_data(7).Text = ""                                    'effective HP
+        target_data(7).Location = New Point(target_x + 75, 200)                 'effective HP
 
         target_data(8).Size = New Size(59, 24)
-        target_data(8).Location = New Point(target_x + 135, 175)
-        target_data(8).Text = ""                                    'max HP
+        target_data(8).Location = New Point(target_x + 135, 175)                'true max HP
 
         target_data(9).Size = New Size(59, 24)
-        target_data(9).Location = New Point(target_x + 135, 200)
-        target_data(9).Text = ""                                    'max effective HP
+        target_data(9).Location = New Point(target_x + 135, 200)                'effective max HP
 
         target_data(10).Size = New Size(114, 24)
         target_data(10).Location = New Point(target_x + 195, 200)
@@ -531,7 +526,7 @@ Public Class Main
             End With
             hand(x).Hide()
             AddHandler hand(x).Click, AddressOf AddCard
-        Next x
+        Next
 
 
         ' COMBO
@@ -549,7 +544,7 @@ Public Class Main
             AddHandler combo(x).Click, AddressOf RemoveCard
             AddHandler combo(x).MouseEnter, AddressOf HighlightHits
             AddHandler combo(x).MouseLeave, AddressOf UnhighlightHits
-        Next x
+        Next
 
         For x = 1 To 454
             magnus_image(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
@@ -560,62 +555,36 @@ Public Class Main
 
         ' OUTPUT TABLE
 
-        For x = 0 To 999
-            For y = 0 To rows - 1
-                table(x, y) = New Label
-                With table(x, y)
-                    .Top = 25 * y
-                    .Height = 24
-                    .TextAlign = ContentAlignment.MiddleCenter
-                    .BackColor = default_color
-                    .Hide()
-                End With
-            Next
-            For y = 0 To 2
-                hit_modifier(x, y) = New ComboBox
-                With hit_modifier(x, y)
-                    .Hide()
-                    .DropDownStyle = ComboBoxStyle.DropDownList
-                    .Size = New Size(51, 24)
-                    .Tag = x
-                    .Name = y
-                    Select Case y
-                        Case 0
-                            .Location = New Point(104 + x * 52, 25 * 4)
-                        Case 1
-                            .Location = New Point(104 + x * 52, 25 * 5)
-                        Case 2
-                            .Location = New Point(104 + x * 52, 25 * 21)
-                    End Select
-                    For i = 4 To 1 Step -1
-                        .Items.Add("+" & i & "%")
-                    Next
-                    For i = 0 To -4 Step -1
-                        .Items.Add(i & "%")
-                    Next
-                End With
-            Next
-            hit_card(x) = -1
-        Next
-        For x = 0 To rows - 1
-            With table(0, x)
-                .Left = 5
-                .Width = 150
+        For y = 0 To rows - 1
+            table(0, y) = New Label
+            With table(0, y)
+                .Location = New Point(5, 25 * y)
+                .Size = New Size(150, 24)
                 .TextAlign = ContentAlignment.MiddleLeft
                 .Font = New Font("Segoe UI", 9, FontStyle.Bold)
-                .Text = variable(x)
-                .Tag = x
+                .BackColor = default_color
+                .Text = variable(y)
+                .Tag = y
                 .Show()
             End With
-            output_panel.Controls.Add(table(0, x))
-            AddHandler table(0, x).MouseClick, AddressOf ChangeFocus
-            AddHandler table(0, x).MouseEnter, AddressOf ShowDescription
+            output_panel.Controls.Add(table(0, y))
+            AddHandler table(0, y).MouseClick, AddressOf ChangeFocus
+            AddHandler table(0, y).MouseEnter, AddressOf ShowDescription
+            AddHandler table(0, y).Click, AddressOf ResetRow
         Next
+        For x = 0 To 7
+            table(0, clickable_rows(x)).Cursor = Cursors.Hand
+        Next
+        table(0, rows - 1).Cursor = Cursors.Hand
         If My.Settings.EffectiveHPRemaining Then
             table(0, rows - 1).Text = "Effective HP remaining"
         End If
+
         For x = 1 To 999
             For y = 0 To rows - 1
+                If hit_modifier_row.Contains(y) Then
+                    Continue For
+                End If
                 table(x, y) = New Label
                 With table(x, y)
                     .Location = New Point(104 + 52 * x, 25 * y)
@@ -627,13 +596,24 @@ Public Class Main
                 End With
                 AddHandler table(x, y).MouseClick, AddressOf ChangeFocus
             Next
-        Next
-        For x = 0 To 7
-            table(0, clickable_rows(x)).Cursor = Cursors.Hand
-        Next
-        table(0, rows - 1).Cursor = Cursors.Hand        'toggle effective HP
-        For x = 0 To rows - 1
-            AddHandler table(0, x).Click, AddressOf ResetRow
+            For y = 0 To 2
+                hit_modifier(x, y) = New ComboBox
+                With hit_modifier(x, y)
+                    .Hide()
+                    .DropDownStyle = ComboBoxStyle.DropDownList
+                    .Size = New Size(51, 24)
+                    .Tag = x
+                    .Name = y
+                    .Location = New Point(104 + x * 52, 25 * hit_modifier_row(y))
+                    For i = 4 To 1 Step -1
+                        .Items.Add("+" & i & "%")
+                    Next
+                    For i = 0 To -4 Step -1
+                        .Items.Add(i & "%")
+                    Next
+                End With
+            Next
+            hit_card(x) = -1
         Next
 
         description(0) = "An offense value based on the party member's level."
@@ -643,28 +623,28 @@ Public Class Main
         description(4) = "A random offense deviation. Click to reset the offense deviation on all hits."
         description(5) = "A random crush deviation. Click to reset the crush deviation on all hits."
         description(6) = "Bonus factor from Electric Helm or Blitz Helm when using lightning attacks."
-        description(7) = "Additional offense from equipped weapon. Click any of the cells to the right to enable a mid-combo status effect. Click here to remove all mid-combo status effects."
-        description(8) = "Additional crush from equipped weapon. Click any of the cells to the right to enable a mid-combo defense/offense reduction. Click here to remove all mid-combo defense/offense reductions."
+        description(7) = "Additional offense from equipped weapon. Click any cell in this row to enable a mid-combo status effect for specific weapons. Click here to remove all mid-combo status effects."
+        description(8) = "Additional crush from equipped weapon. Click any cell in this row to enable a mid-combo defense/offense reduction for specific weapons. Click here to remove all mid-combo defense/offense reductions."
         description(9) = "Depending on the elements of the attack and equipped weapon, only a portion of the weapon bonus may take effect."
-        description(10) = "A critical hit factor that increases the strength of weapons such as Excalibur or Dragonbuster." & vbCrLf & "Cutthroat Knife has a 50% crit chance. When it is equipped, click any of the cells to the right to enable a critical hit. Click here to remove all Cutthroat Knife critical hits."
+        description(10) = "A critical hit factor that increases the strength of weapons such as Excalibur or Dragonbuster." & vbCrLf & "Cutthroat Knife has a 50% crit chance. When it is equipped, click any cell in this row to enable a critical hit. Click here to remove all Cutthroat Knife critical hits."
         description(11) = "Offense and crush bonus from quest magnus."
         description(12) = "Offense bonus from the party member's aura."
         description(13) = "Crush bonus from the party member's aura."
         description(14) = "During an EX combo, a bonus factor is applied to all the above offense values."
         description(15) = "During an EX combo, a bonus factor is applied to all the above crush values."
-        description(16) = "Critical hits will apply a factor to all the above offense and crush values. Which factor is used depends on the enemy's status, the attack element, and whether or not the critical hit was caused by quest magnus (random)." & vbCrLf & "Click any of the cells to the right to enable a quest magnus based critical hit. Click here to remove all random critical hits."
-        description(17) = "Every enemy has six defense values - one for each element. Some bosses have a shield that will visibly and audibly break when their HP drops below a certain threshold." & vbCrLf & "When this happens, all their defense values will be permanently multiplied by 0.8."
-        description(18) = "The resilience of the enemy's defense. When the enemy's crush status reaches this value, their effective defense will be zero." & vbCrLf & "Some enemies have a shield that will visibly and audibly break when their HP drops below a certain threshold." & vbCrLf & "When this happens, their crush limit (as well as their crush thresholds for knockdowns and knockouts) will be permanently multiplied by 0.8."
-        description(19) = "The crush status increases during a combo. The higher it gets, the lower the enemy's effective defense will be on the next hit." & vbCrLf & "The ratio of the crush status to the crush limit is used as a defense factor. For instance, if crush status is 50 and crush limit is 100, only 50% of the enemy's defense will be in effect on the next hit." & vbCrLf & "When the combo ends, the crush status gets reset to 0 so that the full defense will be in effect as the next combo begins."
+        description(16) = "Critical hits will apply a factor to all the above offense and crush values. Which factor is used depends on the enemy's status, the attack element, and whether or not the critical hit was caused by quest magnus (random)." & vbCrLf & "Click any cell in this row to enable a random quest magnus based critical hit. Click here to remove all random critical hits."
+        description(17) = "Every enemy has six defense values - one for each element. Some bosses have a shield that will visibly and audibly break when their HP drops below a certain threshold." & vbCrLf & "When this happens, all defenses are permanently multiplied by 0.8."
+        description(18) = "The resilience of the enemy's defense. When the enemy's crush status reaches this value, the total defense will be zero." & vbCrLf & "Some enemies have a shield that will visibly and audibly break when their HP drops below a certain threshold." & vbCrLf & "When this happens, the crush limit (as well as the knockdown and knockout thresholds) are permanently multiplied by 0.8."
+        description(19) = "The crush status increases during a combo. The higher it gets, the lower the enemy's total defense will be on the next hit." & vbCrLf & "The ratio of the crush status to the crush limit is used as a defense factor. For instance, if crush status is 60 and crush limit is 100, only 40% of the enemy's defense will be in effect on the next hit." & vbCrLf & "When the combo ends, the crush status gets reset to 0 so that the full defense will be in effect when the next combo begins."
         description(20) = "Some items or enemy moves can change the enemy's defense for two turns."
         description(21) = "A random defense deviation. Click to reset the defense deviation on all hits."
-        description(22) = "The total offense after adding up all offense components and applying all their factors."
-        description(23) = "The total crush after adding up all crush components and applying all their factors."
-        description(24) = "The total defense after applying all defense factors."
+        description(22) = "The total offense after adding up all offense components and applying all their factors." & vbCrLf & "total_offense = (base_offense * attack_offense * attack_boost_factor * random_offense_factor * electric_helm_factor + weapon_offense * element_compatibility * weapon_factor + quest_magnus_bonus + aura_offense) * ex_combo_offense_factor * critical_hit_factor" & vbCrLf & "Total offense can be negative if attack_boost_factor is negative."
+        description(23) = "The total crush after adding up all crush components and applying all their factors." & vbCrLf & "total_crush = (base_offense * attack_crush * attack_boost_factor * random_crush_factor * electric_helm_factor + weapon_crush * element_compatibility * weapon_factor + quest_magnus_bonus + aura_crush) * ex_combo_crush_factor * critical_hit_factor" & vbCrLf & "Total crush can be negative if attack_boost_factor is negative."
+        description(24) = "The total defense after applying all defense factors." & vbCrLf & "total_defense = base_defense * (1 - crush_status / crush_limit) * defense_boost_factor * random_defense_factor" & vbCrLf & "Total defense can be negative defense_boost_factor is negative. Total defense is 0 if crush_status >= crush_limit."
         description(25) = "Additional defense from the enemy's equipped armor."
         description(26) = "This factor is applied to the damage and crush output. It is 0.1 for machina armas before Sagi's awakening, and 0.2 when Guillo attacks a Sandfeeder."
-        description(27) = "If total offense > total defense, damage output = total offense - 0.775 * total defense" & vbCrLf & "If total offense < total defense, damage output = 0.25 * total offense - 0.025 * total defense" & vbCrLf & "If the result is 0, there is a 75% chance that damage output will be increased to 1. Click any of the cells to the right to enable a 'minimum 1' hit. Click here to disable all 'minimum 1' hits."
-        description(28) = "If total crush > total defense * 0.5, crush output = total crush - 0.3875 * total defense" & vbCrLf & "If total crush < total defense * 0.5, crush output = 0.25 * total crush - 0.0125 * total defense"
+        description(27) = "If total_offense > total_defense + armor_defense, then damage_output = (total_offense - total_defense * 0.775 - armor_defense) * multiplier" & vbCrLf & "Else damage_output = (total_offense - total_defense * 0.1 - armor_defense) * 0.25 * multiplier" & vbCrLf & "Damage output cannot be negative. If the result is less than 1, there is a 75% chance that damage output will be adjusted to 1, provided that armor_defense = 0 and multiplier = 1." & vbCrLf & "Click any cell in this row to enable a 'minimum 1' hit. Click here to disable all 'minimum 1' hits."
+        description(28) = "If total_crush > total_defense * 0.5 + armor_defense, then crush_output = (total_crush - total_defense * 0.3875 - armor_defense) * multiplier" & vbCrLf & "Else crush_output = (total_crush - total_defense * 0.05 - armor_defense) * 0.25 * multiplier" & vbCrLf & "Crush output cannot be negative."
         description(29) = "The total damage output so far."
         description(30) = "The total crush output so far. Yellow cells indicate a knockdown at the end of the combo. Orange cells indicate a knockout at the end of the combo."
         description(31) = "The enemy's HP after each hit. Click to toggle effective HP for 'unbeatable' bosses. A shield break will be highlighted in pink."
@@ -736,7 +716,6 @@ Public Class Main
             FixLevel(level_selector(x), New EventArgs)
             aura_type(x).SelectedIndex = CInt("&H" & My.Settings.Auras.ElementAt(x * 2))
             aura_level(x).SelectedIndex = CInt("&H" & My.Settings.Auras.ElementAt(x * 2 + 1))
-            CheckAura(x, False)
         Next
         For x = 0 To 23
             QM_inventory(x) = CInt("&H" & My.Settings.QuestMagnus.Substring(x * 2, 2))
@@ -781,7 +760,7 @@ Public Class Main
     End Sub
 
     Private Sub Dolphin()
-        Dim game, pointer_address, version_offset, time_address, MP_address, battle_id_address, dolphin_offset_1, dolphin_offset_2, level_address, aura_address, quest_magnus_address, combo_address As Int64 'partner, battle, framecounter
+        Dim dolphin_offset_1, dolphin_offset_2, game, level_address, aura_address, quest_magnus_address, pointer_address, battle_id_address, combo_address, offset As Int64
         Dim emulator As Process() = Process.GetProcessesByName("Dolphin")
         If emulator.Length = 0 Then
             MsgBox("Dolphin isn't open.")
@@ -797,7 +776,7 @@ Public Class Main
                 dolphin_offset_1 = &H80000000
                 dolphin_offset_2 = &H80000000 + &H100000000
             Else
-                MsgBox("This version of Dolphin is not supported. Please use version 5.0 or 4.0.2.")
+                MsgBox("This version of Dolphin is not supported. Please use Dolphin 5.0 or 4.0.2.")
                 Return
             End If
             hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, emulator(0).Id)
@@ -808,29 +787,25 @@ Public Class Main
             End If
         End If
 
+        Dim JP As Boolean
         game = Read(4294901760 + dolphin_offset_1, 4)
-        If game = &H474B344A Then                       'Japanese version
-            pointer_address = &H10085C064 + dolphin_offset_1
-            version_offset = &H1118C
-            time_address = &H1002CDBCC + dolphin_offset_1
-            MP_address = &H1002FB550 + dolphin_offset_1
-            battle_id_address = &H1002CDB26 + dolphin_offset_1
-            'partner = &H1002CD3E6
+        If game = &H474B344A Then                               'GK4J (Japanese version)
+            JP = True
             level_address = &H1002CD15E + dolphin_offset_1
             aura_address = &H1002CD1E8 + dolphin_offset_1
             quest_magnus_address = &H1002D24F2 + dolphin_offset_1
+            pointer_address = &H10085C064 + dolphin_offset_1
+            battle_id_address = &H1002CDB26 + dolphin_offset_1
             combo_address = &H1002D6D86 + dolphin_offset_1
-        ElseIf game = &H474B3445 Then                   'English version
-            pointer_address = &H100847B84 + dolphin_offset_1
-            version_offset = &H183A4
-            time_address = &H1002C5ED4 + dolphin_offset_1
-            MP_address = &H1002FBC38 + dolphin_offset_1
-            battle_id_address = &H1002C5E2E + dolphin_offset_1
-            'partner = &H1002C56EE
+            offset = &H1118C
+        ElseIf game = &H474B3445 Then                           'GK4E (English version)
             level_address = &H1002C5466 + dolphin_offset_1
             aura_address = &H1002C54F0 + dolphin_offset_1
             quest_magnus_address = &H1002CAA9A + dolphin_offset_1
-            'combo_address
+            pointer_address = &H100847B84 + dolphin_offset_1
+            battle_id_address = &H1002C5E2E + dolphin_offset_1
+            combo_address = &H1002D3F4E + dolphin_offset_1
+            offset = &H183A4
         Else
             CloseHandle(hProcess)
             If game = 0 Then
@@ -857,9 +832,6 @@ Public Class Main
                 aura_level(x).SelectedIndex = level - 1
             End If
         Next
-        For x = 0 To 2
-            CheckAura(x, False)
-        Next
 
         'quest magnus
         Dim id As Integer
@@ -885,43 +857,39 @@ Public Class Main
         End If
         CheckQuestMagnus()
 
-        If My.Settings.BattleData And game = &H474B344A Then
-            Dim pointer As Int64 = Read(pointer_address, 4)
-            If pointer = 0 OrElse Read(pointer + &H17FFF0000 - dolphin_offset_2 + 148, 2) <> 3 Then
-                CloseHandle(hProcess)       'no battle
-                Return
-            End If
-            If cards > 0 Then
-                RemoveCard(combo(0), New EventArgs)
-            End If
-            'battle address in process memory (PC address): pointer + version_offset + &H17FFF0000 - dolphin_offset_2
-            'emulated battle address: pointer + version_offset
-            ReadBattleData(pointer + version_offset + &H17FFF0000 - dolphin_offset_2, pointer + version_offset, battle_id_address, combo_address)
+        Dim pointer As Int64 = Read(pointer_address, 4)
+        If pointer <> 0 AndAlso Read(pointer + &H17FFF0000 - dolphin_offset_2 + 148, 2) = 3 Then
+            'battle address in process memory (PC address):                   pointer + offset + &H17FFF0000 - dolphin_offset_2
+            'emulated battle address:                                         pointer + offset
+            ReadBattleData(pointer + offset + &H17FFF0000 - dolphin_offset_2, pointer + offset, battle_id_address, combo_address, JP)
         End If
 
         CloseHandle(hProcess)
     End Sub
 
-    Private Sub ReadBattleData(battle_address As Int64, emu_battle_address As Int64, battle_id_address As Int64, combo_address As Int64)
+    Private Sub ReadBattleData(battle_address As Int64, emu_battle_address As Int64, battle_id_address As Int64, combo_address As Int64, JP As Boolean)
         secondary_target.Checked = False
 
         Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn(3), active_turn(3), prepared_turn_type(3), active_turn_type(3), first_card(3), next_card(3), enemy_party_size, enemy_party(5), targeted(3), current_target As Integer
-        Dim defense_boost(5, 6, 2), enemy_offense_boost(5, 2) As Single
+        Dim defense_boost(5, 6, 2), enemy_offense_boost(5, 2) As Double
 
         battle_id = Read(battle_id_address, 2)
 
-        current_target = Read(battle_address + &HC90, 4)
-        If current_target <> 0 Then
-            current_target = (current_target - emu_battle_address) / &H1494 + 9
+        If JP Then
+            current_target = Read(battle_address + &HC90, 4)
+            If current_target <> 0 Then
+                current_target = (current_target - emu_battle_address) / &H1494 + 9
+            End If
+        Else
+            current_target = Read(battle_address + &H3298, 4)
+            If current_target <> 0 Then
+                current_target = (current_target - emu_battle_address - &H1678) / &H1494 + 10
+            End If
         End If
 
         party_size = Read(battle_address - &HE346, 2)
         For x = 0 To party_size - 1
             party(x) = Read(battle_address - &HD02E + x * &H1578, 2)
-            targeted(x) = Read(battle_address - &HE27C + x * &H1578, 4)
-            If targeted(x) <> 0 Then
-                targeted(x) = (targeted(x) - emu_battle_address) / &H1494 + 9
-            End If
             For y = 0 To 5
                 offense_boost(party(x) - 1, y, 0) = ReadFloat(battle_address - &HD15C + x * &H1578 + y * 4)
                 offense_boost(party(x) - 1, y, 1) = ReadFloat(battle_address - &HD10C + x * &H1578 + y * 4)
@@ -930,10 +898,6 @@ Public Class Main
                     Boost.boost(x, y, 1).Text = offense_boost(x, y, 1)
                 End If
             Next
-            first_card(x) = Read(battle_address - &HCE08 + x * &H1578, 4)
-            next_card(x) = Read(battle_address - &HCF48 + x * &H1578, 4)
-            prepared_turn_type(x) = Read(battle_address - &HCDFE + x * &H1578, 2)
-            active_turn_type(x) = Read(battle_address - &HE28E + x * &H1578, 2)
         Next
 
         enemy_party_size = Read(battle_address - &HA2DA, 2)
@@ -948,236 +912,246 @@ Public Class Main
             enemy_offense_boost(x, 1) = ReadFloat(battle_address - &H909C + x * &H1494)
         Next
 
-        'auras in battle
-        Dim timeleft(3) As Int64
+        'get rid of expired auras
         For x = 0 To party_size - 1
-            If aura(party(x) - 1, 0) > 0 Then
-                timeleft(x) = Read(battle_address - &HCF40 + x * &H1578, 4)
-                If timeleft(x) = 0 Then
-                    aura_type(party(x) - 1).SelectedIndex = 0
-                    aura_level(party(x) - 1).SelectedIndex = 0
-                    CheckAura(party(x) - 1, False)
-                End If
+            If aura(party(x) - 1, 0) > 0 AndAlso Read(battle_address - &HD08C + x * &H1578, 4) = 0 Then
+                aura_type(party(x) - 1).SelectedIndex = 0
+                aura_level(party(x) - 1).SelectedIndex = 0
             End If
         Next
 
-        active_turns = Read(battle_address + &H896, 2)
-        prepared_turns = Read(battle_address + &H916, 2)
-        Dim current_turn As Integer = Read(battle_address + &H8C4, 4)
-        If current_turn <> 0 Then
-            current_turn = (current_turn - emu_battle_address) / &H1578 + 12
-        End If
-
-        Dim enemy_turns As Integer
-        For x = 0 To prepared_turns - 1
-            prepared_turn(x - enemy_turns) = Read(battle_address + &H918 + x * 4, 4)
-            If prepared_turn(x - enemy_turns) <> 0 Then
-                prepared_turn(x - enemy_turns) = (prepared_turn(x - enemy_turns) - emu_battle_address) / &H1578 + 12
-            End If
-            If prepared_turn(x - enemy_turns) = 0 Or prepared_turn(x - enemy_turns) > 3 Then
-                enemy_turns += 1
-            End If
-        Next
-        prepared_turns -= enemy_turns
-
-        enemy_turns = 0
-        For x = 0 To active_turns - 1
-            active_turn(x - enemy_turns) = Read(battle_address + &H898 + x * 4, 4)
-            If active_turn(x - enemy_turns) <> 0 Then
-                active_turn(x - enemy_turns) = (active_turn(x - enemy_turns) - emu_battle_address) / &H1578 + 12
-            End If
-            If active_turn(x - enemy_turns) = 0 Or active_turn(x - enemy_turns) > 3 Then
-                enemy_turns += 1
-            End If
-        Next
-        active_turns -= enemy_turns
-
-        Dim combo_length As Integer = Read(combo_address - 20, 2)
         Dim combo_damage As Integer
-        If combo_length > 0 Then
-            combo_damage = Read(combo_address - 14, 4)
-        End If
-        Dim combo_card(17) As Integer
-        For x = 0 To combo_length - 1
-            combo_card(x) = Read(combo_address + x * 4, 2)
-            member(x) = 0
-        Next
-        For x = 0 To combo_length - 1
-            For y = x To combo_length - 1
-                If magnus_user(combo_card(y)) <> 0 Then
-                    member(x) = magnus_user(combo_card(y))
-                    Exit For
-                End If
-            Next
-        Next
+        Dim final_target As Integer = current_target - 1
 
-        'cards and order
-        Dim card_id(60), next_(60), slot As Integer
-        For x = 0 To 59
-            card_id(x) = Read(battle_address + 6 + x * 36, 2)
-            If card_id(x) = 0 Then
-                Exit For
+        If My.Settings.ReadCombo Then
+            If cards > 0 Then
+                RemoveCard(combo(0), New EventArgs)
             End If
-            next_(x) = Read(battle_address + x * 36, 4)
-            If next_(x) <> 0 Then
-                next_(x) = (next_(x) - emu_battle_address) / 36
-            Else
-                next_(x) = -1
-            End If
-        Next
 
-        Dim end_of_combo As Boolean
-        Dim next_turn As Integer
-        'if the game has already stored part of the combo, start with that
-        If combo_length > 0 Then
-            For x = 0 To combo_length - 1
-                If member(x) = 0 Then
-                    member(x) = party(current_turn - 1)
-                    end_of_combo = True
-                End If
-                ShowCard(combo_card(x), member(x))
-            Next
-            next_turn = 1
-        End If
-
-        If turns = -1 Then
-            turns = 0
-            Return
-        End If
-
-        'Dim first_turn As Integer
-        'check (subsequent) turns in the action bar
-        If Not end_of_combo Then
-            For x = next_turn To active_turns - 1
-                If turns > 0 AndAlso active_turn_type(active_turn(x) - 1) <> 4 Then 'x > firstturn
-                    end_of_combo = True
-                    Exit For
-                End If
-                'If next_card(active_turn(x) - 1) <> 0 Then
-                slot = (next_card(active_turn(x) - 1) - emu_battle_address) / 36
-                For y = cards To cards + 8
-                    ShowCard(card_id(slot), party(active_turn(x) - 1))
-                    If next_(slot) < 0 Then
-                        Exit For
-                    End If
-                    slot = next_(slot)
-                Next
-                'Else
-                '    first_turn += 1
-                'End If
-            Next
-        End If
-
-        If turns = -1 Then
-            turns = 0
-            Return
-        End If
-
-        'read turns that are fully prepared, but not in the action bar yet
-        If Not end_of_combo Then
-            For x = 0 To prepared_turns - 1
-                If turns > 0 AndAlso prepared_turn_type(prepared_turn(x) - 1) <> 4 Then
-                    end_of_combo = True
-                    Exit For
-                End If
-                slot = (next_card(prepared_turn(x) - 1) - emu_battle_address) / 36
-                For y = cards To cards + 8
-                    ShowCard(card_id(slot), party(prepared_turn(x) - 1))
-                    If next_(slot) < 0 Then
-                        Exit For
-                    End If
-                    slot = next_(slot)
-                Next
-            Next
-        End If
-
-        If turns = -1 Then
-            turns = 0
-            Return
-        End If
-
-        Dim last_turn As Integer = -1
-        If Not end_of_combo Then
-            'read the turn that is being prepared
             For x = 0 To party_size - 1
-                If first_card(x) <> 0 And Not (active_turns > 0 AndAlso prepared_turn_type(x) <> 4) Then
-                    'If cards = 0 Then
-                    '    targeted(x) = current_target
-                    'End If
-                    slot = (first_card(x) - emu_battle_address) / 36
+                targeted(x) = Read(battle_address - &HE27C + x * &H1578, 4)
+                If targeted(x) <> 0 Then
+                    If JP Then
+                        targeted(x) = (targeted(x) - emu_battle_address) / &H1494 + 9
+                    Else
+                        targeted(x) = (targeted(x) - emu_battle_address - &H1678) / &H1494 + 10
+                    End If
+                End If
+                first_card(x) = Read(battle_address - &HCE08 + x * &H1578, 4)
+                next_card(x) = Read(battle_address - &HCF48 + x * &H1578, 4)
+                prepared_turn_type(x) = Read(battle_address - &HCDFE + x * &H1578, 2)
+                active_turn_type(x) = Read(battle_address - &HE28E + x * &H1578, 2)
+            Next
+
+            active_turns = Read(battle_address + &H896, 2)
+            prepared_turns = Read(battle_address + &H916, 2)
+            Dim current_turn As Integer = Read(battle_address + &H8C4, 4)
+            If current_turn <> 0 Then
+                If JP Then
+                    current_turn = (current_turn - emu_battle_address) / &H1578 + 12
+                Else
+                    current_turn = (current_turn - emu_battle_address - &H978) / &H1578 + 12
+                End If
+            End If
+
+            Dim enemy_turns As Integer
+            For x = 0 To prepared_turns - 1
+                prepared_turn(x - enemy_turns) = Read(battle_address + &H918 + x * 4, 4)
+                If prepared_turn(x - enemy_turns) <> 0 Then
+                    If JP Then
+                        prepared_turn(x - enemy_turns) = (prepared_turn(x - enemy_turns) - emu_battle_address) / &H1578 + 12
+                    Else
+                        prepared_turn(x - enemy_turns) = (prepared_turn(x - enemy_turns) - emu_battle_address - &H978) / &H1578 + 12
+                    End If
+                End If
+                If prepared_turn(x - enemy_turns) = 0 Or prepared_turn(x - enemy_turns) > 3 Then
+                    enemy_turns += 1
+                End If
+            Next
+            prepared_turns -= enemy_turns
+
+            enemy_turns = 0
+            For x = 0 To active_turns - 1
+                active_turn(x - enemy_turns) = Read(battle_address + &H898 + x * 4, 4)
+                If active_turn(x - enemy_turns) <> 0 Then
+                    If JP Then
+                        active_turn(x - enemy_turns) = (active_turn(x - enemy_turns) - emu_battle_address) / &H1578 + 12
+                    Else
+                        active_turn(x - enemy_turns) = (active_turn(x - enemy_turns) - emu_battle_address - &H978) / &H1578 + 12
+                    End If
+                End If
+                If active_turn(x - enemy_turns) = 0 Or active_turn(x - enemy_turns) > 3 Then
+                    enemy_turns += 1
+                End If
+            Next
+            active_turns -= enemy_turns
+
+            Dim combo_length As Integer = Read(combo_address - 20, 2)
+            If combo_length > 0 Then
+                combo_damage = Read(combo_address - 14, 4)
+            End If
+            Dim combo_card(17) As Integer
+            For x = 0 To combo_length - 1
+                combo_card(x) = Read(combo_address + x * 4, 2)
+                member(x) = 0
+            Next
+            For x = 0 To combo_length - 1
+                For y = x To combo_length - 1
+                    If magnus_user(combo_card(y)) <> 0 Then
+                        member(x) = magnus_user(combo_card(y))
+                        Exit For
+                    End If
+                Next
+            Next
+
+            'cards and order
+            Dim card_id(60), next_(60), slot As Integer
+            For x = 0 To 59
+                card_id(x) = Read(battle_address + 6 + x * 36, 2)
+                If card_id(x) = 0 Then
+                    Exit For
+                End If
+                next_(x) = Read(battle_address + x * 36, 4)
+                If next_(x) <> 0 Then
+                    next_(x) = (next_(x) - emu_battle_address) / 36
+                Else
+                    next_(x) = -1
+                End If
+            Next
+
+            Dim end_of_combo As Boolean
+            Dim next_turn As Integer
+            'if the game has already stored part of the combo, start with that
+            If combo_length > 0 Then
+                For x = 0 To combo_length - 1
+                    If member(x) = 0 Then
+                        member(x) = party(current_turn - 1)
+                        end_of_combo = True
+                    End If
+                    ShowCard(combo_card(x), member(x))
+                Next
+                next_turn = 1
+            End If
+
+            If turns = -1 Then
+                turns = 0
+                Return
+            End If
+
+            'check (subsequent) turns in the action bar
+            If Not end_of_combo Then
+                For x = next_turn To active_turns - 1
+                    If turns > 0 AndAlso active_turn_type(active_turn(x) - 1) <> 4 Then
+                        end_of_combo = True
+                        Exit For
+                    End If
+                    slot = (next_card(active_turn(x) - 1) - emu_battle_address) / 36
                     For y = cards To cards + 8
-                        ShowCard(card_id(slot), party(x))
+                        ShowCard(card_id(slot), party(active_turn(x) - 1))
                         If next_(slot) < 0 Then
                             Exit For
                         End If
                         slot = next_(slot)
                     Next
-                    Exit For
-                End If
-                If x = 2 Then
-                    last_turn = -2
-                End If
-            Next
+                Next
+            End If
 
-            'if no turn is being prepared, check if there is another prepared turn at the end of the queue
-            If last_turn = -2 Then
+            If turns = -1 Then
+                turns = 0
+                Return
+            End If
+
+            'read turns that are fully prepared, but not in the action bar yet
+            If Not end_of_combo Then
+                For x = 0 To prepared_turns - 1
+                    If turns > 0 AndAlso prepared_turn_type(prepared_turn(x) - 1) <> 4 Then
+                        end_of_combo = True
+                        Exit For
+                    End If
+                    slot = (next_card(prepared_turn(x) - 1) - emu_battle_address) / 36
+                    For y = cards To cards + 8
+                        ShowCard(card_id(slot), party(prepared_turn(x) - 1))
+                        If next_(slot) < 0 Then
+                            Exit For
+                        End If
+                        slot = next_(slot)
+                    Next
+                Next
+            End If
+
+            If turns = -1 Then
+                turns = 0
+                Return
+            End If
+
+            Dim last_turn As Integer = -1
+            If Not end_of_combo Then
+                'read the turn that is being prepared
                 For x = 0 To party_size - 1
-                    If next_card(x) <> 0 Then
-                        For y = 0 To prepared_turns - 1
-                            If x = prepared_turn(y) - 1 Then
+                    If first_card(x) <> 0 And Not (active_turns > 0 AndAlso prepared_turn_type(x) <> 4) Then
+                        slot = (first_card(x) - emu_battle_address) / 36
+                        For y = cards To cards + 8
+                            ShowCard(card_id(slot), party(x))
+                            If next_(slot) < 0 Then
                                 Exit For
                             End If
-                            If y = prepared_turns - 1 Then
-                                last_turn = x
-                            End If
+                            slot = next_(slot)
                         Next
-                        For y = 0 To active_turns - 1
-                            If x = active_turn(y) - 1 Then
-                                Exit For
-                            End If
-                            If y = active_turns - 1 Then
-                                last_turn = x
-                            End If
-                        Next
-                    End If
-                    If last_turn >= 0 Then
                         Exit For
                     End If
-                Next
-            End If
-
-            'if there is one more prepared turn, read it now
-            If last_turn >= 0 AndAlso prepared_turn_type(last_turn) = 4 Then
-                slot = (next_card(last_turn) - emu_battle_address) / 36
-                For x = cards To cards + 8
-                    ShowCard(card_id(slot), party(last_turn))
-                    If next_(slot) < 0 Then
-                        Exit For
+                    If x = party_size - 1 Then
+                        last_turn = -2
                     End If
-                    slot = next_(slot)
                 Next
-            End If
-        End If
 
-        Dim final_target As Integer
-        If cards > 0 Then
-            character = member(cards - 1)
-            ShowDeck()
-            CheckCards()
-            Dim temp As Integer
-            For x = 0 To party_size - 1
-                If party(x) = member(cards - 1) Then
-                    temp = x
-                    Exit For
+                'if no turn is being prepared, check if there is another prepared turn at the end of the queue
+                If last_turn = -2 Then
+                    For x = 0 To party_size - 1
+                        If next_card(x) <> 0 Then
+                            For y = 0 To prepared_turns - 1
+                                If x = prepared_turn(y) - 1 Then
+                                    Exit For
+                                End If
+                                If y = prepared_turns - 1 Then
+                                    last_turn = x
+                                End If
+                            Next
+                            For y = 0 To active_turns - 1
+                                If x = active_turn(y) - 1 Then
+                                    Exit For
+                                End If
+                                If y = active_turns - 1 Then
+                                    last_turn = x
+                                End If
+                            Next
+                        End If
+                        If last_turn >= 0 Then
+                            Exit For
+                        End If
+                    Next
                 End If
-            Next
-            If targeted(temp) = 0 Then
-                final_target = current_target - 1
-            Else
-                final_target = targeted(temp) - 1
+
+                'if there is one more prepared turn, read it now
+                If last_turn >= 0 AndAlso prepared_turn_type(last_turn) = 4 Then
+                    slot = (next_card(last_turn) - emu_battle_address) / 36
+                    For x = cards To cards + 8
+                        ShowCard(card_id(slot), party(last_turn))
+                        If next_(slot) < 0 Then
+                            Exit For
+                        End If
+                        slot = next_(slot)
+                    Next
+                End If
             End If
-        Else
-            final_target = current_target - 1
+
+            If cards > 0 Then
+                character = member(cards - 1)
+                ShowDeck()
+                Dim final_member As Integer = Array.IndexOf(party, character)
+                If targeted(final_member) > 0 Then
+                    final_target = targeted(final_member) - 1
+                End If
+            End If
         End If
 
         If final_target = 6 Then    'Machinanguis B
@@ -1252,12 +1226,12 @@ Public Class Main
         End If
     End Function
 
-    Private Function ReadFloat(address As Int64) As Single
+    Private Function ReadFloat(address As Int64) As Double
         Dim buffer As Integer
         ReadProcessMemory(hProcess, address, buffer, 4, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
         Array.Reverse(bytes)
-        Return BitConverter.ToSingle(bytes, 0)
+        Return RoundBoost(BitConverter.ToSingle(bytes, 0))
     End Function
 
     Private Function GetEquipment(eq As Integer) As Integer()
@@ -1288,7 +1262,7 @@ Public Class Main
 
     Public Sub Calculate()
         Dim eq, attack, attack_element, offense_deviation, crush_deviation, weapon_element, durability, weapon_offense, weapon_crush, effect_element, boost_element, qm_bonus, aura_offense, aura_crush, base_defense, crush_limit, defense_deviation, armor_defense, armor_durability, damage_output, total_damage, true_HP, effective_HP, HP_remaining, knockdown, knockout As Integer
-        Dim offense, attack_offense, attack_crush, attack_boost_factor, armor_factor, element_compatibility, weapon_factor, ex_offense_factor, ex_crush_factor, crit_factor, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, multiplier, crush_output, defense_boost(6, 2), enemy_offense_boost(2) As Single
+        Dim offense, attack_offense, attack_crush, attack_boost_factor, armor_factor, element_compatibility, weapon_factor, ex_offense_factor, ex_crush_factor, crit_factor, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, multiplier, crush_output, defense_boost(6, 2), enemy_offense_boost(2) As Double
         Dim full_turn_weapon, armor_equipped, reset_status, secondary_target_defeated As Boolean
 
         For x = 0 To 2
@@ -1343,7 +1317,7 @@ Public Class Main
             equip(0) = 0
         End If
 
-        'set armor durability for Armored Cancerite, Armored Balloona, Armored Mite, Phoelix, or Machina Arma: Razer 3 (final phase)
+        'set armor durability for Armored Cancerite, Armored Balloona, Armored Mite, or Phoelix
         If Me.armor_durability.Visible Then
             armor_durability = Me.armor_durability.SelectedItem
         End If
@@ -1765,7 +1739,7 @@ Public Class Main
                         Dim boost_index As Integer = Array.IndexOf(boost_weapons, equip(x))
                         If boost_index >= 0 Then
                             boost_element = boost_weapon_element(boost_index)
-                            Dim result As Single = RoundBoost(defense_boost(boost_element, 0) - boost_weapon_bonus(boost_index) * 0.01)
+                            Dim result As Double = RoundBoost(defense_boost(boost_element, 0) - boost_weapon_bonus(boost_index) * 0.01)
                             defense_boost(boost_element, 0) = Math.Max(-1000, Math.Min(result, 1000))
                             result = RoundBoost(defense_boost(boost_element, 1) - boost_weapon_bonus(boost_index) * 0.01)
                             defense_boost(boost_element, 1) = Math.Max(-1000, Math.Min(result, 1000))
@@ -2070,22 +2044,22 @@ Public Class Main
         combo_results.Text = final_cards & final_hits & vbCrLf & final_damage & vbCrLf & TP_bonus
     End Sub
 
-    Private Function RoundBoost(input As Single) As Single
+    Private Function RoundBoost(input As Double) As Double
         Return Math.Round(input, 3, MidpointRounding.AwayFromZero)
     End Function
 
     Private Sub ShowHitModifiers()
-        For z = 0 To 2
-            If My.Settings.ResultsRow.ElementAt(hit_modifier_row(z)) = "0" Then
+        For i = 0 To 2
+            If My.Settings.ResultsRow.ElementAt(hit_modifier_row(i)) = "0" Then
                 Continue For
             End If
-            hit_modifier(hits + 1, z).Top = row_pos(hit_modifier_row(z)) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(hit_modifier(hits + 1, z)) Then
-                hit_modifier(hits + 1, z).Left = 104 + 52 * (hits + 1) + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(hit_modifier(hits + 1, z))
-                hit_modifier(hits + 1, z).SelectedIndex = 4
+            hit_modifier(hits + 1, i).Top = row_pos(hit_modifier_row(i)) + output_panel.AutoScrollPosition.Y
+            If Not output_panel.Contains(hit_modifier(hits + 1, i)) Then
+                hit_modifier(hits + 1, i).Left = 104 + 52 * (hits + 1) + output_panel.AutoScrollPosition.X
+                output_panel.Controls.Add(hit_modifier(hits + 1, i))
+                hit_modifier(hits + 1, i).SelectedIndex = 4
             End If
-            hit_modifier(hits + 1, z).Show()
+            hit_modifier(hits + 1, i).Show()
         Next
 
         'on fire/dark knockdown extra hits, offense/defense deviation ranges from -20% to +4%
@@ -2136,29 +2110,26 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ShowRegaliaHit(offense As Single, attack_boost_factor As Single, enemy_status As Integer, base_defense As Integer, max_crush As Integer, defense_boost_factor As Single, multiplier As Single, total_offense As Single, crush_status As Single, total_defense As Single, armor_defense As Integer, damage_output As Integer, total_damage As Integer, enemy_HP As Integer)
-        For z = 0 To rows - 1
-            If My.Settings.ResultsRow.ElementAt(z) = "0" Then
-                Continue For
+    Private Sub ShowRegaliaHit(offense As Double, attack_boost_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, defense_boost_factor As Double, multiplier As Double, total_offense As Double, crush_status As Double, total_defense As Double, armor_defense As Integer, damage_output As Integer, total_damage As Integer, enemy_HP As Integer)
+        For y = 0 To rows - 1
+            If Not hit_modifier_row.Contains(y) Then
+                table(hits, y).Text = ""
             End If
-            If hit_modifier_row.Contains(z) Then
+            If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
                 Continue For
             End If
 
-            table(hits, z).Top = row_pos(z) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(table(hits, z)) Then
-                table(hits, z).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(table(hits, z))
-                If clickable_rows.Contains(z) Then
-                    AddHandler table(hits, z).MouseClick, AddressOf ToggleEffect
+            table(hits, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+            If Not output_panel.Contains(table(hits, y)) Then
+                table(hits, y).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
+                output_panel.Controls.Add(table(hits, y))
+                If clickable_rows.Contains(y) Then
+                    AddHandler table(hits, y).MouseClick, AddressOf ToggleEffect
                 End If
             End If
-            table(hits, z).Show()
+            table(hits, y).Show()
         Next
 
-        For x = 0 To rows - 1
-            table(hits, x).Text = ""
-        Next
         table(hits, 0).Text = offense
         table(hits, 1).Text = 50            'Firedrake/Aetherdrake Regalia's "attack offense" is always 50
         If attack_boost_factor = 1 Then
@@ -2215,9 +2186,9 @@ Public Class Main
         End If
 
         Dim change_color() As Integer = {4, 5, 7, 8, 16, 21, 27, 28, 31}
-        For x = 0 To 31
-            If Not change_color.Contains(x) Then
-                table(hits, x).BackColor = table(hits - 1, x).BackColor
+        For y = 0 To rows - 1
+            If Not hit_modifier_row.Contains(y) And Not change_color.Contains(y) Then
+                table(hits, y).BackColor = table(hits - 1, y).BackColor
             End If
         Next
         If hits = 1 Then
@@ -2225,29 +2196,26 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ShowKnockdownHit(offense As Integer, qm_bonus As Integer, enemy_status As Integer, base_defense As Integer, total_offense As Single, total_defense As Single, damage_output As Integer, total_damage As Integer, enemy_hp As Integer, attack_element As Integer)
-        For z = 0 To rows - 1
-            If My.Settings.ResultsRow.ElementAt(z) = "0" Then
-                Continue For
+    Private Sub ShowKnockdownHit(offense As Integer, qm_bonus As Integer, enemy_status As Integer, base_defense As Integer, total_offense As Double, total_defense As Double, damage_output As Integer, total_damage As Integer, enemy_hp As Integer, attack_element As Integer)
+        For y = 0 To rows - 1
+            If Not hit_modifier_row.Contains(y) Then
+                table(hits, y).Text = ""
             End If
-            If hit_modifier_row.Contains(z) Then
+            If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
                 Continue For
             End If
 
-            table(hits, z).Top = row_pos(z) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(table(hits, z)) Then
-                table(hits, z).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(table(hits, z))
-                If clickable_rows.Contains(z) Then
-                    AddHandler table(hits, z).MouseClick, AddressOf ToggleEffect
+            table(hits, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+            If Not output_panel.Contains(table(hits, y)) Then
+                table(hits, y).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
+                output_panel.Controls.Add(table(hits, y))
+                If clickable_rows.Contains(y) Then
+                    AddHandler table(hits, y).MouseClick, AddressOf ToggleEffect
                 End If
             End If
-            table(hits, z).Show()
+            table(hits, y).Show()
         Next
 
-        For x = 0 To rows - 1
-            table(hits, x).Text = ""
-        Next
         table(hits, 0).Text = offense
 
         If qm_bonus > 0 Then
@@ -2288,31 +2256,28 @@ Public Class Main
         End If
 
         Dim change_color() As Integer = {4, 5, 7, 8, 16, 21, 27, 28, 31}
-        For x = 0 To 31
-            If Not change_color.Contains(x) Then
-                table(hits, x).BackColor = table(hits - 1, x).BackColor
+        For y = 0 To rows - 1
+            If Not hit_modifier_row.Contains(y) And Not change_color.Contains(y) Then
+                table(hits, y).BackColor = table(hits - 1, y).BackColor
             End If
         Next
     End Sub
 
-    Private Sub ShowHit(x As Integer, offense As Single, attack_offense As Single, attack_crush As Single, attack_boost_factor As Single, armor_factor As Single, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Single, weapon_factor As Single, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Single, ex_crush_factor As Single, crit_factor As Single, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Single, defense_boost_factor As Single, total_offense As Single, total_crush As Single, total_defense As Single, multiplier As Single, armor_defense As Integer, damage_output As Integer, crush_output As Single, total_damage As Int64, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
-        For z = 0 To rows - 1
-            If My.Settings.ResultsRow.ElementAt(z) = "0" Then
-                Continue For
-            End If
-            If hit_modifier_row.Contains(z) Then
+    Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Int64, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
+        For y = 0 To rows - 1
+            If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
                 Continue For
             End If
 
-            table(hits, z).Top = row_pos(z) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(table(hits, z)) Then
-                table(hits, z).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(table(hits, z))
-                If clickable_rows.Contains(z) Then
-                    AddHandler table(hits, z).MouseClick, AddressOf ToggleEffect
+            table(hits, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+            If Not output_panel.Contains(table(hits, y)) Then
+                table(hits, y).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
+                output_panel.Controls.Add(table(hits, y))
+                If clickable_rows.Contains(y) Then
+                    AddHandler table(hits, y).MouseClick, AddressOf ToggleEffect
                 End If
             End If
-            table(hits, z).Show()
+            table(hits, y).Show()
         Next
 
         table(hits, 0).Text = offense
@@ -2426,7 +2391,7 @@ Public Class Main
         table(hits, 28).Text = Decimals(crush_output)
         table(hits, 29).Text = total_damage
 
-        Dim crush As Single = crush_status + crush_output
+        Dim crush As Double = crush_status + crush_output
         table(hits, 30).Text = Decimals(crush)
         table(hits, 31).Text = enemy_hp
 
@@ -2511,16 +2476,16 @@ Public Class Main
         Return -1
     End Function
 
-    Private Function Decimals(value As Single) As String
+    Private Function Decimals(value As Double) As String
         Dim pre_decimal_length As Integer = value.ToString.IndexOf(".")
         If pre_decimal_length <= 0 Then
             pre_decimal_length = value.ToString.Length
         End If
         Dim decimal_places As Integer = Math.Max(0, Math.Min(2, 6 - pre_decimal_length))
-        Return FormatNumber(Math.Round(value, decimal_places, MidpointRounding.AwayFromZero), decimal_places, TriState.True, TriState.False, TriState.False)
+        Return FormatNumber(Math.Round(Math.Round(value, 12), decimal_places, MidpointRounding.AwayFromZero), decimal_places, TriState.True, TriState.False, TriState.False)
     End Function
 
-    Private Function LevelToOffense(level As Integer) As Single
+    Private Function LevelToOffense(level As Integer) As Double
         If level < 5 Then
             Return 1 + (level - 1) * 0.125
         Else
@@ -2688,7 +2653,7 @@ Public Class Main
                 Exit For
             End If
             For y = 0 To rows - 1
-                If table(x, y).BackColor = default_color Then
+                If Not hit_modifier_row.Contains(y) AndAlso table(x, y).BackColor = default_color Then
                     table(x, y).BackColor = Color.LightBlue
                 End If
             Next
@@ -2701,7 +2666,7 @@ Public Class Main
                 Exit For
             End If
             For y = 0 To rows - 1
-                If table(x, y).BackColor = Color.LightBlue Then
+                If Not hit_modifier_row.Contains(y) AndAlso table(x, y).BackColor = Color.LightBlue Then
                     table(x, y).BackColor = default_color
                 End If
             Next
@@ -3576,6 +3541,9 @@ Public Class Main
     Private Sub Clear(hits_prev As Integer)
         For x = hits + 1 To hits_prev
             For y = 0 To rows - 1
+                If hit_modifier_row.Contains(y) Then
+                    Continue For
+                End If
                 table(x, y).Hide()
                 If table(x, y).BackColor = Color.LightBlue Then
                     table(x, y).BackColor = default_color
@@ -3875,71 +3843,72 @@ Public Class Main
 
     Public Sub UpdateRows()
         Dim row As Integer
-        For x = 0 To 31
-            If My.Settings.ResultsRow.ElementAt(x) = "1" Then
-                row_pos(x) = row * 25
+        For y = 0 To rows - 1
+            If My.Settings.ResultsRow.ElementAt(y) = "1" Then
+                row_pos(y) = row * 25
                 row += 1
             End If
         Next
-        For x = 0 To 31
-            If Not hit_modifier_row.Contains(x) Then
-                If My.Settings.ResultsRow.ElementAt(x) = "0" Then
-                    For y = 0 To hits
-                        table(y, x).Hide()
+        For y = 0 To rows - 1
+            If Not hit_modifier_row.Contains(y) Then
+                If My.Settings.ResultsRow.ElementAt(y) = "0" Then
+                    For x = 0 To hits
+                        table(x, y).Hide()
                     Next
                     Continue For
                 End If
-                If table(0, x).Visible And table(0, x).Top = row_pos(x) + output_panel.AutoScrollPosition.Y Then
+                If table(0, y).Visible And table(0, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y Then
                     Continue For
                 End If
-                For y = 0 To 999
-                    table(y, x).Top = row_pos(x) + output_panel.AutoScrollPosition.Y
+                For x = 0 To 999
+                    table(x, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
                 Next
-                For y = 0 To hits
-                    If Not output_panel.Contains(table(y, x)) Then
-                        If y > 0 Then
-                            table(y, x).Left = 104 + 52 * y + output_panel.AutoScrollPosition.X
-                            If clickable_rows.Contains(x) Then
-                                AddHandler table(y, x).MouseClick, AddressOf ToggleEffect
+                For x = 0 To hits
+                    If Not output_panel.Contains(table(x, y)) Then
+                        If x > 0 Then
+                            table(x, y).Left = 104 + 52 * x + output_panel.AutoScrollPosition.X
+                            If clickable_rows.Contains(y) Then
+                                AddHandler table(x, y).MouseClick, AddressOf ToggleEffect
                             End If
                         Else
-                            table(y, x).Left = 5 + output_panel.AutoScrollPosition.X
+                            table(x, y).Left = 5 + output_panel.AutoScrollPosition.X
                         End If
-                        output_panel.Controls.Add(table(y, x))
+                        output_panel.Controls.Add(table(x, y))
                     End If
-                    table(y, x).Show()
+                    table(x, y).Show()
                 Next
-            Else
-                Dim z As Integer = Array.IndexOf(hit_modifier_row, x)
-                If My.Settings.ResultsRow.ElementAt(x) = "0" Then
-                    table(0, x).Hide()
-                    For y = 0 To hits
-                        hit_modifier(y, z).Hide()
-                    Next
-                    Continue For
-                End If
-                If table(0, x).Visible And table(0, x).Top = row_pos(x) + output_panel.AutoScrollPosition.Y Then
-                    Continue For
-                End If
-                table(0, x).Top = row_pos(x) + output_panel.AutoScrollPosition.Y
-                table(0, x).Left = 5 + output_panel.AutoScrollPosition.X
-                table(0, x).Show()
-                For y = 1 To 999
-                    hit_modifier(y, z).Top = row_pos(x) + output_panel.AutoScrollPosition.Y
-                Next
-                For y = 1 To hits
-                    If Not output_panel.Contains(hit_modifier(y, z)) Then
-                        hit_modifier(y, z).Left = 104 + 52 * y + output_panel.AutoScrollPosition.X
-                        output_panel.Controls.Add(hit_modifier(y, z))
-                        If Not knockdown_hit(y) Then
-                            RemoveHandler hit_modifier(y, z).SelectedIndexChanged, AddressOf ChangeDeviation
-                            hit_modifier(y, z).SelectedIndex = 4
-                            AddHandler hit_modifier(y, z).SelectedIndexChanged, AddressOf ChangeDeviation
-                        End If
-                    End If
-                    hit_modifier(y, z).Show()
-                Next
+                Continue For
             End If
+
+            Dim i As Integer = Array.IndexOf(hit_modifier_row, y)
+            If My.Settings.ResultsRow.ElementAt(y) = "0" Then
+                table(0, y).Hide()
+                For x = 1 To hits
+                    hit_modifier(x, i).Hide()
+                Next
+                Continue For
+            End If
+            If table(0, y).Visible And table(0, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y Then
+                Continue For
+            End If
+            table(0, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+            table(0, y).Left = 5 + output_panel.AutoScrollPosition.X
+            table(0, y).Show()
+            For x = 1 To 999
+                hit_modifier(x, i).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+            Next
+            For x = 1 To hits
+                If Not output_panel.Contains(hit_modifier(x, i)) Then
+                    hit_modifier(x, i).Left = 104 + 52 * x + output_panel.AutoScrollPosition.X
+                    output_panel.Controls.Add(hit_modifier(x, i))
+                    If Not knockdown_hit(x) Then
+                        RemoveHandler hit_modifier(x, i).SelectedIndexChanged, AddressOf ChangeDeviation
+                        hit_modifier(x, i).SelectedIndex = 4
+                        AddHandler hit_modifier(x, i).SelectedIndexChanged, AddressOf ChangeDeviation
+                    End If
+                End If
+                hit_modifier(x, i).Show()
+            Next
         Next
     End Sub
 

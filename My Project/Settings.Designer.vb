@@ -116,12 +116,12 @@ Namespace My
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
          Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
-        Public Property BattleData() As Boolean
+        Public Property ReadCombo() As Boolean
             Get
-                Return CType(Me("BattleData"),Boolean)
+                Return CType(Me("ReadCombo"),Boolean)
             End Get
             Set
-                Me("BattleData") = value
+                Me("ReadCombo") = value
             End Set
         End Property
         

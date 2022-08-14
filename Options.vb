@@ -36,14 +36,14 @@
         Next
         setting(0).Text = "Auto-close target window"
         setting(1).Text = "Highlight hits when hovering over an attack card"
-        setting(2).Text = "Dolphin button: read battle data (JP only)"
+        setting(2).Text = "Read combo from Dolphin"
         setting(3).Text = "Show effective HP remaining"
         setting(4).Text = "Guillo's retroactive EX combo bonus"
         setting(5).Text = "Secret Queen after enemy gets up"
         setting(6).Text = "Saber Dragon Horn (+5 max durability on all equipment)"
         setting(0).Checked = My.Settings.TargetAutoClose
         setting(1).Checked = My.Settings.HighlightHits
-        setting(2).Checked = My.Settings.BattleData
+        setting(2).Checked = My.Settings.ReadCombo
         setting(3).Checked = My.Settings.EffectiveHPRemaining
         setting(4).Checked = My.Settings.GuilloExtraBonus
         setting(5).Checked = My.Settings.SecretQueenGetUp
@@ -296,7 +296,7 @@
             Case 1
                 My.Settings.HighlightHits = Not My.Settings.HighlightHits
             Case 2
-                My.Settings.BattleData = Not My.Settings.BattleData
+                My.Settings.ReadCombo = Not My.Settings.ReadCombo
             Case 3
                 Main.ToggleEffectiveHP()
             Case 4
@@ -423,8 +423,7 @@
     End Sub
 
     Private Sub ViewDocumentation(sender As Object, e As EventArgs)
-        'Process.Start("https://docs.google.com/document/d/16S6PzD7il28LaEgBUjuSPb0oKtzHl5pvsfDkeBqQ8bk/view")
-        Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator/blob/master/README.md")
+        Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator#readme")
     End Sub
 
     Private Sub ResizePanel(sender As Object, e As EventArgs)

@@ -17,7 +17,7 @@
     <Setting Name="TargetAutoClose" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="BattleData" Type="System.Boolean" Scope="User">
+    <Setting Name="ReadCombo" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="SaberDragonHorn" Type="System.Boolean" Scope="User">

@@ -47,7 +47,7 @@
             With card(x)
                 Dim y As Integer = x - 1
                 .Size = New Size(50, 80)
-                .Location = New Point(10 + 50 * (y - (y - (y Mod 20))), 90 * (y - (y Mod 20)) / 20)
+                .Location = New Point(10 + 50 * (y Mod 20), 90 * Math.Floor(y / 20))
                 .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Tag = x
@@ -76,7 +76,7 @@
             inventory(x) = New PictureBox()
             With inventory(x)
                 .Size = New Size(50, 80)
-                .Location = New Point(10 + 69 * (x - (x - (x Mod 8))), 10 + 96 * (x - (x Mod 8)) / 8)
+                .Location = New Point(10 + 69 * (x Mod 8), 10 + 96 * Math.Floor(x / 8))
                 .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Name = x

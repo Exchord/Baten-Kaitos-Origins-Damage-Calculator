@@ -5,7 +5,7 @@
     Dim magnus(455) As Bitmap
     Public hover As ToolTip
     Dim active(455) As Boolean
-    ReadOnly index() As Integer = {1, 7, 11, 21, 29, 45, 75, 125, 142, 163, 176, 189, 203, 236, 246, 258, 269, 293, 305, 319, 333, 351, 360, 371, 423, 439, 443, 453}
+    ReadOnly group_start() As Integer = {1, 7, 11, 21, 29, 45, 75, 125, 142, 163, 176, 189, 203, 236, 246, 258, 269, 293, 305, 319, 333, 351, 360, 371, 423, 439, 443, 453}
 
     Private Sub Deck_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Hide()
@@ -18,53 +18,42 @@
         Icon = New Icon(Me.GetType(), "icon.ico")
         LoadWindowData()
 
-        Dim range As Integer
+        Dim group As Integer
         For x = 1 To 454
             card(x) = New PictureBox()
-            For y = 0 To 27
-                If x >= index(y) Then
-                    range = y
-                Else
-                    Exit For
-                End If
-            Next y
-            'skip items and stratagems
-            If range = 23 Or range = 25 Or range = 27 Then
-                card(x).Name = "0"
+            If group_start.Contains(x) Then
+                group = Array.IndexOf(group_start, x)
+            End If
+            If group = 23 Or group = 25 Or group = 27 Then      'skip items and stratagems
                 Continue For
             End If
 
             With card(x)
                 .Image = Nothing
                 .Size = New Size(50, 80)
-                .Left = 90 + 50 * (x - index(range))
-                If range < 23 Then
-                    .Top = 10 + 85 * range
-                ElseIf range = 24 Then
+                .Left = 90 + 50 * (x - group_start(group))
+                If group < 23 Then
+                    .Top = 10 + 85 * group
+                ElseIf group = 24 Then
                     .Top = 10 + 85 * 23
-                ElseIf range = 26 Then
+                ElseIf group = 26 Then
                     .Top = 10 + 85 * 24
                 End If
                 .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Tag = x
                 magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
+                If Main.deck_magnus(x) = "1" Then
+                    card(x).Image = magnus(x)
+                    active(x) = True
+                Else
+                    card(x).Image = Main.ChangeOpacity(magnus(x), 0.5)
+                    active(x) = False
+                End If
             End With
             Controls.Add(card(x))
             AddHandler card(x).Click, AddressOf ToggleCard
             AddHandler card(x).MouseEnter, AddressOf ShowName
-        Next x
-        For x = 1 To 454
-            If card(x).Name = "0" Then
-                Continue For
-            End If
-            If Main.deck_magnus(x) = "1" Then
-                card(x).Image = magnus(x)
-                active(x) = True
-            Else
-                card(x).Image = Main.ChangeOpacity(magnus(x), 0.5)
-                active(x) = False
-            End If
         Next
 
         For x = 0 To 24
@@ -150,7 +139,7 @@
     End Sub
 
     Private Sub EnableGroup(sender As Object, e As EventArgs)
-        For x = index(sender.Tag) To index(sender.Tag + 1) - 1
+        For x = group_start(sender.Tag) To group_start(sender.Tag + 1) - 1
             If Not active(x) Then
                 ToggleCard(card(x), e)
             End If
@@ -159,7 +148,7 @@
     End Sub
 
     Private Sub DisableGroup(sender As Object, e As EventArgs)
-        For x = index(sender.Tag) To index(sender.Tag + 1) - 1
+        For x = group_start(sender.Tag) To group_start(sender.Tag + 1) - 1
             If active(x) Then
                 ToggleCard(card(x), e)
             End If
