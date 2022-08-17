@@ -8,12 +8,13 @@ Public Class Main
     Dim enemy_status, armor_durability As ComboBox
     Dim target_image, button(7), hand(300) As PictureBox
     Dim next_combo As Button
-    Dim input_panel(2) As Panel
+    Dim card_panel(2) As Panel
     Dim output_panel As DoubleBufferPanel
     Dim magnus_image(455) As Bitmap
     Public hover As ToolTip
     Dim row_pos(32) As Integer
     Dim description(32), EX_combo_hex(102) As String
+    Dim highlight As Integer = -1
 
     'characters
     Public char_icon(3) As Bitmap
@@ -175,53 +176,28 @@ Public Class Main
         BackColor = Color.LightGray
         MinimumSize = New Size(864, 531)
         LoadWindowData()
-        AddHandler Click, AddressOf ChangeFocus
 
-        output_panel = New DoubleBufferPanel()
-        With output_panel
-            .AutoScroll = True
-            .Location = New Point(0, 451)
-            .Size = New Size(Width - 16, Height - 490)
-        End With
-        Controls.Add(output_panel)
-        AddHandler output_panel.Click, AddressOf ChangeFocus
 
-        For x = 0 To 1
-            input_panel(x) = New Panel()
-            With input_panel(x)
-                .AutoScroll = True
-                .Location = New Point(0, 220 + 30 + x * 100)
-                .Size = New Size(1163, 100)
-            End With
-            Controls.Add(input_panel(x))
-            AddHandler input_panel(x).Click, AddressOf ChangeFocus
-        Next
+        ' PARTY
 
         char_icon(0) = New Bitmap(My.Resources.ResourceManager.GetObject("sagi"), New Size(70, 70))
         char_icon(1) = New Bitmap(My.Resources.ResourceManager.GetObject("milly"), New Size(70, 70))
         char_icon(2) = New Bitmap(My.Resources.ResourceManager.GetObject("guillo"), New Size(70, 70))
 
-
-        ' PARTY
-
         For x = 0 To 2
             char_image(x) = New PictureBox()
-            level_selector(x) = New ComboBox()
-            actual_level(x) = New Label()
-            aura_type(x) = New ComboBox()
-            aura_level(x) = New ComboBox()
-            equipment(x) = New PictureBox()
-            eq_durability(x) = New ComboBox()
-
             With char_image(x)
                 .Size = New Size(70, 70)
                 .Location = New Point(10, 10 + x * 75)
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Tag = x + 1
                 .Image = char_icon(x)
+                AddHandler .MouseClick, AddressOf ChangeFocus
+                AddHandler .Click, AddressOf SwitchCharacter
             End With
+            Controls.Add(char_image(x))
 
+            level_selector(x) = New ComboBox()
             With level_selector(x)
                 .Size = New Size(59, 21)
                 .MaxDropDownItems = 20
@@ -229,8 +205,16 @@ Public Class Main
                 .Text = "1"
                 .Location = New Point(90, 24 + x * 75)
                 .Tag = x
+                For y = 1 To 100
+                    .Items.Add(y)
+                Next
+                AddHandler .KeyPress, AddressOf FilterInput
+                AddHandler .TextChanged, AddressOf ChangeLevel
+                AddHandler .LostFocus, AddressOf FixLevel
             End With
+            Controls.Add(level_selector(x))
 
+            actual_level(x) = New Label()
             With actual_level(x)
                 .Hide()
                 .Size = New Size(59, 21)
@@ -238,16 +222,25 @@ Public Class Main
                 .TextAlign = ContentAlignment.MiddleLeft
                 .Font = New Font("Segoe UI", 9, FontStyle.Bold)
                 .Tag = x
+                AddHandler .Click, AddressOf ChangeFocus
             End With
+            Controls.Add(actual_level(x))
 
+            aura_type(x) = New ComboBox()
             With aura_type(x)
                 .Size = New Size(69, 21)
                 .MaxDropDownItems = 12
                 .Location = New Point(155, 24 + x * 75)
                 .Tag = x
                 .DropDownStyle = ComboBoxStyle.DropDownList
+                For y = 0 To 11
+                    .Items.Add(aura_name(y))
+                Next
+                AddHandler .SelectedIndexChanged, AddressOf ChangeAura
             End With
+            Controls.Add(aura_type(x))
 
+            aura_level(x) = New ComboBox()
             With aura_level(x)
                 .Hide()
                 .Size = New Size(69, 21)
@@ -255,58 +248,36 @@ Public Class Main
                 .Location = New Point(155, 50 + x * 75)
                 .Tag = x
                 .DropDownStyle = ComboBoxStyle.DropDownList
+                For y = 0 To 2
+                    .Items.Add("Lv. " & y + 1)
+                Next
+                AddHandler .SelectedIndexChanged, AddressOf ChangeAuraLevel
             End With
+            Controls.Add(aura_level(x))
 
+            equipment(x) = New PictureBox()
             With equipment(x)
                 .Hide()
                 .Size = New Size(40, 64)
                 .Location = New Point(235, 16 + x * 75)
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Name = x + 1
                 .Image = Nothing
+                AddHandler .MouseClick, AddressOf ChangeFocus
+                AddHandler .Click, AddressOf RemoveEquipment
             End With
+            Controls.Add(equipment(x))
 
+            eq_durability(x) = New ComboBox()
             With eq_durability(x)
                 .Hide()
                 .Size = New Size(48, 21)
                 .Location = New Point(282, 37 + x * 75)
                 .Tag = x + 1
                 .DropDownStyle = ComboBoxStyle.DropDownList
+                AddHandler .SelectedIndexChanged, AddressOf ChangeDurability
             End With
-
-            Controls.Add(char_image(x))
-            Controls.Add(level_selector(x))
-            Controls.Add(aura_level(x))
-            Controls.Add(actual_level(x))
-            Controls.Add(aura_type(x))
-            Controls.Add(equipment(x))
             Controls.Add(eq_durability(x))
-
-            For y = 1 To 100
-                level_selector(x).Items.Add(y)
-            Next
-            For y = 0 To 11
-                aura_type(x).Items.Add(aura_name(y))
-            Next
-            For y = 0 To 2
-                aura_level(x).Items.Add("Lv. " & y + 1)
-            Next
-            level(x) = 1
-            aura_type(x).SelectedIndex = aura(x, 0)
-            aura_level(x).SelectedIndex = aura(x, 1)
-
-            AddHandler char_image(x).MouseClick, AddressOf ChangeFocus
-            AddHandler equipment(x).MouseClick, AddressOf ChangeFocus
-            AddHandler char_image(x).Click, AddressOf SwitchCharacter
-            AddHandler level_selector(x).KeyPress, AddressOf FilterInput
-            AddHandler level_selector(x).TextChanged, AddressOf ChangeLevel
-            AddHandler level_selector(x).LostFocus, AddressOf FixLevel
-            AddHandler actual_level(x).Click, AddressOf ChangeFocus
-            AddHandler aura_type(x).SelectedIndexChanged, AddressOf ChangeAura
-            AddHandler aura_level(x).SelectedIndexChanged, AddressOf ChangeAuraLevel
-            AddHandler equipment(x).Click, AddressOf RemoveEquipment
-            AddHandler eq_durability(x).SelectedIndexChanged, AddressOf ChangeDurability
         Next
 
         Dim target_x As Integer = 340
@@ -321,100 +292,129 @@ Public Class Main
             .Location = New Point(target_x, 14)
             .Cursor = Cursors.Hand
             .SizeMode = PictureBoxSizeMode.StretchImage
-            .BackColor = Color.Transparent
+            AddHandler .Click, AddressOf ShowTargetWindow
         End With
         Controls.Add(target_image)
-        AddHandler target_image.Click, AddressOf ShowTargetWindow
 
         final_phase = New CheckBox()
-        shield = New CheckBox()
-        secondary_target = New CheckBox()
         With final_phase
             .Size = New Size(169, 24)
             .Location = New Point(target_x + 135, target_y + 75)
             .BackColor = default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Final phase"
+            AddHandler .CheckedChanged, AddressOf ToggleFinalPhase
         End With
+        Controls.Add(final_phase)
+
+        shield = New CheckBox()
         With shield
             .Size = New Size(169, 24)
             .Location = New Point(target_x + 135, target_y + 100)
             .BackColor = default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Shield"
+            AddHandler .CheckedChanged, AddressOf ToggleShield
         End With
+        Controls.Add(shield)
+
+        secondary_target = New CheckBox()
         With secondary_target
             .Size = New Size(169, 24)
             .Location = New Point(target_x + 135, target_y + 125)
             .BackColor = default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Secondary target"
+            AddHandler .CheckedChanged, AddressOf ToggleSecondaryTarget
         End With
-        Controls.Add(final_phase)
-        Controls.Add(shield)
         Controls.Add(secondary_target)
-        AddHandler final_phase.CheckedChanged, AddressOf ToggleFinalPhase
-        AddHandler shield.CheckedChanged, AddressOf ToggleShield
-        AddHandler secondary_target.CheckedChanged, AddressOf ToggleSecondaryTarget
 
         For x = 0 To 12
             target_data(x) = New Label()
-            target_data(x).BackColor = default_color
-            target_data(x).TextAlign = ContentAlignment.MiddleCenter
-            AddHandler target_data(x).Click, AddressOf ChangeFocus
+            With target_data(x)
+                .BackColor = default_color
+                .TextAlign = ContentAlignment.MiddleCenter
+                AddHandler .Click, AddressOf ChangeFocus
+            End With
         Next
 
-        target_data(0).Size = New Size(169, 24)
-        target_data(0).Location = New Point(target_x + 135, target_y)
-        target_data(0).Text = "Target"
+        With target_data(0)
+            .Size = New Size(169, 24)
+            .Location = New Point(target_x + 135, target_y)
+            .Text = "Target"
+        End With
 
-        target_data(1).Size = New Size(84, 24)
-        target_data(1).Location = New Point(target_x + 135, target_y + 25)
-        target_data(1).Text = "Knockdown"
+        With target_data(1)
+            .Size = New Size(84, 24)
+            .Location = New Point(target_x + 135, target_y + 25)
+            .Text = "Knockdown"
+        End With
 
-        target_data(2).Size = New Size(84, 24)
-        target_data(2).Location = New Point(target_x + 220, target_y + 25)      'knockdown
+        With target_data(2)                                         'knockdown
+            .Size = New Size(84, 24)
+            .Location = New Point(target_x + 220, target_y + 25)
+        End With
 
-        target_data(3).Size = New Size(84, 24)
-        target_data(3).Location = New Point(target_x + 135, target_y + 50)
-        target_data(3).Text = "Knockout"
+        With target_data(3)
+            .Size = New Size(84, 24)
+            .Location = New Point(target_x + 135, target_y + 50)
+            .Text = "Knockout"
+        End With
 
-        target_data(4).Size = New Size(84, 24)
-        target_data(4).Location = New Point(target_x + 220, target_y + 50)      'knockout
+        With target_data(4)                                         'knockout
+            .Size = New Size(84, 24)
+            .Location = New Point(target_x + 220, target_y + 50)
+        End With
 
-        target_data(5).Size = New Size(74, 24)
-        target_data(5).Location = New Point(target_x, 175)
-        target_data(5).Text = "HP"
+        With target_data(5)
+            .Size = New Size(74, 24)
+            .Location = New Point(target_x, 175)
+            .Text = "HP"
+        End With
 
-        target_data(6).Size = New Size(74, 24)
-        target_data(6).Location = New Point(target_x, 200)
-        target_data(6).Text = "Effective HP"
+        With target_data(6)
+            .Size = New Size(74, 24)
+            .Location = New Point(target_x, 200)
+            .Text = "Effective HP"
+        End With
 
-        target_data(7).Size = New Size(59, 24)
-        target_data(7).Location = New Point(target_x + 75, 200)                 'effective HP
+        With target_data(7)                                         'effective HP
+            .Size = New Size(59, 24)
+            .Location = New Point(target_x + 75, 200)
+        End With
 
-        target_data(8).Size = New Size(59, 24)
-        target_data(8).Location = New Point(target_x + 135, 175)                'true max HP
+        With target_data(8)                                         'true max HP
+            .Size = New Size(59, 24)
+            .Location = New Point(target_x + 135, 175)
+            AddHandler .Click, AddressOf ResetHP
+        End With
 
-        target_data(9).Size = New Size(59, 24)
-        target_data(9).Location = New Point(target_x + 135, 200)                'effective max HP
+        With target_data(9)                                         'effective max HP
+            .Size = New Size(59, 24)
+            .Location = New Point(target_x + 135, 200)
+        End With
 
-        target_data(10).Size = New Size(114, 24)
-        target_data(10).Location = New Point(target_x + 195, 200)
-        target_data(10).Text = "Armor durability"
+        With target_data(10)
+            .Size = New Size(114, 24)
+            .Location = New Point(target_x + 195, 200)
+            .Text = "Armor durability"
+        End With
 
-        target_data(11).Size = New Size(169, 24)
-        target_data(11).Location = New Point(target_x + 135, target_y + 75)
-        target_data(11).Hide()
+        With target_data(11)
+            .Size = New Size(169, 24)
+            .Location = New Point(target_x + 135, target_y + 75)
+            .Hide()
+        End With
 
-        target_data(12).Size = New Size(169, 24)
-        target_data(12).Location = New Point(target_x + 135, target_y + 100)
-        target_data(12).Hide()
+        With target_data(12)
+            .Size = New Size(169, 24)
+            .Location = New Point(target_x + 135, target_y + 100)
+            .Hide()
+        End With
 
         For x = 0 To 12
             Controls.Add(target_data(x))
         Next
-        AddHandler target_data(8).Click, AddressOf ResetHP
 
         enemy_HP = New TextBox()
         With enemy_HP
@@ -423,12 +423,12 @@ Public Class Main
             .TextAlign = HorizontalAlignment.Center
             .Location = New Point(target_x + 75, 175)
             .MaxLength = 5
+            AddHandler .TextChanged, AddressOf CheckHP
+            AddHandler .MouseWheel, AddressOf ScrollHP
+            AddHandler .KeyPress, AddressOf FilterInput
+            AddHandler .LostFocus, AddressOf FixHP
         End With
         Controls.Add(enemy_HP)
-        AddHandler enemy_HP.TextChanged, AddressOf CheckHP
-        AddHandler enemy_HP.MouseWheel, AddressOf ScrollHP
-        AddHandler enemy_HP.KeyPress, AddressOf FilterInput
-        AddHandler enemy_HP.LostFocus, AddressOf FixHP
 
         down = New CheckBox
         With down
@@ -437,20 +437,21 @@ Public Class Main
             .BackColor = default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Down"
+            AddHandler .CheckedChanged, AddressOf ToggleDown
         End With
         Controls.Add(down)
-        AddHandler down.CheckedChanged, AddressOf ToggleDown
 
         enemy_status = New ComboBox()
         With enemy_status
             .DropDownStyle = ComboBoxStyle.DropDownList
             .Size = New Size(79, 24)
             .Location = New Point(target_x + 275, 175)
+            For x = 0 To 4
+                .Items.Add(status_name(x))
+            Next
+            .SelectedIndex = 0
+            AddHandler .SelectedIndexChanged, AddressOf ChangeStatus
         End With
-        For x = 0 To 4
-            enemy_status.Items.Add(status_name(x))
-        Next
-        enemy_status.SelectedIndex = 0
         Controls.Add(enemy_status)
 
         armor_durability = New ComboBox()
@@ -458,10 +459,14 @@ Public Class Main
             .DropDownStyle = ComboBoxStyle.DropDownList
             .Size = New Size(44, 24)
             .Location = New Point(target_x + 310, 200)
+            AddHandler .SelectedIndexChanged, AddressOf ChangeArmorDurability
         End With
         Controls.Add(armor_durability)
-        AddHandler armor_durability.SelectedIndexChanged, AddressOf ChangeArmorDurability
 
+
+        ' BUTTONS
+
+        Dim button_resource() As String = {"_1", "_500", "_393", "dolphin", "spreadsheet", "settings"}
         For x = 0 To 5
             button(x) = New PictureBox()
             With button(x)
@@ -472,23 +477,17 @@ Public Class Main
                     .Size = New Size(48, 48)
                     .Location = New Point(676 + (x - 3) * 50, button_row_2_Y_pos)
                 End If
+                .Image = New Bitmap(My.Resources.ResourceManager.GetObject(button_resource(x)), .Size)
                 .Name = x
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
+                AddHandler .Click, AddressOf ButtonAction
+                AddHandler .MouseDown, AddressOf MoveButtonDown
+                AddHandler .MouseUp, AddressOf MoveButtonUp
+                AddHandler .MouseLeave, AddressOf MoveButtonUp
+                AddHandler .LostFocus, AddressOf MoveButtonUp
             End With
-            AddHandler button(x).Click, AddressOf ButtonAction
-            AddHandler button(x).MouseDown, AddressOf MoveButtonDown
-            AddHandler button(x).MouseUp, AddressOf MoveButtonUp
-            AddHandler button(x).MouseLeave, AddressOf MoveButtonUp
-            AddHandler button(x).LostFocus, AddressOf MoveButtonUp
             Controls.Add(button(x))
         Next
-        button(0).Image = New Bitmap(My.Resources.ResourceManager.GetObject("_1"), New Size(40, 64))
-        button(1).Image = New Bitmap(My.Resources.ResourceManager.GetObject("_500"), New Size(40, 64))
-        button(2).Image = New Bitmap(My.Resources.ResourceManager.GetObject("_393"), New Size(40, 64))
-        button(3).Image = New Bitmap(My.Resources.ResourceManager.GetObject("dolphin"), New Size(48, 48))
-        button(4).Image = New Bitmap(My.Resources.ResourceManager.GetObject("spreadsheet"), New Size(48, 48))
-        button(5).Image = New Bitmap(My.Resources.ResourceManager.GetObject("settings"), New Size(48, 48))
 
         combo_results = New Label
         With combo_results
@@ -496,9 +495,9 @@ Public Class Main
             .Location = New Point(700, 150)
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .TextAlign = ContentAlignment.MiddleRight
+            AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(combo_results)
-        AddHandler combo_results.Click, AddressOf ChangeFocus
 
         next_combo = New Button()
         With next_combo
@@ -507,12 +506,23 @@ Public Class Main
             .Text = "Next combo"
             .UseVisualStyleBackColor = True
             .Enabled = False
+            AddHandler .Click, AddressOf NextCombo
         End With
         Controls.Add(next_combo)
-        AddHandler next_combo.Click, AddressOf NextCombo
 
 
-        ' HAND
+        ' CARDS
+
+        For x = 0 To 1
+            card_panel(x) = New Panel()
+            With card_panel(x)
+                .AutoScroll = True
+                .Location = New Point(0, 220 + 30 + x * 100)
+                .Size = New Size(1163, 100)
+                AddHandler .Click, AddressOf ChangeFocus
+            End With
+            Controls.Add(card_panel(x))
+        Next
 
         For x = 0 To 299
             hand(x) = New PictureBox()
@@ -521,15 +531,12 @@ Public Class Main
                 .Size = New Size(50, 80)
                 .Location = New Point(10 + x * 50, 0)
                 .Name = x
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
+                .Hide()
+                AddHandler .Click, AddressOf AddCard
+                AddHandler .Click, AddressOf RemoveCardFromDeck
             End With
-            hand(x).Hide()
-            AddHandler hand(x).Click, AddressOf AddCard
         Next
-
-
-        ' COMBO
 
         For x = 0 To 124
             combo(x) = New PictureBox()
@@ -537,23 +544,25 @@ Public Class Main
                 .Hide()
                 .Size = New Size(50, 80)
                 .Location = New Point(10 + x * 50, 0)
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
+                .Hide()
+                AddHandler .Click, AddressOf RemoveCard
+                AddHandler .MouseEnter, AddressOf HighlightHits
+                AddHandler .MouseLeave, AddressOf UnhighlightHits
             End With
-            combo(x).Hide()
-            AddHandler combo(x).Click, AddressOf RemoveCard
-            AddHandler combo(x).MouseEnter, AddressOf HighlightHits
-            AddHandler combo(x).MouseLeave, AddressOf UnhighlightHits
         Next
-
-        For x = 1 To 454
-            magnus_image(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
-        Next
-
-        first_hit(0) = 1
 
 
         ' OUTPUT TABLE
+
+        output_panel = New DoubleBufferPanel()
+        With output_panel
+            .AutoScroll = True
+            .Location = New Point(0, 451)
+            .Size = New Size(Width - 16, Height - 490)
+            AddHandler .Click, AddressOf ChangeFocus
+        End With
+        Controls.Add(output_panel)
 
         For y = 0 To rows - 1
             table(0, y) = New Label
@@ -565,12 +574,12 @@ Public Class Main
                 .BackColor = default_color
                 .Text = variable(y)
                 .Tag = y
-                .Show()
+                AddHandler .MouseClick, AddressOf ChangeFocus
+                AddHandler .MouseEnter, AddressOf ShowDescription
+                AddHandler .Click, AddressOf ResetRow
+                AddHandler .Click, AddressOf HideRow
             End With
             output_panel.Controls.Add(table(0, y))
-            AddHandler table(0, y).MouseClick, AddressOf ChangeFocus
-            AddHandler table(0, y).MouseEnter, AddressOf ShowDescription
-            AddHandler table(0, y).Click, AddressOf ResetRow
         Next
         For x = 0 To 7
             table(0, clickable_rows(x)).Cursor = Cursors.Hand
@@ -593,8 +602,9 @@ Public Class Main
                     .BackColor = default_color
                     .Tag = x
                     .Name = y
+                    AddHandler .MouseClick, AddressOf ChangeFocus
+                    AddHandler .MouseClick, AddressOf ToggleEffect
                 End With
-                AddHandler table(x, y).MouseClick, AddressOf ChangeFocus
             Next
             For y = 0 To 2
                 hit_modifier(x, y) = New ComboBox
@@ -615,6 +625,15 @@ Public Class Main
             Next
             hit_card(x) = -1
         Next
+
+        hover = New ToolTip()
+        With hover
+            .AutomaticDelay = 250
+            .AutoPopDelay = 30000
+            .InitialDelay = 250
+            .ReshowDelay = 50
+            .Active = My.Settings.TableTooltips
+        End With
 
         description(0) = "An offense value based on the party member's level."
         description(1) = "An offense value from an attack. Every hit within an attack has its own offense value."
@@ -649,82 +668,78 @@ Public Class Main
         description(30) = "The total crush output so far. Yellow cells indicate a knockdown at the end of the combo. Orange cells indicate a knockout at the end of the combo."
         description(31) = "The enemy's HP after each hit. Click to toggle effective HP for 'unbeatable' bosses. A shield break will be highlighted in pink."
 
+
+        For x = 1 To 454
+            magnus_image(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
+        Next
+        first_hit(0) = 1
+
         For x = 1 To 101
             For y = 1 To 7
                 If EX_combo_data(x, y) = 0 Then
                     Exit For
                 End If
                 If EX_combo_data(x, y) < 16 Then
-                    EX_combo_hex(x) = EX_combo_hex(x) & "0" & Hex(EX_combo_data(x, y))
+                    EX_combo_hex(x) &= "0" & Hex(EX_combo_data(x, y))
                 Else
-                    EX_combo_hex(x) = EX_combo_hex(x) & Hex(EX_combo_data(x, y))
+                    EX_combo_hex(x) &= Hex(EX_combo_data(x, y))
                 End If
             Next
         Next
 
-        If My.Settings.ResultsRow = Nothing Then
-            My.Settings.ResultsRow = "11111111111111111111111111111111"
-        End If
-        UpdateRows()
-
-        'My.Settings.MagnusActive = Nothing
-        If My.Settings.MagnusActive Is Nothing Then
-            My.Settings.MagnusActive = New Specialized.StringCollection
-            My.Settings.MagnusActive.Clear()
-            deck_magnus(0) = "0"
-            For x = 1 To 44
-                deck_magnus(x) = "1"    'all attacks
-            Next
-            For x = 45 To 454
-                deck_magnus(x) = "0"
-            Next
-            deck_magnus(58) = "1"       'Laevateinn the Flameking
-            deck_magnus(72) = "1"       'Ascalon
-            deck_magnus(131) = "1"      'Drakeshead Stave
-            deck_magnus(139) = "1"      'Vajra the Indestructible
-            deck_magnus(167) = "1"      'Ice Roue
-            deck_magnus(169) = "1"      'Deluge the Seabane
-            deck_magnus(238) = "1"      'Firedrake Regalia
-            My.Settings.MagnusActive.AddRange(deck_magnus)
-        End If
-        Dim temp() As Char = String.Join("", My.Settings.MagnusActive.OfType(Of String)).ToCharArray
-        For x = 0 To 454
-            deck_magnus(x) = temp(x)
-        Next
-
-        enemy_status.SelectedIndex = 0
-        AddHandler enemy_status.SelectedIndexChanged, AddressOf ChangeStatus
-
-        hover = New ToolTip()
-        With hover
-            .AutomaticDelay = 250
-            .AutoPopDelay = 30000
-            .InitialDelay = 250
-            .ReshowDelay = 50
-            .Active = My.Settings.TableTooltips
-        End With
-
+        AddHandler Click, AddressOf ChangeFocus
         AddHandler Move, AddressOf SaveWindowData
         AddHandler Resize, AddressOf SaveWindowData
         AddHandler Resize, AddressOf ResizePanel
-
         ResizePanel(sender, e)
-        level_selector(0).Text = My.Settings.SagiLevel
-        level_selector(1).Text = My.Settings.MillyLevel
-        level_selector(2).Text = My.Settings.GuilloLevel
-        For x = 0 To 2
-            FixLevel(level_selector(x), New EventArgs)
-            aura_type(x).SelectedIndex = CInt("&H" & My.Settings.Auras.ElementAt(x * 2))
-            aura_level(x).SelectedIndex = CInt("&H" & My.Settings.Auras.ElementAt(x * 2 + 1))
-        Next
-        For x = 0 To 23
-            QM_inventory(x) = CInt("&H" & My.Settings.QuestMagnus.Substring(x * 2, 2))
-        Next
-        CheckQuestMagnus()
-        Show()
-        final_phase.Checked = My.Settings.FinalPhase
-        ChangeTarget(My.Settings.Target, 0, False)
-        SwitchCharacter(char_image(My.Settings.Character), e)
+
+        With My.Settings
+            If .ResultsRow = Nothing Then
+                .ResultsRow = "11111111111111111111111111111111"
+            End If
+            UpdateRows()
+
+            If .MagnusActive Is Nothing Then
+                .MagnusActive = New Specialized.StringCollection
+                .MagnusActive.Clear()
+                deck_magnus(0) = "0"
+                For x = 1 To 44
+                    deck_magnus(x) = "1"    'all attacks
+                Next
+                For x = 45 To 454
+                    deck_magnus(x) = "0"
+                Next
+                deck_magnus(58) = "1"       'Laevateinn the Flameking
+                deck_magnus(72) = "1"       'Ascalon
+                deck_magnus(131) = "1"      'Drakeshead Stave
+                deck_magnus(139) = "1"      'Vajra the Indestructible
+                deck_magnus(167) = "1"      'Ice Roue
+                deck_magnus(169) = "1"      'Deluge the Seabane
+                deck_magnus(238) = "1"      'Firedrake Regalia
+                .MagnusActive.AddRange(deck_magnus)
+            End If
+            Dim temp() As Char = String.Join("", .MagnusActive.OfType(Of String)).ToCharArray
+            For x = 0 To 454
+                deck_magnus(x) = temp(x)
+            Next
+
+            level_selector(0).Text = .SagiLevel
+            level_selector(1).Text = .MillyLevel
+            level_selector(2).Text = .GuilloLevel
+            For x = 0 To 2
+                FixLevel(level_selector(x), New EventArgs)
+                aura_type(x).SelectedIndex = CInt("&H" & .Auras.ElementAt(x * 2))
+                aura_level(x).SelectedIndex = CInt("&H" & .Auras.ElementAt(x * 2 + 1))
+            Next
+            For x = 0 To 23
+                QM_inventory(x) = CInt("&H" & .QuestMagnus.Substring(x * 2, 2))
+            Next
+            CheckQuestMagnus()
+            Show()
+            ChangeTarget(.Target, -1, False)
+            final_phase.Checked = .FinalPhase
+            SwitchCharacter(char_image(.Character), e)
+        End With
     End Sub
 
     Private Sub LoadWindowData()
@@ -887,15 +902,19 @@ Public Class Main
             End If
         End If
 
+        Dim value_1, value_2 As Double
         party_size = Read(battle_address - &HE346, 2)
         For x = 0 To party_size - 1
             party(x) = Read(battle_address - &HD02E + x * &H1578, 2)
             For y = 0 To 5
-                offense_boost(party(x) - 1, y, 0) = ReadFloat(battle_address - &HD15C + x * &H1578 + y * 4)
-                offense_boost(party(x) - 1, y, 1) = ReadFloat(battle_address - &HD10C + x * &H1578 + y * 4)
-                If Boost.Visible Then
-                    Boost.boost(x, y, 0).Text = offense_boost(x, y, 0)
-                    Boost.boost(x, y, 1).Text = offense_boost(x, y, 1)
+                value_1 = ReadFloat(battle_address - &HD15C + x * &H1578 + y * 4)
+                value_2 = ReadFloat(battle_address - &HD10C + x * &H1578 + y * 4)
+                If Not Boost.Visible Then
+                    offense_boost(party(x) - 1, y, 0) = LimitBoost(value_1)
+                    offense_boost(party(x) - 1, y, 1) = LimitBoost(value_2)
+                Else
+                    Boost.boost(x, y, 0).Text = LimitBoost(value_1)
+                    Boost.boost(x, y, 1).Text = LimitBoost(value_2)
                 End If
             Next
         Next
@@ -1035,13 +1054,13 @@ Public Class Main
 
             If turns = -1 Then
                 turns = 0
-                Return
+                end_of_combo = True
             End If
 
             'check (subsequent) turns in the action bar
             If Not end_of_combo Then
                 For x = next_turn To active_turns - 1
-                    If turns > 0 AndAlso active_turn_type(active_turn(x) - 1) <> 4 Then
+                    If (turns > 0 AndAlso active_turn_type(active_turn(x) - 1) <> 4) Or next_card(active_turn(x) - 1) = 0 Then
                         end_of_combo = True
                         Exit For
                     End If
@@ -1058,13 +1077,13 @@ Public Class Main
 
             If turns = -1 Then
                 turns = 0
-                Return
+                end_of_combo = True
             End If
 
             'read turns that are fully prepared, but not in the action bar yet
             If Not end_of_combo Then
                 For x = 0 To prepared_turns - 1
-                    If turns > 0 AndAlso prepared_turn_type(prepared_turn(x) - 1) <> 4 Then
+                    If (turns > 0 AndAlso prepared_turn_type(prepared_turn(x) - 1) <> 4) Or next_card(prepared_turn(x) - 1) = 0 Then
                         end_of_combo = True
                         Exit For
                     End If
@@ -1081,7 +1100,7 @@ Public Class Main
 
             If turns = -1 Then
                 turns = 0
-                Return
+                end_of_combo = True
             End If
 
             Dim last_turn As Integer = -1
@@ -1132,7 +1151,7 @@ Public Class Main
                 End If
 
                 'if there is one more prepared turn, read it now
-                If last_turn >= 0 AndAlso prepared_turn_type(last_turn) = 4 Then
+                If last_turn >= 0 AndAlso (prepared_turn_type(last_turn) = 4 And next_card(last_turn) <> 0) Then
                     slot = (next_card(last_turn) - emu_battle_address) / 36
                     For x = cards To cards + 8
                         ShowCard(card_id(slot), party(last_turn))
@@ -1165,19 +1184,20 @@ Public Class Main
         Else
             final_phase.Checked = False
         End If
-        For x = 0 To 5
-            Me.defense_boost(x, 0) = defense_boost(final_target, x, 0)
-            Me.defense_boost(x, 1) = defense_boost(final_target, x, 1)
-        Next
-        Me.enemy_offense_boost(0) = enemy_offense_boost(final_target, 0)
-        Me.enemy_offense_boost(1) = enemy_offense_boost(final_target, 1)
-        If Boost.Visible Then
+        If Not Boost.Visible Then
             For x = 0 To 5
-                Boost.boost(3, x, 0).Text = Me.defense_boost(x, 0)
-                Boost.boost(3, x, 1).Text = Me.defense_boost(x, 1)
+                Me.defense_boost(x, 0) = LimitBoost(defense_boost(final_target, x, 0))
+                Me.defense_boost(x, 1) = LimitBoost(defense_boost(final_target, x, 1))
             Next
-            Boost.boost(4, 0, 0).Text = Me.enemy_offense_boost(0)
-            Boost.boost(4, 0, 1).Text = Me.enemy_offense_boost(1)
+            Me.enemy_offense_boost(0) = LimitBoost(enemy_offense_boost(final_target, 0))
+            Me.enemy_offense_boost(1) = LimitBoost(enemy_offense_boost(final_target, 1))
+        Else
+            For x = 0 To 5
+                Boost.boost(3, x, 0).Text = LimitBoost(defense_boost(final_target, x, 0))
+                Boost.boost(3, x, 1).Text = LimitBoost(defense_boost(final_target, x, 1))
+            Next
+            Boost.boost(4, 0, 0).Text = LimitBoost(enemy_offense_boost(final_target, 0))
+            Boost.boost(4, 0, 1).Text = LimitBoost(enemy_offense_boost(final_target, 1))
         End If
 
         Calculate()
@@ -1187,7 +1207,7 @@ Public Class Main
         If cards = 125 Then
             Return
         End If
-        If IsItem(id) Then
+        If IsItem(id) Or id = 0 Then
             turns = -1
             Return
         End If
@@ -1200,9 +1220,9 @@ Public Class Main
         combo(cards).Image = magnus_image(id)
         combo(cards).Tag = id
         combo(cards).Name = cards
-        If Not input_panel(1).Contains(combo(cards)) Then
-            combo(cards).Left += input_panel(1).AutoScrollPosition.X
-            input_panel(1).Controls.Add(combo(cards))
+        If Not card_panel(1).Contains(combo(cards)) Then
+            combo(cards).Left += card_panel(1).AutoScrollPosition.X
+            card_panel(1).Controls.Add(combo(cards))
         End If
         combo(cards).Show()
         member(cards) = m
@@ -1218,12 +1238,17 @@ Public Class Main
         Dim buffer As Integer
         ReadProcessMemory(hProcess, address, buffer, size, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
-        If size = 4 Then
-            Array.Reverse(bytes)
-            Return BitConverter.ToInt32(bytes, 0)
-        Else
-            Return bytes(0) * 256 + bytes(1)
-        End If
+        Select Case size
+            Case 1
+                Return bytes(0)
+            Case 2
+                Return bytes(0) * 256 + bytes(1)
+            Case 4
+                Array.Reverse(bytes)
+                Return BitConverter.ToInt32(bytes, 0)
+            Case Else
+                Return 0
+        End Select
     End Function
 
     Private Function ReadFloat(address As Int64) As Double
@@ -1231,7 +1256,7 @@ Public Class Main
         ReadProcessMemory(hProcess, address, buffer, 4, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
         Array.Reverse(bytes)
-        Return RoundBoost(BitConverter.ToSingle(bytes, 0))
+        Return Round(BitConverter.ToSingle(bytes, 0))
     End Function
 
     Private Function GetEquipment(eq As Integer) As Integer()
@@ -1364,7 +1389,7 @@ Public Class Main
                 If x > 0 Then
                     turns_per_member(member(x) - 1) += 1
                 End If
-                first_hit(x + 1) = hits + 1                     'save ID of first hit for the current card
+                first_hit(x + 1) = hits + 1                     'save ID of first hit for the next card
 
                 CheckCombo(Array.IndexOf(turn, x, 0, turns))    'check for EX combos in the current turn
                 Continue For
@@ -1731,21 +1756,26 @@ Public Class Main
                 'two-turn offense/defense reduction triggered by a weapon
                 boost_element = -1
                 If weapon_boost(hits) AndAlso (durability > 0 Or full_turn_weapon) Then
+                    Dim result As Double
                     If equip(x) = 142 Then      'Rosevine: physical offense -40%
                         boost_element = 6
-                        enemy_offense_boost(0) -= 0.4
-                        enemy_offense_boost(1) -= 0.4
+                        result = Round(enemy_offense_boost(0) - 0.4)
+                        enemy_offense_boost(0) = LimitBoost(result)
+                        result = Round(enemy_offense_boost(1) - 0.4)
+                        enemy_offense_boost(1) = LimitBoost(result)
                     Else
                         Dim boost_index As Integer = Array.IndexOf(boost_weapons, equip(x))
                         If boost_index >= 0 Then
                             boost_element = boost_weapon_element(boost_index)
-                            Dim result As Double = RoundBoost(defense_boost(boost_element, 0) - boost_weapon_bonus(boost_index) * 0.01)
-                            defense_boost(boost_element, 0) = Math.Max(-1000, Math.Min(result, 1000))
-                            result = RoundBoost(defense_boost(boost_element, 1) - boost_weapon_bonus(boost_index) * 0.01)
-                            defense_boost(boost_element, 1) = Math.Max(-1000, Math.Min(result, 1000))
+                            result = Round(defense_boost(boost_element, 0) - boost_weapon_bonus(boost_index) * 0.01)
+                            defense_boost(boost_element, 0) = LimitBoost(result)
+                            result = Round(defense_boost(boost_element, 1) - boost_weapon_bonus(boost_index) * 0.01)
+                            defense_boost(boost_element, 1) = LimitBoost(result)
                         End If
                     End If
                 End If
+
+                hit_card(hits) = x          'an array that stores which card each hit originates from
 
                 ShowHit(x, offense, attack_offense, attack_crush, attack_boost_factor, armor_factor, weapon_offense, effect_element, weapon_crush, boost_element, element_compatibility, weapon_factor, qm_bonus, aura_offense, aura_crush, ex_offense_factor, ex_crush_factor, crit_factor, enemy_status, base_defense, crush_limit, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, multiplier, armor_defense, damage_output, crush_output, total_damage, HP_remaining, attack_element, knockdown, knockout)
 
@@ -1766,7 +1796,6 @@ Public Class Main
                 If armor_durability > 0 Then
                     armor_durability -= 1
                 End If
-                hit_card(hits) = x          'an array that stores which card each hit originates from
             Next
             first_hit(x + 1) = hits + 1     'an array that stores the first hit of each card
 
@@ -1788,12 +1817,12 @@ Public Class Main
 
                     attack_element = hit_element(hits)
                     Select Case member(x)
-                        Case 1                                                            'Sagi
-                            offense = Math.Round(LevelToOffense(level(member(x) - 1)) * 10, MidpointRounding.AwayFromZero)
-                        Case 2                                                            'Milly
-                            offense = Math.Round(LevelToOffense(level(member(x) - 1)) * 7, MidpointRounding.AwayFromZero)
-                        Case 3                                                            'Guillo
-                            offense = Math.Round(LevelToOffense(level(member(x) - 1)) * 15, MidpointRounding.AwayFromZero)
+                        Case 1                                              'Sagi
+                            offense = Math.Round(LevelToOffense(level(0)) * 10, MidpointRounding.AwayFromZero)
+                        Case 2                                              'Milly
+                            offense = Math.Round(LevelToOffense(level(1)) * 7, MidpointRounding.AwayFromZero)
+                        Case 3                                              'Guillo
+                            offense = Math.Round(LevelToOffense(level(2)) * 15, MidpointRounding.AwayFromZero)
                     End Select
                     offense_deviation = DeviationToNumber(hits + 1, 0)
                     qm_bonus = QM_total_bonus(6)
@@ -1826,9 +1855,11 @@ Public Class Main
                     Else
                         HP_remaining = effective_HP
                     End If
-                    ShowKnockdownHit(offense, qm_bonus, enemy_status, base_defense, total_offense, total_defense, damage_output, total_damage, HP_remaining, attack_element)
 
                     hit_card(hits) = x
+
+                    ShowKnockdownHit(offense, qm_bonus, enemy_status, base_defense, total_offense, total_defense, damage_output, total_damage, HP_remaining, attack_element)
+
                     first_hit(x + 1) += 1
                 End If
 
@@ -1918,9 +1949,11 @@ Public Class Main
                     Else
                         HP_remaining = effective_HP
                     End If
-                    ShowRegaliaHit(offense, attack_boost_factor, enemy_status, base_defense, crush_limit, defense_boost_factor, multiplier, total_offense, crush_status, total_defense, armor_defense, damage_output, total_damage, HP_remaining)
 
                     hit_card(hits) = x
+
+                    ShowRegaliaHit(offense, attack_boost_factor, enemy_status, base_defense, crush_limit, defense_boost_factor, multiplier, total_offense, crush_status, total_defense, armor_defense, damage_output, total_damage, HP_remaining)
+
                     first_hit(x + 1) += 1
                 End If
             End If
@@ -2044,8 +2077,12 @@ Public Class Main
         combo_results.Text = final_cards & final_hits & vbCrLf & final_damage & vbCrLf & TP_bonus
     End Sub
 
-    Private Function RoundBoost(input As Double) As Double
-        Return Math.Round(input, 3, MidpointRounding.AwayFromZero)
+    Private Function Round(input As Double) As Double
+        Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
+    End Function
+
+    Private Function LimitBoost(input As Double) As Double
+        Return Math.Max(-1000, Math.Min(input, 1000))
     End Function
 
     Private Sub ShowHitModifiers()
@@ -2053,13 +2090,15 @@ Public Class Main
             If My.Settings.ResultsRow.ElementAt(hit_modifier_row(i)) = "0" Then
                 Continue For
             End If
-            hit_modifier(hits + 1, i).Top = row_pos(hit_modifier_row(i)) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(hit_modifier(hits + 1, i)) Then
-                hit_modifier(hits + 1, i).Left = 104 + 52 * (hits + 1) + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(hit_modifier(hits + 1, i))
-                hit_modifier(hits + 1, i).SelectedIndex = 4
-            End If
-            hit_modifier(hits + 1, i).Show()
+            With hit_modifier(hits + 1, i)
+                .Top = row_pos(hit_modifier_row(i)) + output_panel.AutoScrollPosition.Y
+                If Not output_panel.Contains(hit_modifier(hits + 1, i)) Then
+                    .Left = 104 + 52 * (hits + 1) + output_panel.AutoScrollPosition.X
+                    output_panel.Controls.Add(hit_modifier(hits + 1, i))
+                    .SelectedIndex = 4
+                End If
+                .Show()
+            End With
         Next
 
         'on fire/dark knockdown extra hits, offense/defense deviation ranges from -20% to +4%
@@ -2092,83 +2131,63 @@ Public Class Main
             hit_modifier(hits + 1, 2).SelectedIndex = 4
             hit_modifier(hits + 1, 1).SelectedIndex = 4
         End If
-
-        If My.Settings.ResultsRow.ElementAt(4) = "1" Then
-            hit_modifier(hits + 1, 0).Show()
-        End If
-        If My.Settings.ResultsRow.ElementAt(5) = "1" Then
-            hit_modifier(hits + 1, 1).Show()
-        End If
-        If My.Settings.ResultsRow.ElementAt(21) = "1" Then
-            hit_modifier(hits + 1, 2).Show()
-        End If
     End Sub
 
-    Private Sub ResetColor(y As Integer)
-        If table(hits, y).BackColor <> Color.LightBlue Then
-            table(hits, y).BackColor = default_color
-        End If
+    Private Sub NewHit()
+        For y = 0 To rows - 1
+            With table(hits, y)
+                If Not hit_modifier_row.Contains(y) Then
+                    .Text = ""
+                    If highlight = hit_card(hits) Then
+                        .BackColor = Color.LightBlue
+                    ElseIf .BackColor <> default_color Then
+                        .BackColor = default_color
+                    End If
+                End If
+
+                If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
+                    Continue For
+                End If
+
+                .Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+                If Not output_panel.Contains(table(hits, y)) Then
+                    .Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
+                    output_panel.Controls.Add(table(hits, y))
+                End If
+                .Show()
+            End With
+        Next
     End Sub
 
     Private Sub ShowRegaliaHit(offense As Double, attack_boost_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, defense_boost_factor As Double, multiplier As Double, total_offense As Double, crush_status As Double, total_defense As Double, armor_defense As Integer, damage_output As Integer, total_damage As Integer, enemy_HP As Integer)
-        For y = 0 To rows - 1
-            If Not hit_modifier_row.Contains(y) Then
-                table(hits, y).Text = ""
-            End If
-            If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
-                Continue For
-            End If
-
-            table(hits, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(table(hits, y)) Then
-                table(hits, y).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(table(hits, y))
-                If clickable_rows.Contains(y) Then
-                    AddHandler table(hits, y).MouseClick, AddressOf ToggleEffect
-                End If
-            End If
-            table(hits, y).Show()
-        Next
+        NewHit()
 
         table(hits, 0).Text = offense
         table(hits, 1).Text = 50            'Firedrake/Aetherdrake Regalia's "attack offense" is always 50
-        If attack_boost_factor = 1 Then
-            table(hits, 3).Text = ""
-        Else
-            table(hits, 3).Text = Math.Round(attack_boost_factor, 3, MidpointRounding.AwayFromZero)
+        If attack_boost_factor <> 1 Then
+            table(hits, 3).Text = Round(attack_boost_factor)
         End If
 
-        ResetColor(7)
-        ResetColor(8)
-
-        If enemy_status > 0 Then
+        If enemy_status <> 0 Then
             If enemy_status = 4 Then
                 table(hits, 16).BackColor = element_color(5)
             Else
                 table(hits, 16).BackColor = element_color(enemy_status)
             End If
-        Else
-            ResetColor(16)
         End If
 
         table(hits, 17).Text = base_defense
         table(hits, 18).Text = max_crush
         table(hits, 19).Text = Decimals(crush_status)
-        If defense_boost_factor = 1 Then
-            table(hits, 20).Text = ""
-        Else
-            table(hits, 20).Text = Math.Round(defense_boost_factor, 3, MidpointRounding.AwayFromZero)
+        If defense_boost_factor <> 1 Then
+            table(hits, 20).Text = Round(defense_boost_factor)
         End If
         table(hits, 22).Text = Decimals(total_offense)
         table(hits, 24).Text = Decimals(total_defense)
-        If armor_defense = 0 Then
-            table(hits, 25).Text = ""
-        Else
+        If armor_defense <> 0 Then
             table(hits, 25).Text = armor_defense
         End If
-        If multiplier = 1 Then
-            table(hits, 26).Text = ""
-        Else
+        If multiplier <> 1 Then
             table(hits, 26).Text = multiplier
         End If
         table(hits, 27).Text = damage_output
@@ -2181,8 +2200,6 @@ Public Class Main
 
         If hits = shield_break_hit Then
             table(hits, 31).BackColor = Color.LightPink
-        Else
-            ResetColor(31)
         End If
 
         Dim change_color() As Integer = {4, 5, 7, 8, 16, 21, 27, 28, 31}
@@ -2192,47 +2209,25 @@ Public Class Main
             End If
         Next
         If hits = 1 Then
-            ResetColor(10)
+            table(hits, 10).BackColor = default_color
         End If
     End Sub
 
     Private Sub ShowKnockdownHit(offense As Integer, qm_bonus As Integer, enemy_status As Integer, base_defense As Integer, total_offense As Double, total_defense As Double, damage_output As Integer, total_damage As Integer, enemy_hp As Integer, attack_element As Integer)
-        For y = 0 To rows - 1
-            If Not hit_modifier_row.Contains(y) Then
-                table(hits, y).Text = ""
-            End If
-            If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
-                Continue For
-            End If
-
-            table(hits, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(table(hits, y)) Then
-                table(hits, y).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(table(hits, y))
-                If clickable_rows.Contains(y) Then
-                    AddHandler table(hits, y).MouseClick, AddressOf ToggleEffect
-                End If
-            End If
-            table(hits, y).Show()
-        Next
+        NewHit()
 
         table(hits, 0).Text = offense
 
-        If qm_bonus > 0 Then
+        If qm_bonus <> 0 Then
             table(hits, 11).Text = qm_bonus
         End If
 
-        ResetColor(7)
-        ResetColor(8)
-
-        If enemy_status > 0 Then
+        If enemy_status <> 0 Then
             If enemy_status = 4 Then
                 table(hits, 16).BackColor = element_color(5)
             Else
                 table(hits, 16).BackColor = element_color(enemy_status)
             End If
-        Else
-            ResetColor(16)
         End If
 
         table(hits, 17).Text = base_defense
@@ -2251,8 +2246,6 @@ Public Class Main
 
         If hits = shield_break_hit Then
             table(hits, 31).BackColor = Color.LightPink
-        Else
-            ResetColor(31)
         End If
 
         Dim change_color() As Integer = {4, 5, 7, 8, 16, 21, 27, 28, 31}
@@ -2264,53 +2257,25 @@ Public Class Main
     End Sub
 
     Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Int64, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
-        For y = 0 To rows - 1
-            If My.Settings.ResultsRow.ElementAt(y) = "0" Or hit_modifier_row.Contains(y) Then
-                Continue For
-            End If
-
-            table(hits, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
-            If Not output_panel.Contains(table(hits, y)) Then
-                table(hits, y).Left = 104 + 52 * hits + output_panel.AutoScrollPosition.X
-                output_panel.Controls.Add(table(hits, y))
-                If clickable_rows.Contains(y) Then
-                    AddHandler table(hits, y).MouseClick, AddressOf ToggleEffect
-                End If
-            End If
-            table(hits, y).Show()
-        Next
+        NewHit()
 
         table(hits, 0).Text = offense
         table(hits, 1).Text = attack_offense
         table(hits, 2).Text = attack_crush
-        If attack_boost_factor = 1 Then
-            table(hits, 3).Text = ""
-        Else
-            table(hits, 3).Text = Math.Round(attack_boost_factor, 3, MidpointRounding.AwayFromZero)
+        If attack_boost_factor <> 1 Then
+            table(hits, 3).Text = Round(attack_boost_factor)
         End If
-        If armor_factor = 1 Then
-            table(hits, 6).Text = ""
-        Else
+        If armor_factor <> 1 Then
             table(hits, 6).Text = armor_factor
         End If
-        If weapon_offense = 0 And weapon_crush = 0 Then
-            table(hits, 7).Text = ""
-            ResetColor(7)
-            table(hits, 8).Text = ""
-            ResetColor(8)
-            table(hits, 9).Text = ""
-            table(hits, 10).Text = ""
-        Else
+
+        If weapon_offense <> 0 Or weapon_crush <> 0 Then
             table(hits, 7).Text = weapon_offense
-            If effect_element = 0 Then
-                ResetColor(7)
-            Else
+            If effect_element <> 0 Then
                 table(hits, 7).BackColor = element_color(effect_element)
             End If
             table(hits, 8).Text = weapon_crush
-            If boost_element = -1 Then
-                ResetColor(8)
-            Else
+            If boost_element <> -1 Then
                 If boost_element < 6 Then
                     table(hits, 8).BackColor = element_color(boost_element)
                 Else
@@ -2318,38 +2283,25 @@ Public Class Main
                 End If
             End If
             table(hits, 9).Text = element_compatibility
-            If weapon_factor = 1 Then
-                table(hits, 10).Text = ""
-            Else
+            If weapon_factor <> 1 Then
                 table(hits, 10).Text = weapon_factor
             End If
         End If
-        If qm_bonus = 0 Then
-            table(hits, 11).Text = ""
-        Else
+        If qm_bonus <> 0 Then
             table(hits, 11).Text = qm_bonus
         End If
-        If aura_offense = 0 Then
-            table(hits, 12).Text = ""
-        Else
+        If aura_offense <> 0 Then
             table(hits, 12).Text = aura_offense
         End If
-        If aura_crush = 0 Then
-            table(hits, 13).Text = ""
-        Else
+        If aura_crush <> 0 Then
             table(hits, 13).Text = aura_crush
         End If
-        If EX(x) = 0 Then
-            table(hits, 14).Text = ""
-            table(hits, 15).Text = ""
-        Else
+
+        If EX(x) <> 0 Then
             table(hits, 14).Text = ex_offense_factor
             table(hits, 15).Text = ex_crush_factor
         End If
-        If crit_factor = 1 Then
-            table(hits, 16).Text = ""
-            table(hits, 16).Font = New Font("Segoe UI", 9, FontStyle.Regular)
-        Else
+        If crit_factor <> 1 Then
             table(hits, 16).Text = crit_factor
             If qm_crit(hits) And QM_total_bonus(7) < 100 Then
                 table(hits, 16).Font = New Font("Segoe UI", 9, FontStyle.Bold)
@@ -2357,48 +2309,42 @@ Public Class Main
                 table(hits, 16).Font = New Font("Segoe UI", 9, FontStyle.Regular)
             End If
         End If
-        If enemy_status > 0 Then
+        If enemy_status <> 0 Then
             If enemy_status = 4 Then
                 table(hits, 16).BackColor = element_color(5)
             Else
                 table(hits, 16).BackColor = element_color(enemy_status)
             End If
-        Else
-            ResetColor(16)
         End If
+
         table(hits, 17).Text = base_defense
         table(hits, 18).Text = max_crush
         table(hits, 19).Text = Decimals(crush_status)
-        If defense_boost_factor = 1 Then
-            table(hits, 20).Text = ""
-        Else
-            table(hits, 20).Text = Math.Round(defense_boost_factor, 3, MidpointRounding.AwayFromZero)
+        If defense_boost_factor <> 1 Then
+            table(hits, 20).Text = Round(defense_boost_factor)
         End If
+
         table(hits, 22).Text = Decimals(total_offense)
         table(hits, 23).Text = Decimals(total_crush)
         table(hits, 24).Text = Decimals(total_defense)
-        If armor_defense = 0 Then
-            table(hits, 25).Text = ""
-        Else
+
+        If armor_defense <> 0 Then
             table(hits, 25).Text = armor_defense
         End If
-        If multiplier = 1 Then
-            table(hits, 26).Text = ""
-        Else
+        If multiplier <> 1 Then
             table(hits, 26).Text = multiplier
         End If
+
         table(hits, 27).Text = damage_output
         table(hits, 28).Text = Decimals(crush_output)
-        table(hits, 29).Text = total_damage
 
+        table(hits, 29).Text = total_damage
         Dim crush As Double = crush_status + crush_output
         table(hits, 30).Text = Decimals(crush)
         table(hits, 31).Text = enemy_hp
 
         If hits = shield_break_hit Then
             table(hits, 31).BackColor = Color.LightPink
-        Else
-            ResetColor(31)
         End If
 
         table(hits, 27).BackColor = element_color(attack_element)
@@ -2408,8 +2354,6 @@ Public Class Main
             table(hits, 30).BackColor = Color.Orange
         ElseIf crush >= knock_down And knock_down > 0 Then
             table(hits, 30).BackColor = Color.Yellow
-        Else
-            ResetColor(30)
         End If
     End Sub
 
@@ -2430,48 +2374,49 @@ Public Class Main
                 End If
             Case 2                       'Milly
                 Dim EX As Integer = Me.EX(index)
-                If card < 10 Then
-                    If (EX = 41 Or EX = 42) And card = 2 Then                'Medium Attack * (Reverse Knight, Reverse Tail)
-                        Return 26
-                    ElseIf EX = 43 And card = 5 Then                         'Medium Attack B * (Trail Rush)
-                        Return 30
-                    ElseIf EX = 44 And card = 5 Then                         'Medium Attack B ** (Horse Prance)
-                        Return 31
-                    ElseIf EX = 45 And card = 3 Then                         'Strong Attack * (Capricorn Header)
-                        Return 28
-                    ElseIf (EX > 45 And EX < 49) And card = 2 Then           'Medium Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
-                        Return 27
-                    ElseIf (EX > 45 And EX < 49) And card = 3 Then           'Strong Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
-                        Return 29
-                    ElseIf (EX > 48 And EX < 55) And card = 5 Then           'Medium Attack B ** (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
-                        Return 31
-                    End If
-                    Return card + 15            'regular attacks
-                ElseIf card = 10 Then
-                    If (EX > 48 And EX < 55) And card = 10 Then              'Rabbit Dash * (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
-                        Return 32
-                    ElseIf (EX = 55 Or EX = 56) And card = 10 Then           'Rabbit Dash ** (Secret Queen, Secret Queen II)
-                        Return 33
-                    End If
-                    If index = cards - 1 And (index < 1 OrElse (Not IsAttack(combo(index - 1).Tag) Or member(index - 1) <> 2)) Then     'the Rabbit Dash attack only happens in isolation, i.e. no preceeding or subsequent Milly attacks
-                        Return 25
-                    Else
-                        Return 21               'Rabbit Dash turns into Strong Attack B if used in a regular combo
-                    End If
-                ElseIf card < 24 Then
-                    Return card + 13            'special attacks up to Arabesque
-                ElseIf card = 24 Then
-                    Dim equip As Integer = Me.equip(index)                         'There are 3 variations of Arabesque. Which one is used depends on the element of the weapon equipped at the start of Milly's turn.
-                    If magnus_element(equip) = 1 And IsWeapon(equip) Then
-                        Return 38                                                  'Arabesque (fire weapon)
-                    ElseIf magnus_element(equip) = 3 And IsWeapon(equip) Then
-                        Return 39                                                  'Arabesque (lightning weapon)
-                    Else
-                        Return 37                                                  'Arabesque (physical weapon or no weapon)
-                    End If
-                Else
-                    Return card + 15            'special attacks beyond Arabesque
-                End If
+                Select Case card
+                    Case < 10
+                        If (EX = 41 Or EX = 42) And card = 2 Then                'Medium Attack * (Reverse Knight, Reverse Tail)
+                            Return 26
+                        ElseIf EX = 43 And card = 5 Then                         'Medium Attack B * (Trail Rush)
+                            Return 30
+                        ElseIf EX = 44 And card = 5 Then                         'Medium Attack B ** (Horse Prance)
+                            Return 31
+                        ElseIf EX = 45 And card = 3 Then                         'Strong Attack * (Capricorn Header)
+                            Return 28
+                        ElseIf (EX > 45 And EX < 49) And card = 2 Then           'Medium Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
+                            Return 27
+                        ElseIf (EX > 45 And EX < 49) And card = 3 Then           'Strong Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
+                            Return 29
+                        ElseIf (EX > 48 And EX < 55) And card = 5 Then           'Medium Attack B ** (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
+                            Return 31
+                        End If
+                        Return card + 15            'regular attacks
+                    Case 10
+                        If EX > 48 And EX < 55 Then                              'Rabbit Dash * (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
+                            Return 32
+                        ElseIf EX = 55 Or EX = 56 Then                           'Rabbit Dash ** (Secret Queen, Secret Queen II)
+                            Return 33
+                        End If
+                        If index = cards - 1 And (index = 0 OrElse Not IsAttack(combo(index - 1).Tag)) Then     'the Rabbit Dash attack only happens in isolation, i.e. no preceeding or subsequent attacks
+                            Return 25
+                        Else
+                            Return 21               'Rabbit Dash turns into Strong Attack B if used in a regular combo
+                        End If
+                    Case < 24
+                        Return card + 13            'special attacks up to Arabesque
+                    Case 24
+                        Dim equip As Integer = Me.equip(index)                         'There are 3 variations of Arabesque. Which one is used depends on the element of the weapon equipped at the start of Milly's turn.
+                        If magnus_element(equip) = 1 And IsWeapon(equip) Then
+                            Return 38                                                  'Arabesque (fire weapon)
+                        ElseIf magnus_element(equip) = 3 And IsWeapon(equip) Then
+                            Return 39                                                  'Arabesque (lightning weapon)
+                        Else
+                            Return 37                                                  'Arabesque (physical weapon or no weapon)
+                        End If
+                    Case Else
+                        Return card + 15            'special attacks beyond Arabesque
+                End Select
         End Select
         Return -1
     End Function
@@ -2508,10 +2453,7 @@ Public Class Main
 
     Private Sub AddCard(sender As Object, e As MouseEventArgs)
         sender.Focus()
-
-        'middle-click to remove cards from deck
         If e.Button = MouseButtons.Middle Then
-            RemoveCardFromDeck(sender, e)
             Return
         End If
 
@@ -2545,9 +2487,9 @@ Public Class Main
             .Image = magnus_image(sender.tag)
             .Tag = sender.Tag
             .Name = cards
-            If Not input_panel(1).Contains(combo(cards)) Then
-                .Left += input_panel(1).AutoScrollPosition.X
-                input_panel(1).Controls.Add(combo(cards))
+            If Not card_panel(1).Contains(combo(cards)) Then
+                .Left += card_panel(1).AutoScrollPosition.X
+                card_panel(1).Controls.Add(combo(cards))
             End If
             .Show()
         End With
@@ -2565,7 +2507,7 @@ Public Class Main
     End Sub
 
     Private Sub RemoveCard(sender As Object, e As EventArgs)
-        input_panel(1).Focus()
+        card_panel(1).Focus()
         Dim x As Integer
         'update turn counter
         For x = cards - 1 To sender.Name Step -1
@@ -2598,29 +2540,35 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub AddEquipment(m As Integer, e As Integer)
-        equipment(m).Tag = e
-        equipment(m).Image = New Bitmap(magnus_image(e), New Size(40, 64))
-        equipment(m).Show()
-        eq_durability(m).Items.Clear()
-        Dim first, extra As Integer
-        If durability(e) > 0 Then
-            first = 1
-        End If
-        If My.Settings.SaberDragonHorn Then
-            extra = 5
-        ElseIf durability(e) = 0 Then
-            first = 1
-        End If
-        For x = first To durability(e) + extra
-            eq_durability(m).Items.Add(x)
-        Next
-        If eq_durability(m).Items.Count > 0 Then
-            eq_durability(m).SelectedIndex = durability(e) - first
-            eq_durability(m).Show()
-        Else
-            eq_durability(m).Hide()
-        End If
+    Private Sub AddEquipment(member As Integer, eq As Integer)
+        With equipment(member)
+            .Tag = eq
+            .Image = New Bitmap(magnus_image(eq), .Size)
+            .Show()
+        End With
+        With eq_durability(member)
+            .Items.Clear()
+
+            Dim first, extra As Integer
+            If durability(eq) > 0 Then
+                first = 1
+            End If
+            If My.Settings.SaberDragonHorn Then
+                extra = 5
+            ElseIf durability(eq) = 0 Then
+                first = 1
+            End If
+
+            For x = first To durability(eq) + extra
+                .Items.Add(x)
+            Next
+            If .Items.Count > 0 Then
+                .SelectedIndex = durability(eq) - first
+                .Show()
+            Else
+                .Hide()
+            End If
+        End With
         Calculate()
     End Sub
 
@@ -2632,6 +2580,10 @@ Public Class Main
     End Sub
 
     Private Sub RemoveCardFromDeck(sender As Object, e As MouseEventArgs)
+        sender.Focus()
+        If e.Button <> MouseButtons.Middle Then
+            Return
+        End If
         If Deck.Visible Then
             Deck.ToggleCard(sender, e)
         Else
@@ -2658,9 +2610,11 @@ Public Class Main
                 End If
             Next
         Next
+        highlight = sender.Name
     End Sub
 
     Private Sub UnhighlightHits(sender As Object, e As EventArgs)
+        highlight = -1
         For x = first_hit(sender.Name) To 999
             If hit_card(x) <> sender.Name Then
                 Exit For
@@ -2923,9 +2877,9 @@ Public Class Main
             If (magnus_user(x) = 0 Or magnus_user(x) = character) And deck_magnus(x) = "1" And Not IsItem(x) Then
                 hand(y).Image = magnus_image(x)
                 hand(y).Tag = x
-                If Not input_panel(0).Contains(hand(y)) Then
-                    hand(y).Left += input_panel(0).AutoScrollPosition.X
-                    input_panel(0).Controls.Add(hand(y))
+                If Not card_panel(0).Contains(hand(y)) Then
+                    hand(y).Left += card_panel(0).AutoScrollPosition.X
+                    card_panel(0).Controls.Add(hand(y))
                 End If
                 hand(y).Show()
                 y += 1
@@ -2937,9 +2891,9 @@ Public Class Main
             If (magnus_user(x) = 0 Or magnus_user(x) = character) And deck_magnus(x) = "1" Then
                 hand(y).Image = magnus_image(x)
                 hand(y).Tag = x
-                If Not input_panel(0).Contains(hand(y)) Then
-                    hand(y).Left += input_panel(0).AutoScrollPosition.X
-                    input_panel(0).Controls.Add(hand(y))
+                If Not card_panel(0).Contains(hand(y)) Then
+                    hand(y).Left += card_panel(0).AutoScrollPosition.X
+                    card_panel(0).Controls.Add(hand(y))
                 End If
                 hand(y).Show()
                 y += 1
@@ -2971,7 +2925,7 @@ Public Class Main
             End If
 
             'after switching characters: not a weak attack, not an equipment magnus with relay mark
-            If relay(cards) AndAlso ((spirit_number(hand(x).Tag) < 1 Or spirit_number(hand(x).Tag) > 2) OrElse (spirit_number(hand(x).Tag) = 1 And Not relay_mark(hand(x).Tag))) Then
+            If relay(cards) AndAlso (spirit_number(hand(x).Tag) < 1 Or spirit_number(hand(x).Tag) > 2 OrElse (spirit_number(hand(x).Tag) = 1 And Not relay_mark(hand(x).Tag))) Then
                 transparent = True
             End If
 
@@ -3077,20 +3031,7 @@ Public Class Main
 
         'change level (Hero License, Tub-Time Greythorne)
         For x = 0 To 2
-            Me.level(x) = Math.Max(1, Math.Min(100, level_selector(x).Text + QM_total_bonus(8)))
-            If Me.level(x) > level_selector(x).Text Then
-                actual_level(x).Text = Me.level(x)
-                actual_level(x).ForeColor = Color.Green
-                actual_level(x).Show()
-            ElseIf Me.level(x) < level_selector(x).Text Then
-                actual_level(x).Text = Me.level(x)
-                actual_level(x).ForeColor = Color.Red
-                actual_level(x).Show()
-            Else
-                actual_level(x).Text = ""
-                actual_level(x).Hide()
-            End If
-            CheckAura(x, False)
+            ChangeLevel(level_selector(x), New EventArgs)
         Next
 
         Calculate()
@@ -3160,7 +3101,7 @@ Public Class Main
 
         true_max_HP = HP(combo_target)
         target_data(8).Text = true_max_HP
-        If enemy_HP = 0 Or enemy_HP > true_max_HP Then
+        If enemy_HP < 0 Or enemy_HP > true_max_HP Then
             Me.enemy_HP.Text = true_max_HP
             true_HP = true_max_HP
         Else
@@ -3169,7 +3110,7 @@ Public Class Main
         End If
 
         If Boost.Visible Then
-            Boost.chars(3).Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(70, 84))
+            Boost.character(3).Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(70, 84))
         End If
 
         If multi_phase_enemies.Contains(combo_target) Then
@@ -3225,13 +3166,15 @@ Public Class Main
             Me.armor_durability.Items.Clear()
         End If
         If armor_durability > 0 Then
-            Me.armor_durability.Items.Clear()
-            For i = 0 To armor_durability
-                Me.armor_durability.Items.Add(i)
-            Next
-            Me.armor_durability.SelectedIndex = Me.armor_durability.Items.Count - 1
-            target_data(10).Show()
-            Me.armor_durability.Show()
+            With Me.armor_durability
+                .Items.Clear()
+                For i = 0 To armor_durability
+                    .Items.Add(i)
+                Next
+                .SelectedIndex = .Items.Count - 1
+                target_data(10).Show()
+                .Show()
+            End With
         End If
 
         If go Then
@@ -3244,22 +3187,24 @@ Public Class Main
     End Sub
 
     Private Sub CheckHP(sender As Object, e As EventArgs)
-        If enemy_HP.Text = "" Then
-            enemy_HP.ForeColor = Color.Red
-        ElseIf Not IsNonNegativeInteger(enemy_HP.Text) Then
-            ResetHP(sender, e)
-        ElseIf enemy_HP.Text > true_max_HP Then
-            enemy_HP.ForeColor = Color.Red
-        Else
-            ChangeHP()
-        End If
-        If enemy_HP.Text <> true_max_HP.ToString Then
-            target_data(8).BackColor = Color.LightYellow
-            target_data(8).Cursor = Cursors.Hand
-        Else
-            target_data(8).BackColor = default_color
-            target_data(8).Cursor = Cursors.Default
-        End If
+        With enemy_HP
+            If .Text = "" Then
+                .ForeColor = Color.Red
+            ElseIf Not IsNonNegativeInteger(.Text) Then
+                ResetHP(sender, e)
+            ElseIf .Text > true_max_HP Then
+                .ForeColor = Color.Red
+            Else
+                ChangeHP()
+            End If
+            If .Text <> true_max_HP.ToString Then
+                target_data(8).BackColor = Color.LightYellow
+                target_data(8).Cursor = Cursors.Hand
+            Else
+                target_data(8).BackColor = default_color
+                target_data(8).Cursor = Cursors.Default
+            End If
+        End With
         Calculate()
     End Sub
 
@@ -3282,12 +3227,14 @@ Public Class Main
             target_data(9).Hide()
         End If
         target_data(8).Text = true_max_HP
-        If shield_limit(combo_target) > 0 And true_HP < Math.Floor(true_max_HP * shield_limit(combo_target)) Then
-            shield.Enabled = False
-            shield.Checked = False
-        Else
-            shield.Enabled = True
-            shield.Checked = True
+        If shield.Visible Then
+            If true_HP < Math.Floor(true_max_HP * shield_limit(combo_target)) Then
+                shield.Enabled = False
+                shield.Checked = False
+            Else
+                shield.Enabled = True
+                shield.Checked = True
+            End If
         End If
     End Sub
 
@@ -3334,21 +3281,7 @@ Public Class Main
                 End If
             End If
         End If
-        If Not (final_phase.Visible And final_phase.Checked) And HP_limit(combo_target) > 0 Then
-            effective_max_HP = Math.Floor(true_max_HP * (1 - HP_limit(combo_target))) + 1
-            effective_HP = Math.Max(0, true_HP + effective_max_HP - true_max_HP)
-            target_data(7).Text = effective_HP
-            target_data(9).Text = effective_max_HP
-            target_data(6).Show()
-            target_data(7).Show()
-            target_data(9).Show()
-        Else
-            effective_max_HP = true_max_HP
-            effective_HP = true_HP
-            target_data(6).Hide()
-            target_data(7).Hide()
-            target_data(9).Hide()
-        End If
+        ChangeHP()
         Calculate()
     End Sub
 
@@ -3401,37 +3334,39 @@ Public Class Main
         If output_panel Is Nothing Then
             Return
         End If
-        input_panel(0).Width = Width - 16
-        input_panel(1).Width = Width - 16
+        card_panel(0).Width = Width - 16
+        card_panel(1).Width = Width - 16
         output_panel.Size = New Size(Width - 16, Height - 490)
     End Sub
 
     Private Sub SaveSettings(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
-        My.Settings.MagnusActive.Clear()
-        My.Settings.MagnusActive.AddRange(deck_magnus)
-        My.Settings.Target = combo_target
-        My.Settings.FinalPhase = final_phase.Checked
-        My.Settings.Character = character - 1
-        My.Settings.SagiLevel = level_selector(0).Text
-        My.Settings.MillyLevel = level_selector(1).Text
-        My.Settings.GuilloLevel = level_selector(2).Text
+        With My.Settings
+            .MagnusActive.Clear()
+            .MagnusActive.AddRange(deck_magnus)
+            .Target = combo_target
+            .FinalPhase = final_phase.Checked
+            .Character = character - 1
+            .SagiLevel = level_selector(0).Text
+            .MillyLevel = level_selector(1).Text
+            .GuilloLevel = level_selector(2).Text
 
-        Dim auras As String = ""
-        For x = 0 To 2
-            auras &= Hex(aura_type(x).SelectedIndex)
-            auras &= aura_level(x).SelectedIndex
-        Next
-        My.Settings.Auras = auras
+            Dim auras As String = ""
+            For x = 0 To 2
+                auras &= Hex(aura_type(x).SelectedIndex)
+                auras &= aura_level(x).SelectedIndex
+            Next
+            .Auras = auras
 
-        Dim quest_magnus As String = ""
-        For x = 0 To 23
-            If QM_inventory(x) < 16 Then
-                quest_magnus &= "0" & Hex(QM_inventory(x))
-            Else
-                quest_magnus &= Hex(QM_inventory(x))
-            End If
-        Next
-        My.Settings.QuestMagnus = quest_magnus
+            Dim quest_magnus As String = ""
+            For x = 0 To 23
+                If QM_inventory(x) < 16 Then
+                    quest_magnus &= "0" & Hex(QM_inventory(x))
+                Else
+                    quest_magnus &= Hex(QM_inventory(x))
+                End If
+            Next
+            .QuestMagnus = quest_magnus
+        End With
     End Sub
 
     Private Sub FilterInput(sender As Object, e As KeyPressEventArgs)
@@ -3480,18 +3415,21 @@ Public Class Main
         End If
         level_selector(sender.Tag).ForeColor = Color.Black
         level(sender.Tag) = Math.Max(1, Math.Min(100, level_selector(sender.Tag).Text + QM_total_bonus(8)))
-        If level(sender.Tag) > level_selector(sender.Tag).Text Then
-            actual_level(sender.Tag).Text = level(sender.Tag)
-            actual_level(sender.Tag).ForeColor = Color.Green
-            actual_level(sender.Tag).Show()
-        ElseIf level(sender.Tag) < level_selector(sender.Tag).Text Then
-            actual_level(sender.Tag).Text = level(sender.Tag)
-            actual_level(sender.Tag).ForeColor = Color.Red
-            actual_level(sender.Tag).Show()
-        Else
-            actual_level(sender.Tag).Text = ""
-            actual_level(sender.Tag).Hide()
-        End If
+
+        With actual_level(sender.Tag)
+            If level(sender.Tag) > level_selector(sender.Tag).Text Then
+                .Text = level(sender.Tag)
+                .ForeColor = Color.Green
+                .Show()
+            ElseIf level(sender.Tag) < level_selector(sender.Tag).Text Then
+                .Text = level(sender.Tag)
+                .ForeColor = Color.Red
+                .Show()
+            Else
+                .Text = ""
+                .Hide()
+            End If
+        End With
 
         CheckAura(sender.Tag, False)
         Calculate()
@@ -3541,12 +3479,8 @@ Public Class Main
     Private Sub Clear(hits_prev As Integer)
         For x = hits + 1 To hits_prev
             For y = 0 To rows - 1
-                If hit_modifier_row.Contains(y) Then
-                    Continue For
-                End If
-                table(x, y).Hide()
-                If table(x, y).BackColor = Color.LightBlue Then
-                    table(x, y).BackColor = default_color
+                If Not hit_modifier_row.Contains(y) Then
+                    table(x, y).Hide()
                 End If
             Next
             For y = 0 To 2
@@ -3607,19 +3541,7 @@ Public Class Main
     End Sub
 
     Private Sub ResetRow(sender As Object, e As MouseEventArgs)
-        'middle-click to remove row from table
         If e.Button = MouseButtons.Middle Then
-            Dim temp As String = My.Settings.ResultsRow
-            temp = temp.Remove(sender.Tag, 1)
-            temp = temp.Insert(sender.Tag, "0")
-            My.Settings.ResultsRow = temp
-            UpdateRows()
-            If Settings.Visible Then
-                RemoveHandler Settings.row(sender.Tag).CheckedChanged, AddressOf Settings.ToggleRow
-                Settings.row(sender.Tag).Checked = False
-                Settings.row(sender.Tag).BackColor = default_color
-                AddHandler Settings.row(sender.Tag).CheckedChanged, AddressOf Settings.ToggleRow
-            End If
             Return
         End If
         Select Case sender.Tag
@@ -3663,6 +3585,23 @@ Public Class Main
         End Select
         table(0, sender.Tag).BackColor = default_color
         Calculate()
+    End Sub
+
+    Private Sub HideRow(sender As Object, e As MouseEventArgs)
+        If e.Button <> MouseButtons.Middle Then
+            Return
+        End If
+        Dim temp As String = My.Settings.ResultsRow
+        temp = temp.Remove(sender.Tag, 1)
+        temp = temp.Insert(sender.Tag, "0")
+        My.Settings.ResultsRow = temp
+        UpdateRows()
+        If Settings.Visible Then
+            RemoveHandler Settings.row(sender.Tag).CheckedChanged, AddressOf Settings.ToggleRow
+            Settings.row(sender.Tag).Checked = False
+            Settings.row(sender.Tag).BackColor = default_color
+            AddHandler Settings.row(sender.Tag).CheckedChanged, AddressOf Settings.ToggleRow
+        End If
     End Sub
 
     Private Sub NextCombo(sender As Object, e As EventArgs)
@@ -3867,9 +3806,6 @@ Public Class Main
                     If Not output_panel.Contains(table(x, y)) Then
                         If x > 0 Then
                             table(x, y).Left = 104 + 52 * x + output_panel.AutoScrollPosition.X
-                            If clickable_rows.Contains(y) Then
-                                AddHandler table(x, y).MouseClick, AddressOf ToggleEffect
-                            End If
                         Else
                             table(x, y).Left = 5 + output_panel.AutoScrollPosition.X
                         End If
@@ -3910,6 +3846,7 @@ Public Class Main
                 hit_modifier(x, i).Show()
             Next
         Next
+        Clear(0)
     End Sub
 
     Private Sub CopyTable()
@@ -4008,7 +3945,7 @@ Public Class Main
                         Else
                             output &= "=max(0;"
                         End If
-                        output &= "trunc(round(if(" & C & "23>" & C & "25+" & C & "27;(" & C & "23-0.775*" & C & "25-" & C & "26)*" & C & "27;(" & C & "23-0.1*" & C & "25-" & C & "26)*0.25*" & C & "27);4)))"
+                        output &= "trunc(if(" & C & "23>" & C & "25+" & C & "26;(" & C & "23-0.775*" & C & "25-" & C & "26)*" & C & "27;(" & C & "23-0.1*" & C & "25-" & C & "26)*0.25*" & C & "27)))"
                     Case 28     'crush output
                         If table(x, 2).Text = "50" AndAlso combo(hit_card(x)).Tag = 10 Then   'Rabbit Dash 2nd hit
                             If shield.Visible And shield.Checked Then
@@ -4021,7 +3958,7 @@ Public Class Main
                         Else
                             output &= "=max(0;"
                         End If
-                        output &= "if(" & C & "24>0.5*" & C & "25+" & C & "27;(" & C & "24-0.3875*" & C & "25-" & C & "26)*" & C & "27;(" & C & "24-0.05*" & C & "25-" & C & "26)*0.25*" & C & "27))"
+                        output &= "if(" & C & "24>0.5*" & C & "25+" & C & "26;(" & C & "24-0.3875*" & C & "25-" & C & "26)*" & C & "27;(" & C & "24-0.05*" & C & "25-" & C & "26)*0.25*" & C & "27))"
                     Case 29     'total damage output
                         output &= "=sum($B28:" & C & "28)"
                     Case 30     'total crush output

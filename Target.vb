@@ -22,14 +22,13 @@
             With enemy(x)
                 .Size = New Size(75, 90)
                 .Location = New Point(75 * (x Mod 10), 90 * Math.Floor(x / 10))
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Tag = x + 4
-                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & x + 4), New Size(75, 90))
+                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & x + 4), .Size)
+                AddHandler .Click, AddressOf ChangeTarget
+                AddHandler .MouseEnter, AddressOf ShowName
             End With
             Controls.Add(enemy(x))
-            AddHandler enemy(x).Click, AddressOf ChangeTarget
-            AddHandler enemy(x).MouseEnter, AddressOf ShowName
         Next
 
         hover = New ToolTip()
@@ -75,7 +74,7 @@
     End Sub
 
     Private Sub ChangeTarget(sender As Object, e As EventArgs)
-        Main.ChangeTarget(sender.Tag, 0, True)
+        Main.ChangeTarget(sender.Tag, -1, True)
         If My.Settings.TargetAutoClose Then
             Close()
         End If

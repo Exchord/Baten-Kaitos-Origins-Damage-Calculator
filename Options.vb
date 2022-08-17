@@ -21,7 +21,7 @@
         AddHandler Click, AddressOf ChangeFocus
 
 
-        ' SETTINGS
+        ' MAIN SETTINGS
 
         For x = 0 To 6
             setting(x) = New CheckBox()
@@ -73,9 +73,9 @@
                     .TextAlign = ContentAlignment.MiddleLeft
                 End If
                 .BackColor = Main.default_color
+                AddHandler random_hits(x).Click, AddressOf ChangeFocus
             End With
             Controls.Add(random_hits(x))
-            AddHandler random_hits(x).Click, AddressOf ChangeFocus
         Next
         random_hits(17).BackColor = Color.Transparent
         random_hits(17).Font = New Font("Segoe UI", 9, FontStyle.Bold)
@@ -97,10 +97,11 @@
                 Else
                     .BackColor = Main.default_color
                 End If
+                AddHandler .CheckedChanged, AddressOf ChangeHeavenlapse
             End With
             Controls.Add(heavenlapse(x))
-            AddHandler heavenlapse(x).CheckedChanged, AddressOf ChangeHeavenlapse
         Next
+
         For x = 0 To 12
             aphelion_dustwake(x) = New CheckBox()
             With aphelion_dustwake(x)
@@ -115,15 +116,16 @@
                 Else
                     .BackColor = Main.default_color
                 End If
+                AddHandler .CheckedChanged, AddressOf ChangeAphelionDustwake
             End With
             Controls.Add(aphelion_dustwake(x))
-            AddHandler aphelion_dustwake(x).CheckedChanged, AddressOf ChangeAphelionDustwake
         Next
 
 
         ' TOOLTIPS
 
         Dim tooltips_ypos As Integer = 328
+
         tooltips_label = New Label()
         With tooltips_label
             .Size = New Size(100, 24)
@@ -132,9 +134,10 @@
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .Text = "Show tooltips"
             .TabIndex = 0
+            AddHandler .Click, AddressOf ChangeFocus
         End With
-        AddHandler tooltips_label.Click, AddressOf ChangeFocus
         Controls.Add(tooltips_label)
+
         For x = 0 To 4
             tooltips(x) = New CheckBox()
             With tooltips(x)
@@ -168,9 +171,9 @@
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .Text = "Version 1.1"
             .BackColor = Color.Transparent
+            AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(version)
-        AddHandler version.Click, AddressOf ChangeFocus
 
         documentation = New Button()
         With documentation
@@ -178,12 +181,12 @@
             .Location = New Point(233, tooltips_ypos + 30)
             .Text = "View documentation"
             .UseVisualStyleBackColor = True
+            AddHandler .Click, AddressOf ViewDocumentation
         End With
         Controls.Add(documentation)
-        AddHandler documentation.Click, AddressOf ViewDocumentation
 
 
-        ' SHOW ALL / HIDE ALL
+        ' RESULT ROWS
 
         show_all = New Button()
         With show_all
@@ -191,47 +194,46 @@
             .Location = New Point(385, 10)
             .Text = "Show all"
             .UseVisualStyleBackColor = True
+            AddHandler .Click, AddressOf ShowAll
         End With
         Controls.Add(show_all)
-        AddHandler show_all.Click, AddressOf ShowAll
+
         hide_all = New Button()
         With hide_all
             .Size = New Size(90, 30)
             .Location = New Point(385, 45)
             .Text = "Hide all"
             .UseVisualStyleBackColor = True
+            AddHandler .Click, AddressOf HideAll
         End With
         Controls.Add(hide_all)
-        AddHandler hide_all.Click, AddressOf HideAll
-
-
-        ' RESULT ROWS
 
         panel = New Panel
         With panel
             .AutoScroll = True
             .Location = New Point(487, 10)
             .Size = New Size(197, Height - 49)
+            AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(panel)
-        AddHandler panel.Click, AddressOf ChangeFocus
 
         For x = 0 To 31
             row(x) = New CheckBox()
             With row(x)
                 .Size = New Size(175, 24)
                 .Location = New Point(0, x * 25)
-                .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
-                .Tag = x
                 .Text = Main.variable(x)
+                If My.Settings.ResultsRow.ElementAt(x) = "1" Then
+                    .Checked = True
+                    .BackColor = Color.LightGreen
+                Else
+                    .BackColor = Main.default_color
+                End If
+                .Tag = x
+                AddHandler .CheckedChanged, AddressOf ToggleRow
             End With
             panel.Controls.Add(row(x))
-            If My.Settings.ResultsRow.ElementAt(x) = "1" Then
-                row(x).Checked = True
-                row(x).BackColor = Color.LightGreen
-            End If
-            AddHandler row(x).CheckedChanged, AddressOf ToggleRow
         Next
         If My.Settings.EffectiveHPRemaining Then
             row(31).Text = "Effective HP remaining"

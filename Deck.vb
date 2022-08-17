@@ -39,44 +39,44 @@
                 ElseIf group = 26 Then
                     .Top = 10 + 85 * 24
                 End If
-                .BackColor = Color.Transparent
                 .Cursor = Cursors.Hand
                 .Tag = x
-                magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
+                magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), .Size)
                 If Main.deck_magnus(x) = "1" Then
-                    card(x).Image = magnus(x)
+                    .Image = magnus(x)
                     active(x) = True
                 Else
-                    card(x).Image = Main.ChangeOpacity(magnus(x), 0.5)
+                    .Image = Main.ChangeOpacity(magnus(x), 0.5)
                     active(x) = False
                 End If
+                AddHandler .Click, AddressOf ToggleCard
+                AddHandler .MouseEnter, AddressOf ShowName
             End With
             Controls.Add(card(x))
-            AddHandler card(x).Click, AddressOf ToggleCard
-            AddHandler card(x).MouseEnter, AddressOf ShowName
         Next
 
         For x = 0 To 24
             all_on(x) = New PictureBox()
-            all_off(x) = New PictureBox()
             With all_on(x)
                 .Size = New Size(28, 28)
                 .Location = New Point(10, 36 + 85 * x)
-                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("plus"), New Size(28, 28))
+                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("plus"), .Size)
                 .Tag = x
                 .Cursor = Cursors.Hand
+                AddHandler .Click, AddressOf EnableGroup
             End With
+            Controls.Add(all_on(x))
+
+            all_off(x) = New PictureBox()
             With all_off(x)
                 .Size = New Size(28, 28)
                 .Location = New Point(50, 36 + 85 * x)
-                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("minus"), New Size(28, 28))
+                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("minus"), .Size)
                 .Tag = x
                 .Cursor = Cursors.Hand
+                AddHandler .Click, AddressOf DisableGroup
             End With
-            Controls.Add(all_on(x))
             Controls.Add(all_off(x))
-            AddHandler all_on(x).Click, AddressOf EnableGroup
-            AddHandler all_off(x).Click, AddressOf DisableGroup
         Next
         all_on(23).Tag = 24
         all_on(24).Tag = 26

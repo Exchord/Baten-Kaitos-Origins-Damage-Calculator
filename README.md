@@ -2,12 +2,13 @@
 
 This tool aims to simulate combos and calculate the damage output of each hit as accurately as possible.
 
-![](https://i.imgur.com/Y8SHiK3.png)
-
-The above screenshot is a simulation of [this combo](https://youtu.be/n9rcfXrhIZE?t=2503).
+[Download](https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator/releases)
 
 Information on magnus, enemies, and combos: [BKO documentation](https://docs.google.com/spreadsheets/d/1wXsL9PXnyIuvRiYNgX5p6uTaVBgJhXU1CDzXNFiwLRU/view#gid=1457790647)
 
+![](https://i.imgur.com/Y8SHiK3.png)
+
+The above screenshot is a simulation of [this combo](https://youtu.be/n9rcfXrhIZE?t=2503).
 
 ## User interface
 
@@ -28,9 +29,9 @@ Auras purchased in the Endmost Bethel can be selected via these dropdown menus.
 Note that the strength of an aura may change depending on the character's level.
 
 
-### Pre-equipped magnus
+### Equipped magnus
 ![](https://i.imgur.com/za5gX3z.png)  
-Sometimes you may have magnus already equipped when you start a combo. Right-click any equipment magnus in your hand, transparent or not, and it will appear next to the character's aura. You can then adjust the durability using the nearby combo box, or click the pre-equipped magnus to remove it.
+Sometimes you may already have a magnus equipped at the start of a combo. Right-click any equipment magnus in your hand, transparent or not, and it will appear next to the character's aura. You can then adjust the durability using the nearby combo box, or click the equipped magnus to remove it.
 
 
 ### Target
@@ -39,19 +40,20 @@ Click the target image to open the target selection window. When you select a ne
 - Name
 - Knockdown threshold
 - Knockout threshold
-- Final phase
-- Shield
+- Final phase checkbox
+- Shield checkbox
 - HP
 - Armor durability
 
+![](https://i.imgur.com/EVosQWd.png)
 
 ### Knockdown and knockout
 ![](https://i.imgur.com/XRXNpFD.png)  
-The enemy gets knocked down/out when their crush status reaches the knockdown/knockout threshold. Enemies that don't have a knockdown/knockout threshold cannot be knocked down/out.
+The enemy gets knocked down/out when their crush status reaches the knockdown/knockout threshold displayed here. Enemies that don't have a knockdown/knockout threshold cannot be knocked down/out.
 
 
 ### Final phase
-![](https://i.imgur.com/iqBd659.png)  
+
 Some bosses have multiple fights, the last of which is always different in at least one of the following aspects:
 - Effective HP
 - Shield
@@ -61,18 +63,18 @@ Some bosses have multiple fights, the last of which is always different in at le
 
 
 ### Shield
-![](https://i.imgur.com/xfuIUgQ.png)  
+
 Some bosses have a shield that visibly and audibly breaks when their effective HP drops below 50%. When this happens, the following stats are permanently multiplied by 0.8:
 - All defenses
 - Crush limit
 - Knockdown threshold
 - Knockout threshold
 
-The checkbox will toggle itself on and off depending on the value in the HP text box. If an enemy with a broken shield heals beyond the 50% threshold, the shield will not come back. In that situation, you can manually toggle the shield off.
+The checkbox will toggle itself on or off depending on the value in the HP text box. If an enemy with a broken shield heals beyond the 50% threshold, the shield will not come back. In that situation, you can manually toggle the shield off.
 
 
 ### Secondary target
-![](https://i.imgur.com/6QNP4PT.png)  
+
 If this is checked, only hits from multi-target attacks will register.
 
 Note that this program does not simulate multiple targets. If you use multi-target attacks, you may need to pre-equip your weapon and decrease its durability to compensate for hits on other targets.
@@ -82,23 +84,23 @@ Note that this program does not simulate multiple targets. If you use multi-targ
 ![](https://i.imgur.com/6aK0xCY.png)  
 In the HP text box, you can enter a new value for the enemy's current HP, or use the mouse wheel to fine-tune the value. Next to the text box is the enemy's max HP, which you can click to reset the enemy's HP to the maximum.
 
-Below HP, you may find something called "effective HP". This refers to boss battles that end with the enemy striking down the party or fleeing when their HP drops below a certain threshold. Effective HP aims to replace true HP with the amount of damage required to end the battle.
+Below HP, you may find something called "effective HP". This refers to boss battles that end with the enemy striking down the party or a cutscene interrupting the fight. Effective HP aims to replace true HP with the amount of damage required to end the battle.
 
 
 ### Down
-![](https://i.imgur.com/HLusiLs.png)  
-If the enemy is currently knocked down, knocked out, or asleep, the next hit will be a critical hit.
+
+If the enemy is knocked down, knocked out, or asleep, the next hit will be a critical hit.
 
 
 ### Status
-![](https://i.imgur.com/q7fFEwy.png)  
+
 You can select one of four status effects for the target: flames, frozen, shock, and blind. Attacking a burning enemy with ice, a frozen enemy with fire, or a blind enemy with light will cause a critical hit. Attacking a shocked enemy with any element will knock them down.
 
 Note that these four status effects cannot be combined. However, sleep and poison can be combined with each other and with any of the other four effects.
 
 
 ### Armor durability
-![](https://i.imgur.com/XceiWJJ.png)  
+
 The following enemies have armor equipped at the start of a battle:  
 Armored Cancerite, Armored Balloona, Armored Mite, Phoelix, Machina Arma: Razer 3 (final phase only)
 
@@ -109,7 +111,7 @@ Note that Machina Arma: Razer 3's armor breaks along with its shield. Therefore,
 ### Deck
 ![](https://i.imgur.com/dQmxp1I.png)  
 Click the Weak Attack magnus to open a deck editor. Here, you can select which cards will show up in each character's hand.  
-Each row of magnus forms a group which you can enable or disable with the plus or minus button next to it. You can also remove a magnus from your deck by middle-clicking it in the main window.
+Each row of magnus forms a group which you can enable or disable using the plus or minus button next to it. You can also remove a magnus from your deck by middle-clicking it in the main window.
 
 ![](https://i.imgur.com/RK4B8ku.png)
 
@@ -125,7 +127,7 @@ Clicking the "Reset" button will turn all quest magnus into blank magnus. You ca
 ![](https://i.imgur.com/65ylqfB.png)  
 Some battle magnus increase or decrease a character's offense or defense for two turns. You can change the boost target by clicking any of your party members. Clicking any of the first 8 magnus will then add a bonus to their offense. The top text box displays the offense increase for the current turn, and the bottom text box displays the offense increase for the next turn.
 
-Clicking "Next turn" will advance the character to the next turn so that the bottom value is written into the top value, while the bottom value is reset to 0. Clicking "Reset" will reset both values to 0.  
+Clicking "Next turn" will advance the character to the next turn so that the top value is overwritten by the bottom value, which is then reset to 0. Clicking "Reset" will reset both values to 0.  
 You can use the mouse wheel to increase or decrease both boost values by 1.
 
 Notes:  
@@ -137,7 +139,7 @@ Notes:
 
 ### Dolphin
 ![](https://i.imgur.com/zRxfMiW.png)  
-If the game is currently running in Dolphin 5.0 or 4.0.2 (stable versions only), clicking this icon will cause the program to read the following input data from the emulator:
+If the game is running in Dolphin 5.0 or 4.0.2 (stable versions only), clicking this icon will import the following data from the emulator:
 - Levels
 - Auras
 - Quest magnus
@@ -146,8 +148,8 @@ If the game is currently running in Dolphin 5.0 or 4.0.2 (stable versions only),
 - Temporary boost
 - Combo
 
-The following data is not read from Dolphin:
-- Pre-equipped magnus
+These are not read from Dolphin:
+- Equipped magnus
 - Down
 - Status
 - Armor durability
@@ -166,7 +168,7 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 - <i>Highlight hits when hovering over an attack card:</i> When you hover over an attack card in your combo, all of its hits in the output table are highlighted in blue.
 
-- <i>Read combo from Dolphin:</i> If this is checked, clicking the Dolphin button imports combos from the emulator.
+- <i>Read combo from Dolphin:</i> If this is checked, you can import combos from the game by clicking the Dolphin button.
 
 - <i>Show effective HP remaining:</i> Switch between true HP and effective HP for the last row in the output table. You can also click the row title in the main window to toggle this setting.
 
@@ -174,7 +176,7 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 - <i>Secret Queen after enemy gets up:</i> Secret Queen and Secret Queen II are EX combos that can only be triggered if the enemy is down. If the enemy gets up as Milly runs toward them, the first hit will not be a critical hit.
 
-- <i>Saber Dragon Horn:</i> Using this item raises the durability of equipped magnus to their max durability plus 5. If this setting is checked, the dropdown menus for pre-equipped magnus will allow you to add up to 5 extra durability points.
+- <i>Saber Dragon Horn:</i> Using this item raises the durability of equipped magnus to their max durability plus 5. If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points.
 
 - <i>Random hits:</i> Heavenlapse and Aphelion Dustwake are multi-target attacks that randomly hit or miss enemies. Here, you can select which of the 9 or 13 projectiles will hit the target.
 
@@ -189,11 +191,11 @@ The checkboxes on the right side allow you to hide or show any of the rows in th
 
 ### Combo results
 ![](https://i.imgur.com/DAs7OdF.png)  
-In a similar fashion to the game's text popup at the end of a combo, this shows the number of cards and hits as well as the total damage and TP bonus of the current combo.
+In a similar fashion to the in-game text after a combo, this shows the number of cards and hits as well as the total damage and TP bonus of the current combo.
 
 
 ### Next combo
-![](https://i.imgur.com/Rpj4Fr7.png)  
+
 Clicking this button changes the status of your party and the target to what it will be after the current combo. This also clears the combo. You can then move on with the next combo without having to manually adjust the following input data:
 - Equipment and durability
 - HP

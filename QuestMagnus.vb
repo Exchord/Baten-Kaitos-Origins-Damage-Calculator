@@ -4,7 +4,7 @@
     Public inventory(24) As PictureBox
     Dim card(181) As PictureBox
     Public magnus(181) As Bitmap
-    Public move_slot As Integer
+    Public move_slot As Integer = -1
     Public result(18) As Label
     Dim panel As DoubleBufferPanel
     Dim clear As Button
@@ -23,52 +23,13 @@
         MaximumSize = New Size(1053, 1149)
         LoadWindowData()
 
-        clear = New Button
-        With clear
-            .Text = "Reset"
-            .Location = New Point(817, 33)
-            .Size = New Size(88, 29)
-            .UseVisualStyleBackColor = True
-        End With
-        Controls.Add(clear)
-        AddHandler clear.Click, AddressOf ClearAll
-
-        panel = New DoubleBufferPanel
-        With panel
-            .AutoScroll = True
-            .Location = New Point(0, 300)
-            .Size = New Size(Width - 16, Height - 339)
-        End With
-        Controls.Add(panel)
-        AddHandler panel.Click, AddressOf FocusPanel
-
-        For x = 1 To 180
-            card(x) = New PictureBox()
-            With card(x)
-                Dim y As Integer = x - 1
-                .Size = New Size(50, 80)
-                .Location = New Point(10 + 50 * (y Mod 20), 90 * Math.Floor(y / 20))
-                .BackColor = Color.Transparent
-                .Cursor = Cursors.Hand
-                .Tag = x
-                If x < 93 Then
-                    magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x + 500), New Size(50, 80))
-                ElseIf x < 153 Then
-                    magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x + 517), New Size(50, 80))
-                Else
-                    magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x + 519), New Size(50, 80))
-                End If
-            End With
-            panel.Controls.Add(card(x))
-            AddHandler card(x).Click, AddressOf Add
-            AddHandler card(x).MouseEnter, AddressOf ShowName
-        Next
-        magnus(0) = New Bitmap(My.Resources.ResourceManager.GetObject("_500"), New Size(50, 80))
-        For x = 1 To 180
-            If effects.Contains(Main.QM_effect(x)) Then
-                card(x).Image = magnus(x)
+        For x = 0 To 180
+            If x < 93 Then
+                magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x + 500), New Size(50, 80))
+            ElseIf x < 153 Then
+                magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x + 517), New Size(50, 80))
             Else
-                card(x).Image = Main.ChangeOpacity(magnus(x), 0.5)
+                magnus(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x + 519), New Size(50, 80))
             End If
         Next
 
@@ -77,17 +38,25 @@
             With inventory(x)
                 .Size = New Size(50, 80)
                 .Location = New Point(10 + 69 * (x Mod 8), 10 + 96 * Math.Floor(x / 8))
-                .BackColor = Color.Transparent
+                .Image = magnus(Main.QM_inventory(x))
                 .Cursor = Cursors.Hand
                 .Name = x
                 .Tag = Main.QM_inventory(x)
-                .Image = magnus(Main.QM_inventory(x))
+                AddHandler .Click, AddressOf Remove
+                AddHandler .Click, AddressOf Swap
             End With
             Controls.Add(inventory(x))
-            AddHandler inventory(x).Click, AddressOf Remove
         Next
 
-        move_slot = -1
+        clear = New Button
+        With clear
+            .Text = "Reset"
+            .Location = New Point(817, 33)
+            .Size = New Size(88, 29)
+            .UseVisualStyleBackColor = True
+            AddHandler .Click, AddressOf ClearAll
+        End With
+        Controls.Add(clear)
 
         For x = 0 To 17
             result(x) = New Label()
@@ -122,6 +91,34 @@
             Else
                 result(x + 9).Text = Main.QM_total_bonus(x)
             End If
+        Next
+
+        panel = New DoubleBufferPanel
+        With panel
+            .AutoScroll = True
+            .Location = New Point(0, 300)
+            .Size = New Size(Width - 16, Height - 339)
+            AddHandler .Click, AddressOf FocusPanel
+        End With
+        Controls.Add(panel)
+
+        For x = 1 To 180
+            card(x) = New PictureBox()
+            With card(x)
+                Dim y As Integer = x - 1
+                .Size = New Size(50, 80)
+                .Location = New Point(10 + 50 * (y Mod 20), 90 * Math.Floor(y / 20))
+                If effects.Contains(Main.QM_effect(x)) Then
+                    .Image = magnus(x)
+                Else
+                    .Image = Main.ChangeOpacity(magnus(x), 0.5)
+                End If
+                .Cursor = Cursors.Hand
+                .Tag = x
+                AddHandler .Click, AddressOf Add
+                AddHandler .MouseEnter, AddressOf ShowName
+            End With
+            panel.Controls.Add(card(x))
         Next
 
         hover = New ToolTip()
@@ -183,31 +180,37 @@
     End Sub
 
     Private Sub Remove(sender As Object, e As MouseEventArgs)
-        If e.Button = MouseButtons.Left Then
-            inventory(sender.Name).Image = magnus(0)
-            inventory(sender.Name).Tag = 0
-            Main.QM_inventory(sender.Name) = sender.Tag
-            Main.CheckQuestMagnus()
-            If move_slot = sender.Name Then
-                move_slot = -1
-            End If
-        ElseIf e.Button = MouseButtons.Right Then
-            If move_slot = -1 Then
-                move_slot = sender.Name
-                sender.Image = Main.ChangeOpacity(magnus(sender.Tag), 0.5)
-            Else
-                Dim source As Integer = inventory(move_slot).Tag
-                Dim target As Integer = sender.Tag
-                Dim move_slot_2 As Integer = sender.Name
-                inventory(move_slot_2).Image = magnus(source)
-                inventory(move_slot_2).Tag = source
-                Main.QM_inventory(move_slot_2) = source
-                inventory(move_slot).Image = magnus(target)
-                inventory(move_slot).Tag = target
-                Main.QM_inventory(move_slot) = target
-                move_slot = -1
-            End If
+        If e.Button <> MouseButtons.Left Then
+            Return
         End If
+        inventory(sender.Name).Image = magnus(0)
+        inventory(sender.Name).Tag = 0
+        Main.QM_inventory(sender.Name) = sender.Tag
+        Main.CheckQuestMagnus()
+        If move_slot = sender.Name Then
+            move_slot = -1
+        End If
+    End Sub
+
+    Private Sub Swap(sender As Object, e As MouseEventArgs)
+        If e.Button <> MouseButtons.Right Then
+            Return
+        End If
+        If move_slot = -1 Then
+            move_slot = sender.Name
+            sender.Image = Main.ChangeOpacity(magnus(sender.Tag), 0.5)
+            Return
+        End If
+        Dim magnus_1 As Integer = inventory(move_slot).Tag
+        Dim magnus_2 As Integer = sender.Tag
+        Dim move_slot_2 As Integer = sender.Name
+        inventory(move_slot_2).Image = magnus(magnus_1)
+        inventory(move_slot_2).Tag = magnus_1
+        Main.QM_inventory(move_slot_2) = magnus_1
+        inventory(move_slot).Image = magnus(magnus_2)
+        inventory(move_slot).Tag = magnus_2
+        Main.QM_inventory(move_slot) = magnus_2
+        move_slot = -1
     End Sub
 
     Private Sub ShowName(sender As Object, e As EventArgs)
@@ -215,6 +218,7 @@
     End Sub
 
     Private Sub ClearAll(sender As Object, e As EventArgs)
+        move_slot = -1
         For x = 0 To 23
             inventory(x).Image = magnus(0)
             inventory(x).Tag = 0
