@@ -824,7 +824,7 @@ Public Class Main
         Else
             CloseHandle(hProcess)
             If game = 0 Then
-                MsgBox("No game running. Please start Baten Kaitos Origins.")
+                MsgBox("No game running.")
             Else
                 MsgBox("Wrong game.")
             End If
@@ -2673,7 +2673,7 @@ Public Class Main
         End If
 
         Dim combo_string As String = ""
-        Dim first_card, last_card, total_length As Integer
+        Dim first_card, last_card, total_length, final_combo, combo_start, combo_length As Integer
         Dim second_pass As Boolean
         first_card = turn(check_turn)
         If turns > check_turn + 1 Then
@@ -2713,9 +2713,77 @@ Public Class Main
         End Select
 
         'compare hex string with predefined EX combo strings and find the longest EX combo
+        Dim temp As Integer() = FindEXCombo(first, last, combo_string, first_card)
+        final_combo = temp(0)
+        combo_start = temp(1)
+        combo_length = temp(2)
+
+        'ignore equipment card
+        Dim second_pass_plus_one As Integer
+        If Not IsAttack(combo(first_card).Tag) Then
+            combo_start += 1
+            second_pass_plus_one = 1
+        End If
+
+        SaveEXCombo(check_turn, first_card, last_card, final_combo, combo_start, combo_length)
+
+        'check if there is room left for another EX combo in the same turn; trim hex string
+        Dim second_pass_first_card, second_pass_last_card As Integer
+        If final_combo > 0 Then
+            'Sagi and Guillo
+            If member(first_card) = 1 Or member(first_card) = 3 Then
+                'if EX combo ends with spirit number 4, check 5 and 6
+                If spirit_number(combo(first_card + combo_start + combo_length - 1).Tag) = 7 And total_length >= 6 Then
+                    combo_string = combo_string.Remove(0, 8)
+                    second_pass = True
+                    second_pass_first_card = first_card + second_pass_plus_one + 4
+                End If
+            Else    'Milly
+                'if EX combo ends with spirit number <= 3, check 4 through 6
+                If spirit_number(combo(first_card + combo_start + combo_length - 1).Tag) <= 6 And total_length >= combo_length + 2 Then
+                    If combo_start <> second_pass_plus_one And spirit_number(combo(first_card + second_pass_plus_one).Tag) = 2 Then
+                        combo_string = combo_string.Remove(0, 2 + combo_length * 2)             'ignore weak attack before Trail Rush or Capricorn Header
+                    Else
+                        combo_string = combo_string.Remove(0, combo_length * 2)
+                    End If
+                    second_pass = True
+                    second_pass_first_card = first_card + combo_start + combo_length
+                    'if EX combo starts with spirit number 4, check 1 through 3
+                ElseIf spirit_number(combo(first_card + combo_start).Tag) = 7 And total_length > combo_length Then
+                    combo_string = combo_string.Remove((total_length - combo_length) * 2, combo_length * 2)
+                    second_pass = True
+                    second_pass_first_card = first_card + second_pass_plus_one
+                End If
+            End If
+        End If
+
+        'find second EX combo
+        If second_pass Then
+            second_pass_last_card = second_pass_first_card + combo_string.Length * 0.5 - 1
+
+            temp = FindEXCombo(first, last, combo_string, second_pass_first_card)
+            final_combo = temp(0)
+            combo_start = temp(1)
+            combo_length = temp(2)
+
+            If final_combo > 0 Then
+                SaveEXCombo(check_turn, second_pass_first_card, second_pass_last_card, final_combo, combo_start, combo_length)
+            End If
+
+        ElseIf My.Settings.GuilloExtraBonus AndAlso (member(first_card) = 3 And final_combo > 0 And combo_start > 0) Then
+            'Guillo's retroactive EX combo bonus: if any of Guillo's standard attacks (except Medium Attack) directly precedes an EX combo,
+            'the projectile will likely hit the target after the EX combo bonus becomes active (depends on the attack and the distance between Guillo and the enemy)
+            Dim attacks() As Integer = {1, 3, 4, 5, 6}
+            If attacks.Contains(combo(first_card + combo_start - 1).Tag) Then
+                EX(first_card + combo_start - 1) = final_combo
+            End If
+        End If
+    End Sub
+
+    Private Function FindEXCombo(first As Integer, last As Integer, combo_string As String, first_card As Integer) As Integer()
         Dim final_combo, combo_start, combo_length As Integer
         For x = first To last
-            If combo_string.Contains(EX_combo_hex(x)) And (EX_combo_data(x, 0) > combo_length Or final_combo = 52) Then 'And excombo(x, 10) = 0 Then
+            If combo_string.Contains(EX_combo_hex(x)) And (EX_combo_data(x, 0) > combo_length Or final_combo = 52) Then
                 'EX combos requiring specific weapon elements
                 If EX_combo_data(x, 10) >= 1 And EX_combo_data(x, 10) <= 4 Then
                     If magnus_element(equip(first_card)) <> EX_combo_data(x, 10) Or Not IsWeapon(equip(first_card)) Then
@@ -2750,44 +2818,10 @@ Public Class Main
                 End If
             End If
         Next
-        'ignore equipment card
-        Dim second_pass_plus_one As Integer
-        If Not IsAttack(combo(first_card).Tag) Then
-            combo_start += 1
-            second_pass_plus_one = 1
-        End If
+        Return {final_combo, combo_start, combo_length}
+    End Function
 
-        'check if there is room left for another EX combo in the same turn
-        Dim second_pass_first_card, second_pass_last_card As Integer
-        If final_combo > 0 Then
-            'Sagi and Guillo
-            If member(first_card) = 1 Or member(first_card) = 3 Then
-                'if last card in EX combo is a spirit number 4 card, check 5 and 6
-                If spirit_number(combo(first_card + combo_start + combo_length - 1).Tag) = 7 And total_length >= 6 Then
-                    combo_string = combo_string.Remove(0, 8)
-                    second_pass = True
-                    second_pass_first_card = first_card + second_pass_plus_one + 4
-                End If
-            Else    'Milly
-                'if last card in EX combo is a spirit number <= 3 card, check 456
-                If spirit_number(combo(first_card + combo_start + combo_length - 1).Tag) <= 6 And total_length >= combo_length + 2 Then
-                    If combo_start <> second_pass_plus_one And spirit_number(combo(first_card + second_pass_plus_one).Tag) = 2 Then
-                        combo_string = combo_string.Remove(0, 2 + combo_length * 2)             'ignore weak attack before Trail Rush or Capricorn Header
-                    Else
-                        combo_string = combo_string.Remove(0, combo_length * 2)
-                    End If
-                    second_pass = True
-                    second_pass_first_card = first_card + combo_start + combo_length '+ second_pass_plus_one
-                    'if first card in EX combo is a spirit number 4 card, check 11+23
-                ElseIf spirit_number(combo(first_card + combo_start).Tag) = 7 And total_length > combo_length Then
-                    combo_string = combo_string.Remove((total_length - combo_length) * 2, combo_length * 2)
-                    second_pass = True
-                    second_pass_first_card = first_card + second_pass_plus_one
-                End If
-            End If
-        End If
-
-        'save first EX combo to combo array
+    Private Sub SaveEXCombo(check_turn As Integer, first_card As Integer, last_card As Integer, final_combo As Integer, combo_start As Integer, combo_length As Integer)
         For x = first_card To last_card
             If check_turn + 1 > turns And x = turn(check_turn + 1) Then
                 Exit For
@@ -2800,73 +2834,6 @@ Public Class Main
                 EX(x) = 0
             End If
         Next
-
-        'find second EX combo
-        If second_pass Then
-            second_pass_last_card = second_pass_first_card + combo_string.Length * 0.5 - 1
-            final_combo = 0
-            combo_start = 0
-            combo_length = 0
-            For x = first To last
-                If combo_string.Contains(EX_combo_hex(x)) And (EX_combo_data(x, 0) > combo_length) Then
-                    'EX combos requiring specific weapon elements
-                    If EX_combo_data(x, 10) >= 1 And EX_combo_data(x, 10) <= 4 Then
-                        If magnus_element(equip(second_pass_first_card)) <> EX_combo_data(x, 10) Or Not IsWeapon(equip(second_pass_first_card)) Then
-                            Continue For
-                        End If
-                    End If
-                    'EX combos requiring armor
-                    If EX_combo_data(x, 10) = 5 And Not IsArmor(equip(second_pass_first_card)) Then
-                        Continue For
-                    End If
-                    'EX combos requiring an acessory
-                    If EX_combo_data(x, 10) = 6 And Not IsAccessory(equip(second_pass_first_card)) Then
-                        Continue For
-                    End If
-                    'enemy down (Secret Queen combos)
-                    If EX_combo_data(x, 10) = 7 AndAlso Not down.Checked Then
-                        Continue For
-                    End If
-                    final_combo = x
-                    combo_length = EX_combo_data(x, 0)
-                    For y = 1 To combo_string.Length - 1 Step 2
-                        If Mid(combo_string, y, 2) = Strings.Left(EX_combo_hex(x), 2) Then
-                            combo_start = (y - 1) * 0.5
-                            Exit For
-                        End If
-                    Next
-                    'Secret Queen: only if combo starts with Rabbit Dash
-                    If (final_combo = 55 Or final_combo = 56) And combo_start > 0 Then
-                        final_combo = 0
-                        combo_start = 0
-                        combo_length = 0
-                    End If
-                End If
-            Next
-
-            'save second EX combo to combo array
-            If final_combo > 0 Then
-                For x = second_pass_first_card To second_pass_last_card
-                    If check_turn + 1 > turns And x = turn(check_turn + 1) Then
-                        Exit For
-                    End If
-                    If x < second_pass_first_card + combo_start Then
-                        EX(x) = 0
-                    ElseIf x < second_pass_first_card + combo_start + combo_length Then
-                        EX(x) = final_combo
-                    Else
-                        EX(x) = 0
-                    End If
-                Next
-            End If
-        ElseIf My.Settings.GuilloExtraBonus AndAlso (member(first_card) = 3 And final_combo > 0 And combo_start > 0) Then
-            'Guillo's retroactive EX combo bonus: if any of Guillo's standard attacks (except Medium Attack) directly precedes an EX combo,
-            'the projectile will likely hit the target after the EX combo bonus becomes active (depends on the attack and the distance between Guillo and the enemy)
-            Dim attacks() As Integer = {1, 3, 4, 5, 6}
-            If attacks.Contains(combo(first_card + combo_start - 1).Tag) Then
-                EX(first_card + combo_start - 1) = final_combo
-            End If
-        End If
     End Sub
 
     Public Sub ShowDeck()
@@ -3744,40 +3711,29 @@ Public Class Main
 
     Private Sub ButtonAction(sender As Object, e As EventArgs)
         combo_results.Focus()
+        Dim form As Form = Nothing
         Select Case sender.Name
             Case 0
-                If Deck.Visible Then
-                    Deck.Focus()
-                    Deck.WindowState = FormWindowState.Normal
-                Else
-                    Deck.Show()
-                End If
+                form = Deck
             Case 1
-                If QuestMagnus.Visible Then
-                    QuestMagnus.Focus()
-                    QuestMagnus.WindowState = FormWindowState.Normal
-                Else
-                    QuestMagnus.Show()
-                End If
+                form = QuestMagnus
             Case 2
-                If Boost.Visible Then
-                    Boost.Focus()
-                    Boost.WindowState = FormWindowState.Normal
-                Else
-                    Boost.Show()
-                End If
+                form = Boost
             Case 3
                 Dolphin()
+                Return
             Case 4
                 CopyTable()
+                Return
             Case 5
-                If Settings.Visible Then
-                    Settings.Focus()
-                    Settings.WindowState = FormWindowState.Normal
-                Else
-                    Settings.Show()
-                End If
+                form = Settings
         End Select
+        If form.Visible Then
+            form.Focus()
+            form.WindowState = FormWindowState.Normal
+        Else
+            form.Show()
+        End If
     End Sub
 
     Public Sub UpdateRows()
