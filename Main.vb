@@ -262,7 +262,6 @@ Public Class Main
                 .Location = New Point(235, 16 + x * 75)
                 .Cursor = Cursors.Hand
                 .Name = x + 1
-                .Image = Nothing
                 AddHandler .MouseClick, AddressOf ChangeFocus
                 AddHandler .Click, AddressOf RemoveEquipment
             End With
@@ -668,7 +667,6 @@ Public Class Main
         description(30) = "The total crush output so far. Yellow cells indicate a knockdown at the end of the combo. Orange cells indicate a knockout at the end of the combo."
         description(31) = "The enemy's HP after each hit. Click to toggle effective HP for 'unbeatable' bosses. A shield break will be highlighted in pink."
 
-
         For x = 1 To 454
             magnus_image(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
         Next
@@ -693,12 +691,8 @@ Public Class Main
         AddHandler Resize, AddressOf ResizePanel
         ResizePanel(sender, e)
 
+        UpdateRows()
         With My.Settings
-            If .ResultsRow = Nothing Then
-                .ResultsRow = "11111111111111111111111111111111"
-            End If
-            UpdateRows()
-
             If .MagnusActive Is Nothing Then
                 .MagnusActive = New Specialized.StringCollection
                 .MagnusActive.Clear()
@@ -1203,7 +1197,7 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub ShowCard(id As Integer, m As Integer)
+    Private Sub ShowCard(id As Integer, member As Integer)
         If cards = 125 Then
             Return
         End If
@@ -1225,9 +1219,9 @@ Public Class Main
             card_panel(1).Controls.Add(combo(cards))
         End If
         combo(cards).Show()
-        member(cards) = m
+        Me.member(cards) = member
 
-        If cards = 0 OrElse member(cards) <> member(cards - 1) Then     'save start of each turn
+        If cards = 0 OrElse Me.member(cards) <> Me.member(cards - 1) Then     'save start of each turn
             turn(turns) = cards
             turns += 1
         End If
@@ -3011,16 +3005,18 @@ Public Class Main
         crush = aura_data(aura(check_char, 0), aura(check_char, 1), 1)
         element = aura_data(aura(check_char, 0), aura(check_char, 1), 2)
         bonus = aura_data(aura(check_char, 0), aura(check_char, 1), 3)
-        If aura(check_char, 1) = 0 Then
-            start_level = 1
-            end_level = 15
-        ElseIf aura(check_char, 1) = 1 Then
-            start_level = 15
-            end_level = 30
-        ElseIf aura(check_char, 1) = 2 Then
-            start_level = 30
-            end_level = 50
-        End If
+
+        Select Case aura(check_char, 1)
+            Case 0
+                start_level = 1
+                end_level = 15
+            Case 1
+                start_level = 15
+                end_level = 30
+            Case 2
+                start_level = 30
+                end_level = 50
+        End Select
 
         'additional bonus based on character's level
         If level(check_char) < start_level Then
@@ -3107,31 +3103,31 @@ Public Class Main
         End If
 
         Dim armor_durability As Integer
-        If combo_target = 26 Then           'Armored Cancerite
-            armor_defense = 50
-            armor_durability = 8
-        ElseIf combo_target = 65 Then       'Armored Balloona
-            armor_defense = 200
-            armor_durability = 3
-        ElseIf combo_target = 85 Then       'Armored Mite
-            armor_defense = 100
-            armor_durability = 3
-        ElseIf combo_target = 87 Then       'Phoelix
-            armor_defense = 50
-            armor_durability = 5
-        ElseIf combo_target = 117 Then      'Machina Arma: Razer 3
-            armor_defense = 20
-            armor_durability = -1
-            target_data(10).Hide()
-            Me.armor_durability.Hide()
-            Me.armor_durability.Items.Clear()
-        Else
-            armor_defense = 0
-            armor_durability = 0
-            target_data(10).Hide()
-            Me.armor_durability.Hide()
-            Me.armor_durability.Items.Clear()
-        End If
+        Select Case combo_target
+            Case 26                     'Armored Cancerite
+                armor_defense = 50
+                armor_durability = 8
+            Case 65                     'Armored Balloona
+                armor_defense = 200
+                armor_durability = 3
+            Case 85                     'Armored Mite
+                armor_defense = 100
+                armor_durability = 3
+            Case 87                     'Phoelix
+                armor_defense = 50
+                armor_durability = 5
+            Case 117                    'Machina Arma: Razer 3
+                armor_defense = 20
+                target_data(10).Hide()
+                Me.armor_durability.Hide()
+                Me.armor_durability.Items.Clear()
+            Case Else
+                armor_defense = 0
+                target_data(10).Hide()
+                Me.armor_durability.Hide()
+                Me.armor_durability.Items.Clear()
+        End Select
+
         If armor_durability > 0 Then
             With Me.armor_durability
                 .Items.Clear()
@@ -3298,9 +3294,6 @@ Public Class Main
     End Function
 
     Private Sub ResizePanel(sender As Object, e As EventArgs)
-        If output_panel Is Nothing Then
-            Return
-        End If
         card_panel(0).Width = Width - 16
         card_panel(1).Width = Width - 16
         output_panel.Size = New Size(Width - 16, Height - 490)

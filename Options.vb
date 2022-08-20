@@ -170,7 +170,6 @@
             .TextAlign = ContentAlignment.MiddleCenter
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .Text = "Version 1.1"
-            .BackColor = Color.Transparent
             AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(version)

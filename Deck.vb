@@ -29,7 +29,6 @@
             End If
 
             With card(x)
-                .Image = Nothing
                 .Size = New Size(50, 80)
                 .Left = 90 + 50 * (x - group_start(group))
                 If group < 23 Then
