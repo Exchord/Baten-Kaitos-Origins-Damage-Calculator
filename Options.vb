@@ -3,9 +3,13 @@
 
     Public row(31), setting(7) As CheckBox
     Dim tooltips(5), heavenlapse(9), aphelion_dustwake(13) As CheckBox
-    Dim random_hits(20), tooltips_label, version As Label
+    Dim random_hits(20), tooltips_label, party(2), version, void As Label
     Dim show_all, hide_all, documentation As Button
-    Dim panel As Panel
+    Dim panel, party_panel(2) As Panel
+    Dim member(5) As RadioButton
+    Dim order(3) As Integer
+    Dim auto As Boolean
+    ReadOnly member_name() As String = {"Sagi", "Milly", "Guillo"}
 
     Private Sub Settings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Hide()
@@ -163,13 +167,75 @@
             AddHandler tooltips(x).CheckedChanged, AddressOf ChangeSetting
         Next
 
+
+        ' PARTY ORDER
+
+        For x = 0 To 1
+            party_panel(x) = New Panel()
+            With party_panel(x)
+                .Size = New Size(275, 24)
+                .Location = New Point(171, tooltips_ypos + x * 25)
+            End With
+            Controls.Add(party_panel(x))
+
+            party(x) = New Label()
+            With party(x)
+                .Size = New Size(79, 24)
+                .BackColor = Main.default_color
+                .TextAlign = ContentAlignment.MiddleCenter
+                AddHandler .Click, AddressOf ChangeFocus
+            End With
+            party_panel(x).Controls.Add(party(x))
+        Next
+        party(0).Text = "1st member"
+        party(1).Text = "2nd member"
+
+        void = New Label()
+        With void
+            .Size = New Size(64, 24)
+            .BackColor = Main.default_color
+            AddHandler .Click, AddressOf ChangeFocus
+        End With
+        party_panel(1).Controls.Add(void)
+
+        For x = 0 To 4
+            member(x) = New RadioButton()
+            With member(x)
+                .Size = New Size(64, 24)
+                .Location = New Point(80 + x * 65, 0)
+                .BackColor = Main.default_color
+                .Padding = New Padding(5, 0, 0, 0)
+                .Tag = x
+                AddHandler .CheckedChanged, AddressOf ChangePartyOrder
+                If x < 3 Then
+                    .Text = member_name(x)
+                    party_panel(0).Controls.Add(member(x))
+                Else
+                    party_panel(1).Controls.Add(member(x))
+                End If
+            End With
+        Next
+
+        For x = 0 To 2
+            order(x) = My.Settings.PartyOrder.Substring(x, 1)
+        Next
+        For x = 0 To 2
+            If x = order(0) Then
+                member(x).Checked = True
+                Exit For
+            End If
+        Next
+
+
+        ' APP INFO
+
         version = New Label()
         With version
-            .Size = New Size(80, 24)
-            .Location = New Point(268, tooltips_ypos)
+            .Size = New Size(90, 24)
+            .Location = New Point(263, tooltips_ypos + 75)
             .TextAlign = ContentAlignment.MiddleCenter
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
-            .Text = "Version 1.1"
+            .Text = "Version " & Main.version.Remove(Main.version.Length - 4)
             AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(version)
@@ -177,7 +243,7 @@
         documentation = New Button()
         With documentation
             .Size = New Size(150, 30)
-            .Location = New Point(233, tooltips_ypos + 30)
+            .Location = New Point(233, tooltips_ypos + 105)
             .Text = "View documentation"
             .UseVisualStyleBackColor = True
             AddHandler .Click, AddressOf ViewDocumentation
@@ -421,6 +487,80 @@
         End If
         My.Settings.AphelionDustwake = temp
         Main.Calculate()
+    End Sub
+
+    Private Sub ChangePartyOrder(sender As Object, e As EventArgs)
+        If auto OrElse sender.Checked = False Then
+            Return
+        End If
+        If sender.Tag < 3 Then
+            auto = True
+            If order(1) < order(2) Then
+                member(3).Checked = True
+            Else
+                member(4).Checked = True
+            End If
+            auto = False
+        End If
+
+        With My.Settings
+            Dim first As Integer = .PartyOrder.Substring(0, 1)
+            Select Case sender.Tag
+                Case 0
+                    If member(3).Checked Then
+                        .PartyOrder = "012"
+                    Else
+                        .PartyOrder = "021"
+                    End If
+                Case 1
+                    If member(3).Checked Then
+                        .PartyOrder = "102"
+                    Else
+                        .PartyOrder = "120"
+                    End If
+                Case 2
+                    If member(3).Checked Then
+                        .PartyOrder = "201"
+                    Else
+                        .PartyOrder = "210"
+                    End If
+                Case 3
+                    Select Case first
+                        Case 0
+                            .PartyOrder = "012"
+                        Case 1
+                            .PartyOrder = "102"
+                        Case 2
+                            .PartyOrder = "201"
+                    End Select
+                Case 4
+                    Select Case first
+                        Case 0
+                            .PartyOrder = "021"
+                        Case 1
+                            .PartyOrder = "120"
+                        Case 2
+                            .PartyOrder = "210"
+                    End Select
+            End Select
+        End With
+
+        Dim y As Integer = 3
+        For x = 0 To 2
+            order(x) = My.Settings.PartyOrder.Substring(x, 1)
+            If x = order(0) Then
+                Continue For
+            End If
+            member(y).Text = member_name(x)
+            member(y).Left = 80 + x * 65
+            y += 1
+        Next
+        void.Location = New Point(80 + order(0) * 65)
+
+        Main.ChangePartyOrder()
+        If Boost.Visible Then
+            Boost.ChangePartyOrder()
+        End If
     End Sub
 
     Private Sub ViewDocumentation(sender As Object, e As EventArgs)

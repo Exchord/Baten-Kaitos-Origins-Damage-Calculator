@@ -160,6 +160,8 @@ Public Class Main
 
     Public ReadOnly variable() As String = {"Base offense", "Attack offense", "Attack crush", "Attack boost factor", "Offense deviation", "Crush deviation", "Electric Helm factor", "Weapon offense", "Weapon crush", "Element compatibility", "Weapon factor", "Quest magnus bonus", "Aura offense", "Aura crush", "EX combo offense factor", "EX combo crush factor", "Critical hit factor", "Base defense", "Crush limit", "Crush status", "Defense boost factor", "Defense deviation", "Total offense", "Total crush", "Total defense", "Armor", "Multiplier", "Damage output", "Crush output", "Total damage output", "Total crush output", "HP remaining"}
 
+    Public ReadOnly version As String = FileVersionInfo.GetVersionInfo(Application.ExecutablePath).FileVersion
+
     Private Declare Function OpenProcess Lib "kernel32" (dwDesiredAccess As Integer, bInheritHandle As Integer, dwProcessId As Integer) As Integer
     Private Declare Function ReadProcessMemory Lib "kernel32" Alias "ReadProcessMemory" (hProcess As Integer, lpBaseAddress As Int64, ByRef lpBuffer As Integer, nSize As Integer, ByRef lpNumberOfBytesWritten As Integer) As Integer
     Private Declare Function CloseHandle Lib "kernel32" (hObject As IntPtr) As Boolean
@@ -185,10 +187,12 @@ Public Class Main
         char_icon(2) = New Bitmap(My.Resources.ResourceManager.GetObject("guillo"), New Size(70, 70))
 
         For x = 0 To 2
+            Dim top As Integer = My.Settings.PartyOrder.IndexOf(x) * 75
+
             char_image(x) = New PictureBox()
             With char_image(x)
                 .Size = New Size(70, 70)
-                .Location = New Point(10, 10 + x * 75)
+                .Location = New Point(10, 10 + top)
                 .Cursor = Cursors.Hand
                 .Tag = x + 1
                 .Image = char_icon(x)
@@ -203,7 +207,7 @@ Public Class Main
                 .MaxDropDownItems = 20
                 .MaxLength = 3
                 .Text = "1"
-                .Location = New Point(90, 24 + x * 75)
+                .Location = New Point(90, 24 + top)
                 .Tag = x
                 For y = 1 To 100
                     .Items.Add(y)
@@ -218,7 +222,7 @@ Public Class Main
             With actual_level(x)
                 .Hide()
                 .Size = New Size(59, 21)
-                .Location = New Point(90, 50 + x * 75)
+                .Location = New Point(90, 50 + top)
                 .TextAlign = ContentAlignment.MiddleLeft
                 .Font = New Font("Segoe UI", 9, FontStyle.Bold)
                 .Tag = x
@@ -230,7 +234,7 @@ Public Class Main
             With aura_type(x)
                 .Size = New Size(69, 21)
                 .MaxDropDownItems = 12
-                .Location = New Point(155, 24 + x * 75)
+                .Location = New Point(155, 24 + top)
                 .Tag = x
                 .DropDownStyle = ComboBoxStyle.DropDownList
                 For y = 0 To 11
@@ -245,7 +249,7 @@ Public Class Main
                 .Hide()
                 .Size = New Size(69, 21)
                 .MaxDropDownItems = 12
-                .Location = New Point(155, 50 + x * 75)
+                .Location = New Point(155, 50 + top)
                 .Tag = x
                 .DropDownStyle = ComboBoxStyle.DropDownList
                 For y = 0 To 2
@@ -259,7 +263,7 @@ Public Class Main
             With equipment(x)
                 .Hide()
                 .Size = New Size(40, 64)
-                .Location = New Point(235, 16 + x * 75)
+                .Location = New Point(235, 16 + top)
                 .Cursor = Cursors.Hand
                 .Name = x + 1
                 AddHandler .MouseClick, AddressOf ChangeFocus
@@ -271,7 +275,7 @@ Public Class Main
             With eq_durability(x)
                 .Hide()
                 .Size = New Size(48, 21)
-                .Location = New Point(282, 37 + x * 75)
+                .Location = New Point(282, 37 + top)
                 .Tag = x + 1
                 .DropDownStyle = ComboBoxStyle.DropDownList
                 AddHandler .SelectedIndexChanged, AddressOf ChangeDurability
@@ -671,6 +675,7 @@ Public Class Main
             magnus_image(x) = New Bitmap(My.Resources.ResourceManager.GetObject("_" & x), New Size(50, 80))
         Next
         first_hit(0) = 1
+        item_target = My.Settings.PartyOrder.Substring(0, 1)
 
         For x = 1 To 101
             For y = 1 To 7
@@ -1547,13 +1552,14 @@ Public Class Main
                 crush_deviation = DeviationToNumber(hits + 1, 1)
 
                 'attack boost only lasts two turns - in case the same character attacks again in the same combo
-                If turns_per_member(member(x) - 1) = 1 Then
-                    attack_boost_factor = 1 + offense_boost(member(x) - 1, attack_element, 0)
-                ElseIf turns_per_member(member(x) - 1) = 2 Then
-                    attack_boost_factor = 1 + offense_boost(member(x) - 1, attack_element, 1)
-                ElseIf turns_per_member(member(x) - 1) > 2 Then
-                    attack_boost_factor = 1
-                End If
+                Select Case turns_per_member(member(x) - 1)
+                    Case 1
+                        attack_boost_factor = 1 + offense_boost(member(x) - 1, attack_element, 0)
+                    Case 2
+                        attack_boost_factor = 1 + offense_boost(member(x) - 1, attack_element, 1)
+                    Case > 2
+                        attack_boost_factor = 1
+                End Select
 
                 'lightning yields a 20% bonus if Electric Helm or Blitz Helm is equipped  
                 If (equip(x) = 300 Or equip(x) = 315) And attack_element = 3 Then
@@ -2443,6 +2449,19 @@ Public Class Main
         End If
         character = sender.Tag
         ShowDeck()
+    End Sub
+
+    Public Sub ChangePartyOrder()
+        For x = 0 To 2
+            Dim top As Integer = My.Settings.PartyOrder.IndexOf(x) * 75
+            char_image(x).Top = 10 + top
+            level_selector(x).Top = 24 + top
+            actual_level(x).Top = 50 + top
+            aura_type(x).Top = 24 + top
+            aura_level(x).Top = 50 + top
+            equipment(x).Top = 16 + top
+            eq_durability(x).Top = 37 + top
+        Next
     End Sub
 
     Private Sub AddCard(sender As Object, e As MouseEventArgs)

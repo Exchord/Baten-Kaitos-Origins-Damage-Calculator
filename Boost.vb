@@ -16,6 +16,7 @@
         Font = New Font("Segoe UI", 9, FontStyle.Regular)
         BackColor = Color.LightGray
         FormBorderStyle = FormBorderStyle.FixedSingle
+        DoubleBuffered = True
         KeyPreview = True
         MaximizeBox = False
         Text = "Temporary Boost"
@@ -27,11 +28,12 @@
         ' PARTY / ENEMY ICONS
 
         For x = 0 To 3
+            Dim top As Integer = My.Settings.PartyOrder.IndexOf(x) * 80
             character(x) = New PictureBox()
             With character(x)
                 If x < 3 Then
                     .Size = New Size(70, 70)
-                    .Location = New Point(20, 50 + x * 80)
+                    .Location = New Point(20, 50 + top)
                     If x = Main.item_target Then
                         .Image = Main.char_icon(x)
                     Else
@@ -91,6 +93,7 @@
         ' TEXT BOXES
 
         For x = 0 To 3
+            Dim top As Integer = My.Settings.PartyOrder.IndexOf(x) * 80
             For y = 0 To 5
                 For z = 0 To 1
                     boost(x, y, z) = New TextBox()
@@ -99,7 +102,7 @@
                         .TextAlign = HorizontalAlignment.Center
                         .MaxLength = 8
                         If x < 3 Then
-                            .Location = New Point(110 + 70 * y, 61 + 80 * x + 25 * z)
+                            .Location = New Point(110 + 70 * y, 61 + top + 25 * z)
                             ChangeBox(boost(x, y, z), Main.offense_boost(x, y, z))
                         Else
                             .Location = New Point(110 + 70 * y, 391 + 25 * z)
@@ -161,10 +164,11 @@
         ' BUTTONS
 
         For x = 0 To 4
+            Dim top As Integer = My.Settings.PartyOrder.IndexOf(x) * 80
             next_turn(x) = New Button()
             With next_turn(x)
                 If x < 3 Then
-                    .Location = New Point(548, 60 + x * 80)
+                    .Location = New Point(548, 60 + top)
                 ElseIf x = 3 Then
                     .Location = New Point(548, 390)
                 ElseIf x = 4 Then
@@ -181,7 +185,7 @@
             reset(x) = New Button()
             With reset(x)
                 If x < 3 Then
-                    .Location = New Point(548, 85 + x * 80)
+                    .Location = New Point(548, 85 + top)
                 ElseIf x = 3 Then
                     .Location = New Point(548, 415)
                 ElseIf x = 4 Then
@@ -419,6 +423,19 @@
                 Return
         End Select
         e.Handled = True
+    End Sub
+
+    Public Sub ChangePartyOrder()
+        For x = 0 To 2
+            Dim top As Integer = My.Settings.PartyOrder.IndexOf(x) * 80
+            character(x).Top = 50 + top
+            For y = 0 To 5
+                boost(x, y, 0).Top = 61 + top
+                boost(x, y, 1).Top = 86 + top
+            Next
+            next_turn(x).Top = 60 + top
+            reset(x).Top = 85 + top
+        Next
     End Sub
 
     Private Sub ShowName(sender As Object, e As EventArgs)

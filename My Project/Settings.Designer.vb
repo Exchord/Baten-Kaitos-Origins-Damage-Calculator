@@ -520,6 +520,18 @@ Namespace My
                 Me("Character") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("012")>  _
+        Public Property PartyOrder() As String
+            Get
+                Return CType(Me("PartyOrder"),String)
+            End Get
+            Set
+                Me("PartyOrder") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

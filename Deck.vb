@@ -20,7 +20,6 @@
 
         Dim group As Integer
         For x = 1 To 454
-            card(x) = New PictureBox()
             If group_start.Contains(x) Then
                 group = Array.IndexOf(group_start, x)
             End If
@@ -28,6 +27,7 @@
                 Continue For
             End If
 
+            card(x) = New PictureBox()
             With card(x)
                 .Size = New Size(50, 80)
                 .Left = 90 + 50 * (x - group_start(group))
