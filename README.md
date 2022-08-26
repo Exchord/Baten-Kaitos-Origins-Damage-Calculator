@@ -163,7 +163,7 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 
 ### Settings
-![](https://i.imgur.com/yPbStdN.png)  
+![](https://i.imgur.com/bXoduDy.png)  
 - <i>Auto-close target window:</i> When you choose a target, the target window closes automatically.
 
 - <i>Highlight hits when hovering over an attack card:</i> When you hover over an attack card in your combo, all of its hits in the output table are highlighted in blue.
