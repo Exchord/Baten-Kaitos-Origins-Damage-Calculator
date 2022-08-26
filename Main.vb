@@ -8,12 +8,11 @@ Public Class Main
     Dim enemy_status, armor_durability As ComboBox
     Dim target_image, button(7), hand(300) As PictureBox
     Dim next_combo As Button
-    Dim card_panel(2) As Panel
-    Dim output_panel As DoubleBufferPanel
+    Dim card_panel(2), output_panel As DoubleBufferPanel
     Dim magnus_image(455) As Bitmap
     Public hover As ToolTip
     Dim row_pos(32) As Integer
-    Dim description(32), EX_combo_hex(102) As String
+    Dim description(32), EX_string(102) As String
     Dim highlight As Integer = -1
 
     'characters
@@ -28,7 +27,6 @@ Public Class Main
     'combo
     Dim combo(125) As PictureBox
     Dim member(125), first_hit(125), equip(125), EX(125) As Integer
-    Dim relay(125), relay_equip(125) As Boolean
 
     'hits
     Dim table(1000, 32) As Label
@@ -40,7 +38,7 @@ Public Class Main
     Public combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
     Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Double
     Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2) As Double
-    Dim post_combo_down, post_combo_shield As Boolean
+    Dim relay, relay_equip, post_combo_down, post_combo_shield As Boolean
     Public deck_magnus(455) As String
     Dim hProcess As IntPtr
 
@@ -517,7 +515,7 @@ Public Class Main
         ' CARDS
 
         For x = 0 To 1
-            card_panel(x) = New Panel()
+            card_panel(x) = New DoubleBufferPanel()
             With card_panel(x)
                 .AutoScroll = True
                 .Location = New Point(0, 220 + 30 + x * 100)
@@ -535,7 +533,6 @@ Public Class Main
                 .Location = New Point(10 + x * 50, 0)
                 .Name = x
                 .Cursor = Cursors.Hand
-                .Hide()
                 AddHandler .Click, AddressOf AddCard
                 AddHandler .Click, AddressOf RemoveCardFromDeck
             End With
@@ -547,8 +544,8 @@ Public Class Main
                 .Hide()
                 .Size = New Size(50, 80)
                 .Location = New Point(10 + x * 50, 0)
+                .Name = x
                 .Cursor = Cursors.Hand
-                .Hide()
                 AddHandler .Click, AddressOf RemoveCard
                 AddHandler .MouseEnter, AddressOf HighlightHits
                 AddHandler .MouseLeave, AddressOf UnhighlightHits
@@ -682,11 +679,7 @@ Public Class Main
                 If EX_combo_data(x, y) = 0 Then
                     Exit For
                 End If
-                If EX_combo_data(x, y) < 16 Then
-                    EX_combo_hex(x) &= "0" & Hex(EX_combo_data(x, y))
-                Else
-                    EX_combo_hex(x) &= Hex(EX_combo_data(x, y))
-                End If
+                EX_string(x) &= Convert.ToChar(EX_combo_data(x, y) + 34)
             Next
         Next
 
@@ -795,7 +788,6 @@ Public Class Main
             End If
             hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, emulator(0).Id)
             If hProcess = IntPtr.Zero Then
-                CloseHandle(hProcess)
                 MsgBox("Failed to open Dolphin.")
                 Return
             End If
@@ -912,8 +904,8 @@ Public Class Main
                     offense_boost(party(x) - 1, y, 0) = LimitBoost(value_1)
                     offense_boost(party(x) - 1, y, 1) = LimitBoost(value_2)
                 Else
-                    Boost.boost(x, y, 0).Text = LimitBoost(value_1)
-                    Boost.boost(x, y, 1).Text = LimitBoost(value_2)
+                    Boost.boost(party(x) - 1, y, 0).Text = LimitBoost(value_1)
+                    Boost.boost(party(x) - 1, y, 1).Text = LimitBoost(value_2)
                 End If
             Next
         Next
@@ -943,7 +935,7 @@ Public Class Main
 
         If My.Settings.ReadCombo Then
             If cards > 0 Then
-                RemoveCard(combo(0), New EventArgs)
+                RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
             End If
 
             For x = 0 To party_size - 1
@@ -1183,17 +1175,18 @@ Public Class Main
         Else
             final_phase.Checked = False
         End If
+
         If Not Boost.Visible Then
-            For x = 0 To 5
-                Me.defense_boost(x, 0) = LimitBoost(defense_boost(final_target, x, 0))
-                Me.defense_boost(x, 1) = LimitBoost(defense_boost(final_target, x, 1))
+            For y = 0 To 5
+                Me.defense_boost(y, 0) = LimitBoost(defense_boost(final_target, y, 0))
+                Me.defense_boost(y, 1) = LimitBoost(defense_boost(final_target, y, 1))
             Next
             Me.enemy_offense_boost(0) = LimitBoost(enemy_offense_boost(final_target, 0))
             Me.enemy_offense_boost(1) = LimitBoost(enemy_offense_boost(final_target, 1))
         Else
-            For x = 0 To 5
-                Boost.boost(3, x, 0).Text = LimitBoost(defense_boost(final_target, x, 0))
-                Boost.boost(3, x, 1).Text = LimitBoost(defense_boost(final_target, x, 1))
+            For y = 0 To 5
+                Boost.boost(3, y, 0).Text = LimitBoost(defense_boost(final_target, y, 0))
+                Boost.boost(3, y, 1).Text = LimitBoost(defense_boost(final_target, y, 1))
             Next
             Boost.boost(4, 0, 0).Text = LimitBoost(enemy_offense_boost(final_target, 0))
             Boost.boost(4, 0, 1).Text = LimitBoost(enemy_offense_boost(final_target, 1))
@@ -1210,15 +1203,9 @@ Public Class Main
             turns = -1
             Return
         End If
-        If relay(cards) And spirit_number(id) = 1 Then  'spirit number is 0
-            relay_equip(cards + 1) = True
-        End If
-        If relay(cards) And spirit_number(id) = 2 Then  'spirit number is 1
-            relay(cards + 1) = False
-        End If
+
         combo(cards).Image = magnus_image(id)
         combo(cards).Tag = id
-        combo(cards).Name = cards
         If Not card_panel(1).Contains(combo(cards)) Then
             combo(cards).Left += card_panel(1).AutoScrollPosition.X
             card_panel(1).Controls.Add(combo(cards))
@@ -1226,11 +1213,8 @@ Public Class Main
         combo(cards).Show()
         Me.member(cards) = member
 
-        If cards = 0 OrElse Me.member(cards) <> Me.member(cards - 1) Then     'save start of each turn
-            turn(turns) = cards
-            turns += 1
-        End If
         cards += 1
+        UpdateTurns()
     End Sub
 
     Private Function Read(address As Int64, size As Integer) As Integer
@@ -1390,7 +1374,7 @@ Public Class Main
                 End If
                 first_hit(x + 1) = hits + 1                     'save ID of first hit for the next card
 
-                CheckCombo(Array.IndexOf(turn, x, 0, turns))    'check for EX combos in the current turn
+                CheckCombo(x)
                 Continue For
             End If
 
@@ -1464,7 +1448,7 @@ Public Class Main
                 equip(x) = equip(x - 1)
             End If
 
-            CheckCombo(Array.IndexOf(turn, x, 0, turns))        'check for EX combos in the current turn
+            CheckCombo(x)
 
             offense = LevelToOffense(level(member(x) - 1))
             attack = GetAttack(x)
@@ -1493,7 +1477,7 @@ Public Class Main
                 End If
 
                 'some attacks miss airborne targets
-                If airborne_enemies.Contains(combo_target) Then
+                If airborne_enemies.Contains(combo_target) And true_HP > 0 Then
                     If attack = 21 And y = 3 Then
                         Continue For        'Milly's Strong Attack B 3rd hit
                     End If
@@ -2053,7 +2037,7 @@ Public Class Main
         Dim final_hits As String = ""
         Dim final_damage As String = ""
         Dim TP_bonus As String = ""
-        If cards > 0 AndAlso relay_equip(cards) Then
+        If cards > 0 AndAlso relay_equip Then
             combo_cards -= 1
         End If
         If combo_cards > 1 Then
@@ -2086,15 +2070,17 @@ Public Class Main
     End Function
 
     Private Sub ShowHitModifiers()
+        Dim hit As Integer = hits + 1
+
         For i = 0 To 2
             If My.Settings.ResultsRow.ElementAt(hit_modifier_row(i)) = "0" Then
                 Continue For
             End If
-            With hit_modifier(hits + 1, i)
+            With hit_modifier(hit, i)
                 .Top = row_pos(hit_modifier_row(i)) + output_panel.AutoScrollPosition.Y
-                If Not output_panel.Contains(hit_modifier(hits + 1, i)) Then
-                    .Left = 104 + 52 * (hits + 1) + output_panel.AutoScrollPosition.X
-                    output_panel.Controls.Add(hit_modifier(hits + 1, i))
+                If Not output_panel.Contains(hit_modifier(hit, i)) Then
+                    .Left = 104 + 52 * (hit) + output_panel.AutoScrollPosition.X
+                    output_panel.Controls.Add(hit_modifier(hit, i))
                     .SelectedIndex = 4
                 End If
                 .Show()
@@ -2102,34 +2088,34 @@ Public Class Main
         Next
 
         'on fire/dark knockdown extra hits, offense/defense deviation ranges from -20% to +4%
-        If knockdown_hit(hits + 1) And hit_modifier(hits + 1, 0).Items.Count < 25 Then
-            hit_modifier(hits + 1, 0).Items.Clear()
-            hit_modifier(hits + 1, 2).Items.Clear()
+        If knockdown_hit(hit) And hit_modifier(hit, 0).Items.Count < 25 Then
+            hit_modifier(hit, 0).Items.Clear()
+            hit_modifier(hit, 2).Items.Clear()
             For i = 4 To 1 Step -1
-                hit_modifier(hits + 1, 0).Items.Add("+" & i & "%")
-                hit_modifier(hits + 1, 2).Items.Add("+" & i & "%")
+                hit_modifier(hit, 0).Items.Add("+" & i & "%")
+                hit_modifier(hit, 2).Items.Add("+" & i & "%")
             Next
             For i = 0 To -20 Step -1
-                hit_modifier(hits + 1, 0).Items.Add(i & "%")
-                hit_modifier(hits + 1, 2).Items.Add(i & "%")
+                hit_modifier(hit, 0).Items.Add(i & "%")
+                hit_modifier(hit, 2).Items.Add(i & "%")
             Next
-            hit_modifier(hits + 1, 0).SelectedIndex = 12
-            hit_modifier(hits + 1, 2).SelectedIndex = 12
-            hit_modifier(hits + 1, 1).SelectedIndex = 4
-        ElseIf Not knockdown_hit(hits + 1) And hit_modifier(hits + 1, 0).Items.Count >= 25 Then
-            hit_modifier(hits + 1, 0).Items.Clear()
-            hit_modifier(hits + 1, 2).Items.Clear()
+            hit_modifier(hit, 0).SelectedIndex = 12
+            hit_modifier(hit, 2).SelectedIndex = 12
+            hit_modifier(hit, 1).SelectedIndex = 4
+        ElseIf Not knockdown_hit(hit) And hit_modifier(hit, 0).Items.Count >= 25 Then
+            hit_modifier(hit, 0).Items.Clear()
+            hit_modifier(hit, 2).Items.Clear()
             For i = 4 To 1 Step -1
-                hit_modifier(hits + 1, 0).Items.Add("+" & i & "%")
-                hit_modifier(hits + 1, 2).Items.Add("+" & i & "%")
+                hit_modifier(hit, 0).Items.Add("+" & i & "%")
+                hit_modifier(hit, 2).Items.Add("+" & i & "%")
             Next
             For i = 0 To -4 Step -1
-                hit_modifier(hits + 1, 0).Items.Add(i & "%")
-                hit_modifier(hits + 1, 2).Items.Add(i & "%")
+                hit_modifier(hit, 0).Items.Add(i & "%")
+                hit_modifier(hit, 2).Items.Add(i & "%")
             Next
-            hit_modifier(hits + 1, 0).SelectedIndex = 4
-            hit_modifier(hits + 1, 2).SelectedIndex = 4
-            hit_modifier(hits + 1, 1).SelectedIndex = 4
+            hit_modifier(hit, 0).SelectedIndex = 4
+            hit_modifier(hit, 2).SelectedIndex = 4
+            hit_modifier(hit, 1).SelectedIndex = 4
         End If
     End Sub
 
@@ -2442,12 +2428,12 @@ Public Class Main
         If sender.Tag = character Then
             Return
         End If
-        If cards = 0 OrElse sender.Tag = member(cards - 1) Then
-            relay(cards) = False
-        Else
-            relay(cards) = True
-        End If
         character = sender.Tag
+        If cards > 0 AndAlso character <> member(cards - 1) Then    'enable relay combo
+            relay = True
+        Else
+            relay = False
+        End If
         ShowDeck()
     End Sub
 
@@ -2470,10 +2456,12 @@ Public Class Main
             Return
         End If
 
+        Dim id As Integer = sender.Tag
+
         'right-click to pre-equip a magnus
         If e.Button = MouseButtons.Right Then
-            If spirit_number(sender.Tag) = 0 Or spirit_number(sender.Tag) = 1 Then
-                AddEquipment(character - 1, sender.Tag)
+            If spirit_number(id) = 0 Or spirit_number(id) = 1 Then
+                AddEquipment(character - 1, id)
             End If
             Return
         End If
@@ -2488,18 +2476,10 @@ Public Class Main
             Return
         End If
 
-        If relay(cards) And spirit_number(sender.Tag) = 1 Then         'relay combo using equipment magnus
-            relay_equip(cards + 1) = True
-        End If
-        If relay(cards) And spirit_number(sender.Tag) = 2 Then         'relay combo using weak attack
-            relay(cards + 1) = False
-        End If
-
         'add card to combo
         With combo(cards)
-            .Image = magnus_image(sender.tag)
-            .Tag = sender.Tag
-            .Name = cards
+            .Image = magnus_image(id)
+            .Tag = id
             If Not card_panel(1).Contains(combo(cards)) Then
                 .Left += card_panel(1).AutoScrollPosition.X
                 card_panel(1).Controls.Add(combo(cards))
@@ -2508,49 +2488,90 @@ Public Class Main
         End With
         member(cards) = character
 
-        'if this is a new turn, save start of turn and increment turn counter
-        If cards = 0 OrElse member(cards) <> member(cards - 1) Then
-            turn(turns) = cards
-            turns += 1
-        End If
         cards += 1
+        UpdateTurns()
         CheckCards()
-
         Calculate()
     End Sub
 
-    Private Sub RemoveCard(sender As Object, e As EventArgs)
+    Private Sub RemoveCard(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Right Then
+            RemoveSingleCard(sender, e)
+            Return
+        End If
         card_panel(1).Focus()
-        Dim x As Integer
-        'update turn counter
-        For x = cards - 1 To sender.Name Step -1
-            If x = turn(turns - 1) Then
-                turns -= 1
-            End If
-        Next
+
+        cards = sender.Name
 
         'switch characters
-        cards = sender.Name
-        If character <> member(sender.Name) Then
-            character = member(sender.Name)
+        If character <> member(cards) Then
+            character = member(cards)
             ShowDeck()
         End If
 
         'clear cards and data beyond remaining cards
-        For x = sender.Name To 124
+        For x = cards To 124
             combo(x).Hide()
             member(x) = 0
-        Next
-        For x = sender.Name + 1 To 124
-            relay(x) = False
-            relay_equip(x) = False
             equip(x) = 0
             EX(x) = 0
         Next
-        equip(sender.Name) = 0
-        EX(sender.Name) = 0
+
+        UpdateTurns()
         CheckCards()
         Calculate()
+    End Sub
+
+    Private Sub RemoveSingleCard(sender As Object, e As MouseEventArgs)
+        Dim card As Integer = sender.Name
+        Dim id As Integer = sender.Tag
+
+        'can't remove mid-combo relay weak attack
+        If spirit_number(id) = 2 And card < cards - 1 And turns > 1 And card >= turn(1) Then
+            Return
+        End If
+
+        'can't remove special attack between regular attacks (or between regular attack and equipment)
+        If spirit_number(id) > 6 AndAlso (card > 0 AndAlso spirit_number(combo(card - 1).Tag) < 7) And (card < cards - 1 AndAlso spirit_number(combo(card + 1).Tag) < 7) Then
+            Return
+        End If
+
+        cards -= 1
+        For x = card To cards - 1
+            combo(x).Image = combo(x + 1).Image
+            combo(x).Tag = combo(x + 1).Tag
+            member(x) = member(x + 1)
+        Next
+        For x = cards To 124
+            combo(x).Hide()
+            member(x) = 0
+            equip(x) = 0
+            EX(x) = 0
+        Next
+
+        UpdateTurns()
+        CheckCards()
+        Calculate()
+    End Sub
+
+    Private Sub UpdateTurns()
+        turns = 0
+        For x = 0 To cards - 1
+            If x = 0 OrElse member(x) <> member(x - 1) Then
+                turn(turns) = x
+                turns += 1
+            End If
+        Next
+        If cards > 0 AndAlso character <> member(cards - 1) Then                'enable relay combo
+            relay = True
+        Else
+            relay = False
+        End If
+        If cards > 1 AndAlso spirit_number(combo(cards - 1).Tag) = 1 Then       'relay combo using equipment magnus
+            relay_equip = True
+        Else
+            relay_equip = False
+        End If
     End Sub
 
     Private Sub AddEquipment(member As Integer, eq As Integer)
@@ -2586,9 +2607,10 @@ Public Class Main
     End Sub
 
     Private Sub RemoveEquipment(sender As Object, e As EventArgs)
-        equipment(sender.Name - 1).Tag = 0
-        equipment(sender.Name - 1).Hide()
-        eq_durability(sender.Name - 1).Hide()
+        Dim chr As Integer = sender.Name - 1
+        equipment(chr).Tag = 0
+        equipment(chr).Hide()
+        eq_durability(chr).Hide()
         Calculate()
     End Sub
 
@@ -2613,8 +2635,9 @@ Public Class Main
         If Not My.Settings.HighlightHits Then
             Return
         End If
-        For x = first_hit(sender.Name) To 999
-            If hit_card(x) <> sender.Name Then
+        Dim card As Integer = sender.Name
+        For x = first_hit(card) To 999
+            If hit_card(x) <> card Then
                 Exit For
             End If
             For y = 0 To rows - 1
@@ -2623,13 +2646,14 @@ Public Class Main
                 End If
             Next
         Next
-        highlight = sender.Name
+        highlight = card
     End Sub
 
     Private Sub UnhighlightHits(sender As Object, e As EventArgs)
         highlight = -1
-        For x = first_hit(sender.Name) To 999
-            If hit_card(x) <> sender.Name Then
+        Dim card As Integer = sender.Name
+        For x = first_hit(card) To 999
+            If hit_card(x) <> card Then
                 Exit For
             End If
             For y = 0 To rows - 1
@@ -2680,36 +2704,36 @@ Public Class Main
         End If
     End Function
 
-    Private Sub CheckCombo(check_turn As Integer)
+    Private Sub CheckCombo(card As Integer)
+        Dim check_turn As Integer = Array.IndexOf(turn, card, 0, turns)
         If check_turn < 0 Then
-            Return
+            Return                  'only check for EX combos if this is the first card of the current turn
         End If
 
         Dim combo_string As String = ""
         Dim first_card, last_card, total_length, final_combo, combo_start, combo_length As Integer
         Dim second_pass As Boolean
         first_card = turn(check_turn)
+        If Not IsAttack(combo(first_card).Tag) Then
+            first_card += 1
+        End If
         If turns > check_turn + 1 Then
             last_card = turn(check_turn + 1) - 1
         Else
             last_card = cards - 1
         End If
 
-        'create a hex string out of all the cards making up the turn, excluding equipment
+        'create a text string out of all the cards making up the turn, excluding equipment
         For x = first_card To last_card
             If check_turn + 1 > turns And x = turn(check_turn + 1) Then
                 Exit For
             End If
-            If combo(x).Tag < &H10 Then
-                combo_string &= "0" & Hex(combo(x).Tag)
-            ElseIf IsAttack(combo(x).Tag) Then
-                combo_string &= Hex(combo(x).Tag)
-            End If
+            combo_string &= Convert.ToChar(combo(x).Tag + 34)
         Next
         If combo_string = "" Then
             Return
         End If
-        total_length = combo_string.Length * 0.5
+        total_length = combo_string.Length
 
         'select range of EX combos to check based on the character
         Dim first, last As Integer
@@ -2725,62 +2749,54 @@ Public Class Main
                 last = 101
         End Select
 
-        'compare hex string with predefined EX combo strings and find the longest EX combo
+        'compare string with predefined EX combo strings and find the longest EX combo
         Dim temp As Integer() = FindEXCombo(first, last, combo_string, first_card)
         final_combo = temp(0)
         combo_start = temp(1)
         combo_length = temp(2)
-
-        'ignore equipment card
-        Dim second_pass_plus_one As Integer
-        If Not IsAttack(combo(first_card).Tag) Then
-            combo_start += 1
-            second_pass_plus_one = 1
-        End If
+        Dim final_card As Integer = first_card + combo_start + combo_length - 1
 
         SaveEXCombo(check_turn, first_card, last_card, final_combo, combo_start, combo_length)
 
-        'check if there is room left for another EX combo in the same turn; trim hex string
-        Dim second_pass_first_card, second_pass_last_card As Integer
+        'check if there is room left for another EX combo in the same turn; trim string
         If final_combo > 0 Then
             'Sagi and Guillo
             If member(first_card) = 1 Or member(first_card) = 3 Then
                 'if EX combo ends with spirit number 4, check 5 and 6
-                If spirit_number(combo(first_card + combo_start + combo_length - 1).Tag) = 7 And total_length >= 6 Then
-                    combo_string = combo_string.Remove(0, 8)
+                If spirit_number(combo(final_card).Tag) = 7 And total_length >= 6 Then
+                    combo_string = combo_string.Remove(0, 4)
                     second_pass = True
-                    second_pass_first_card = first_card + second_pass_plus_one + 4
+                    first_card += 4
                 End If
             Else    'Milly
                 'if EX combo ends with spirit number <= 3, check 4 through 6
-                If spirit_number(combo(first_card + combo_start + combo_length - 1).Tag) <= 6 And total_length >= combo_length + 2 Then
-                    If combo_start <> second_pass_plus_one And spirit_number(combo(first_card + second_pass_plus_one).Tag) = 2 Then
-                        combo_string = combo_string.Remove(0, 2 + combo_length * 2)             'ignore weak attack before Trail Rush or Capricorn Header
+                If spirit_number(combo(final_card).Tag) <= 6 And total_length >= combo_length + 2 Then
+                    If combo_start > 0 And spirit_number(combo(first_card).Tag) = 2 Then
+                        combo_string = combo_string.Remove(0, 1 + combo_length)                 'ignore weak attack before Trail Rush or Capricorn Header
                     Else
-                        combo_string = combo_string.Remove(0, combo_length * 2)
+                        combo_string = combo_string.Remove(0, combo_length)
                     End If
                     second_pass = True
-                    second_pass_first_card = first_card + combo_start + combo_length
+                    first_card = final_card + 1
                     'if EX combo starts with spirit number 4, check 1 through 3
                 ElseIf spirit_number(combo(first_card + combo_start).Tag) = 7 And total_length > combo_length Then
-                    combo_string = combo_string.Remove((total_length - combo_length) * 2, combo_length * 2)
+                    combo_string = combo_string.Remove(total_length - combo_length, combo_length)
                     second_pass = True
-                    second_pass_first_card = first_card + second_pass_plus_one
                 End If
             End If
         End If
 
         'find second EX combo
         If second_pass Then
-            second_pass_last_card = second_pass_first_card + combo_string.Length * 0.5 - 1
+            last_card = first_card + combo_string.Length - 1
 
-            temp = FindEXCombo(first, last, combo_string, second_pass_first_card)
+            temp = FindEXCombo(first, last, combo_string, first_card)
             final_combo = temp(0)
             combo_start = temp(1)
             combo_length = temp(2)
 
             If final_combo > 0 Then
-                SaveEXCombo(check_turn, second_pass_first_card, second_pass_last_card, final_combo, combo_start, combo_length)
+                SaveEXCombo(check_turn, first_card, last_card, final_combo, combo_start, combo_length)
             End If
 
         ElseIf My.Settings.GuilloExtraBonus AndAlso (member(first_card) = 3 And final_combo > 0 And combo_start > 0) Then
@@ -2796,7 +2812,7 @@ Public Class Main
     Private Function FindEXCombo(first As Integer, last As Integer, combo_string As String, first_card As Integer) As Integer()
         Dim final_combo, combo_start, combo_length As Integer
         For x = first To last
-            If combo_string.Contains(EX_combo_hex(x)) And (EX_combo_data(x, 0) > combo_length Or final_combo = 52) Then
+            If combo_string.Contains(EX_string(x)) And (EX_combo_data(x, 0) > combo_length Or final_combo = 52) Then
                 'EX combos requiring specific weapon elements
                 If EX_combo_data(x, 10) >= 1 And EX_combo_data(x, 10) <= 4 Then
                     If magnus_element(equip(first_card)) <> EX_combo_data(x, 10) Or Not IsWeapon(equip(first_card)) Then
@@ -2817,12 +2833,7 @@ Public Class Main
                 End If
                 final_combo = x
                 combo_length = EX_combo_data(x, 0)
-                For y = 1 To combo_string.Length - 1 Step 2
-                    If Mid(combo_string, y, 2) = Strings.Left(EX_combo_hex(x), 2) Then
-                        combo_start = (y - 1) * 0.5
-                        Exit For
-                    End If
-                Next
+                combo_start = combo_string.IndexOf(EX_string(x))
                 'Secret Queen: only if combo starts with Rabbit Dash
                 If (final_combo = 55 Or final_combo = 56) And combo_start > 0 Then
                     final_combo = 0
@@ -2895,7 +2906,7 @@ Public Class Main
             transparent = False
 
             'spirit number too low
-            If Not relay(cards) AndAlso cards > 0 AndAlso spirit_number(hand(x).Tag) <= spirit_number(combo(cards - 1).Tag) Then
+            If Not relay AndAlso cards > 0 AndAlso spirit_number(hand(x).Tag) <= spirit_number(combo(cards - 1).Tag) Then
                 transparent = True
             End If
 
@@ -2905,12 +2916,12 @@ Public Class Main
             End If
 
             'after switching characters: not a weak attack, not an equipment magnus with relay mark
-            If relay(cards) AndAlso (spirit_number(hand(x).Tag) < 1 Or spirit_number(hand(x).Tag) > 2 OrElse (spirit_number(hand(x).Tag) = 1 And Not relay_mark(hand(x).Tag))) Then
+            If relay AndAlso (spirit_number(hand(x).Tag) < 1 Or spirit_number(hand(x).Tag) > 2 OrElse (spirit_number(hand(x).Tag) = 1 And Not relay_mark(hand(x).Tag))) Then
                 transparent = True
             End If
 
             'after relay-equipping a magnus: not a weak attack
-            If relay_equip(cards) And spirit_number(hand(x).Tag) <> 2 Then
+            If relay_equip And spirit_number(hand(x).Tag) <> 2 Then
                 transparent = True
             End If
 
@@ -3296,7 +3307,7 @@ Public Class Main
                     Return
                 End If
             Next
-            RemoveCard(combo(cards - 1), e)
+            RemoveCard(combo(cards - 1), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
         End If
     End Sub
 
@@ -3380,28 +3391,30 @@ Public Class Main
     End Sub
 
     Private Sub ChangeLevel(sender As Object, e As EventArgs)
-        If level_selector(sender.Tag).Text = "" Then
-            level_selector(sender.Tag).ForeColor = Color.Red
-            Return
-        End If
-        If Not IsNonNegativeInteger(level_selector(sender.Tag).Text) Then
-            level_selector(sender.Tag).SelectedIndex = 0
-            Return
-        End If
-        If level_selector(sender.Tag).Text = 0 Or level_selector(sender.Tag).Text > 100 Then
-            level_selector(sender.Tag).ForeColor = Color.Red
-            Return
-        End If
-        level_selector(sender.Tag).ForeColor = Color.Black
-        level(sender.Tag) = Math.Max(1, Math.Min(100, level_selector(sender.Tag).Text + QM_total_bonus(8)))
+        Dim chr As Integer = sender.Tag
 
-        With actual_level(sender.Tag)
-            If level(sender.Tag) > level_selector(sender.Tag).Text Then
-                .Text = level(sender.Tag)
+        If level_selector(chr).Text = "" Then
+            level_selector(chr).ForeColor = Color.Red
+            Return
+        End If
+        If Not IsNonNegativeInteger(level_selector(chr).Text) Then
+            level_selector(chr).SelectedIndex = 0
+            Return
+        End If
+        If level_selector(chr).Text = 0 Or level_selector(chr).Text > 100 Then
+            level_selector(chr).ForeColor = Color.Red
+            Return
+        End If
+        level_selector(chr).ForeColor = Color.Black
+        level(chr) = Math.Max(1, Math.Min(100, level_selector(chr).Text + QM_total_bonus(8)))
+
+        With actual_level(chr)
+            If level(chr) > level_selector(chr).Text Then
+                .Text = level(chr)
                 .ForeColor = Color.Green
                 .Show()
-            ElseIf level(sender.Tag) < level_selector(sender.Tag).Text Then
-                .Text = level(sender.Tag)
+            ElseIf level(chr) < level_selector(chr).Text Then
+                .Text = level(chr)
                 .ForeColor = Color.Red
                 .Show()
             Else
@@ -3410,7 +3423,7 @@ Public Class Main
             End If
         End With
 
-        CheckAura(sender.Tag, False)
+        CheckAura(chr, False)
         Calculate()
     End Sub
 
@@ -3438,17 +3451,18 @@ Public Class Main
     End Sub
 
     Private Sub ToggleEffect(sender As Object, e As EventArgs)
+        Dim hit As Integer = sender.Tag
         Select Case sender.Name
             Case 7
-                weapon_effect(sender.Tag) = Not weapon_effect(sender.Tag)
+                weapon_effect(hit) = Not weapon_effect(hit)
             Case 8
-                weapon_boost(sender.Tag) = Not weapon_boost(sender.Tag)
+                weapon_boost(hit) = Not weapon_boost(hit)
             Case 10
-                weapon_crit(sender.Tag) = Not weapon_crit(sender.Tag)
+                weapon_crit(hit) = Not weapon_crit(hit)
             Case 16
-                qm_crit(sender.Tag) = Not qm_crit(sender.Tag)
+                qm_crit(hit) = Not qm_crit(hit)
             Case 27
-                min_one(sender.Tag) = Not min_one(sender.Tag)
+                min_one(hit) = Not min_one(hit)
             Case Else
                 Return
         End Select
@@ -3570,16 +3584,17 @@ Public Class Main
         If e.Button <> MouseButtons.Middle Then
             Return
         End If
+        Dim i As Integer = sender.Tag
         Dim temp As String = My.Settings.ResultsRow
-        temp = temp.Remove(sender.Tag, 1)
-        temp = temp.Insert(sender.Tag, "0")
+        temp = temp.Remove(i, 1)
+        temp = temp.Insert(i, "0")
         My.Settings.ResultsRow = temp
         UpdateRows()
         If Settings.Visible Then
-            RemoveHandler Settings.row(sender.Tag).CheckedChanged, AddressOf Settings.ToggleRow
-            Settings.row(sender.Tag).Checked = False
-            Settings.row(sender.Tag).BackColor = default_color
-            AddHandler Settings.row(sender.Tag).CheckedChanged, AddressOf Settings.ToggleRow
+            RemoveHandler Settings.row(i).CheckedChanged, AddressOf Settings.ToggleRow
+            Settings.row(i).Checked = False
+            Settings.row(i).BackColor = default_color
+            AddHandler Settings.row(i).CheckedChanged, AddressOf Settings.ToggleRow
         End If
     End Sub
 
@@ -3588,7 +3603,7 @@ Public Class Main
         If cards > 1 OrElse IsAttack(combo(0).Tag) Then
             attack = True
         End If
-        RemoveCard(combo(0), e)
+        RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
         If attack Then
             enemy_HP.Text = post_combo_HP
             If armor_durability.Visible Then
@@ -3679,18 +3694,20 @@ Public Class Main
     End Sub
 
     Private Sub ChangeAura(sender As Object, e As EventArgs)
-        aura(sender.Tag, 0) = aura_type(sender.Tag).SelectedIndex
-        If aura_type(sender.Tag).SelectedIndex = 0 Then
-            aura_level(sender.Tag).Hide()
+        Dim chr As Integer = sender.Tag
+        aura(chr, 0) = aura_type(chr).SelectedIndex
+        If aura_type(chr).SelectedIndex = 0 Then
+            aura_level(chr).Hide()
         Else
-            aura_level(sender.Tag).Show()
+            aura_level(chr).Show()
         End If
-        CheckAura(sender.Tag, True)
+        CheckAura(chr, True)
     End Sub
 
     Private Sub ChangeAuraLevel(sender As Object, e As EventArgs)
-        aura(sender.Tag, 1) = aura_level(sender.Tag).SelectedIndex
-        CheckAura(sender.Tag, True)
+        Dim chr As Integer = sender.Tag
+        aura(chr, 1) = aura_level(chr).SelectedIndex
+        CheckAura(chr, True)
     End Sub
 
     Private Sub ShowTargetWindow(sender As Object, e As EventArgs)

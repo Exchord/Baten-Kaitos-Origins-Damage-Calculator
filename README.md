@@ -4,7 +4,7 @@ This tool aims to simulate combos and calculate the damage output of each hit as
 
 [Download](https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator/releases)
 
-Information on magnus, enemies, and combos: [BKO documentation](https://docs.google.com/spreadsheets/d/1wXsL9PXnyIuvRiYNgX5p6uTaVBgJhXU1CDzXNFiwLRU/view#gid=1457790647)
+Information on magnus, enemies, and combos: [BKO Documentation](https://docs.google.com/spreadsheets/d/1wXsL9PXnyIuvRiYNgX5p6uTaVBgJhXU1CDzXNFiwLRU/view#gid=1457790647)
 
 ![](https://i.imgur.com/Y8SHiK3.png)
 
@@ -35,7 +35,7 @@ Sometimes you may already have a magnus equipped at the start of a combo. Right-
 
 
 ### Target
-![](https://i.imgur.com/9gkgZwk.png)  
+![](https://i.imgur.com/SBMVbvA.png)  
 Click the target image to open the target selection window. When you select a new target, the main window will update with some of the enemy's data:
 - Name
 - Knockdown threshold
@@ -48,7 +48,7 @@ Click the target image to open the target selection window. When you select a ne
 ![](https://i.imgur.com/EVosQWd.png)
 
 ### Knockdown and knockout
-![](https://i.imgur.com/XRXNpFD.png)  
+
 The enemy gets knocked down/out when their crush status reaches the knockdown/knockout threshold displayed here. Enemies that don't have a knockdown/knockout threshold cannot be knocked down/out.
 
 
@@ -133,7 +133,7 @@ You can use the mouse wheel to increase or decrease both boost values by 1.
 Notes:  
 - One offense turn is any turn from the action bar in the top left corner of the screen. Selecting or discarding magnus does not count as such.  
 - One defense turn is a combo of any length performed on an enemy, regardless of whether or not it's a relay combo.  
-- Enemies also have offense boosts for every element, but only physical offense can change damage output on enemies. This comes into play when attacking with Firedrake Regalia or Aetherdrake Regalia equipped.
+- Enemies also have offense boosts for every element, but only physical offense can affect damage output on enemies. This comes into play when attacking with Firedrake Regalia or Aetherdrake Regalia equipped.
 
 ![](https://i.imgur.com/3eDx2t5.png)
 
@@ -163,7 +163,7 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 
 ### Settings
-![](https://i.imgur.com/bXoduDy.png)  
+![](https://i.imgur.com/yPbStdN.png)  
 - <i>Auto-close target window:</i> When you choose a target, the target window closes automatically.
 
 - <i>Highlight hits when hovering over an attack card:</i> When you hover over an attack card in your combo, all of its hits in the output table are highlighted in blue.
@@ -183,6 +183,8 @@ This feature allows you to experiment beyond the limitations of the calculator a
 - <i>Show tooltips</i>
 	- Variables: If you hover over any of the row titles in the output table, a brief explanation will pop up.
 	- Enemies, magnus (secondary windows): Shows the name of the enemy or magnus when hovering over it.
+
+- <i>1st member, 2nd member:</i> Changes the order of party members in the main window and in Temporary Boost.
 
 
 The checkboxes on the right side allow you to hide or show any of the rows in the output table. You can also hide a row by middle-clicking its title in the main window.
@@ -216,6 +218,8 @@ Middle-click any magnus to remove it from your deck.
 ### Combo
 ![](https://i.imgur.com/RbZO6EU.png)  
 This is the string of cards that makes up your current combo. Click any card to remove it and all subsequent cards from the combo. Press Backspace to remove the last card from your combo.
+
+You can also remove a single card anywhere in the combo by right-clicking it.
 
 
 ## Tips
