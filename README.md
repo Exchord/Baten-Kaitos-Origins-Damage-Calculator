@@ -189,7 +189,7 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 The checkboxes on the right side allow you to hide or show any of the rows in the output table. You can also hide a row by middle-clicking its title in the main window.
 
-![](https://i.imgur.com/cwqVzgS.png)
+![](https://i.imgur.com/yPbStdN.png)
 
 ### Combo results
 ![](https://i.imgur.com/DAs7OdF.png)  
