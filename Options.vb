@@ -3,12 +3,13 @@
 
     Public row(31), setting(7) As CheckBox
     Dim tooltips(5), heavenlapse(9), aphelion_dustwake(13) As CheckBox
-    Dim random_hits(20), tooltips_label, party(2), version, void As Label
+    Dim random_hits(20), tooltips_label, party_label(2), empty, version As Label
     Dim show_all, hide_all, documentation As Button
     Dim panel, party_panel(2) As Panel
     Dim member(5) As RadioButton
-    Dim order(3) As Integer
+    Dim party(3) As Integer
     Dim auto As Boolean
+
     ReadOnly member_name() As String = {"Sagi", "Milly", "Guillo"}
 
     Private Sub Settings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -178,25 +179,25 @@
             End With
             Controls.Add(party_panel(x))
 
-            party(x) = New Label()
-            With party(x)
+            party_label(x) = New Label()
+            With party_label(x)
                 .Size = New Size(79, 24)
                 .BackColor = Main.default_color
                 .TextAlign = ContentAlignment.MiddleCenter
                 AddHandler .Click, AddressOf ChangeFocus
             End With
-            party_panel(x).Controls.Add(party(x))
+            party_panel(x).Controls.Add(party_label(x))
         Next
-        party(0).Text = "1st member"
-        party(1).Text = "2nd member"
+        party_label(0).Text = "1st member"
+        party_label(1).Text = "2nd member"
 
-        void = New Label()
-        With void
+        empty = New Label()
+        With empty
             .Size = New Size(64, 24)
             .BackColor = Main.default_color
             AddHandler .Click, AddressOf ChangeFocus
         End With
-        party_panel(1).Controls.Add(void)
+        party_panel(1).Controls.Add(empty)
 
         For x = 0 To 4
             member(x) = New RadioButton()
@@ -208,6 +209,7 @@
                 .Tag = x
                 AddHandler .CheckedChanged, AddressOf ChangePartyOrder
                 If x < 3 Then
+                    party(x) = My.Settings.PartyOrder.Substring(x, 1)
                     .Text = member_name(x)
                     party_panel(0).Controls.Add(member(x))
                 Else
@@ -215,12 +217,8 @@
                 End If
             End With
         Next
-
         For x = 0 To 2
-            order(x) = My.Settings.PartyOrder.Substring(x, 1)
-        Next
-        For x = 0 To 2
-            If x = order(0) Then
+            If x = party(0) Then
                 member(x).Checked = True
                 Exit For
             End If
@@ -229,13 +227,22 @@
 
         ' APP INFO
 
+        Dim i, count As Integer
+        While count < 2
+            If Main.version.ElementAt(i) = "." Then
+                count += 1
+            End If
+            i += 1
+        End While
+        Dim number As String = Main.version.Substring(0, i - 1)
+
         version = New Label()
         With version
             .Size = New Size(90, 24)
             .Location = New Point(263, tooltips_ypos + 75)
             .TextAlign = ContentAlignment.MiddleCenter
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
-            .Text = "Version " & Main.version.Remove(Main.version.Length - 4)
+            .Text = "Version " & number
             AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(version)
@@ -343,14 +350,15 @@
     End Sub
 
     Public Sub ToggleRow(sender As Object, e As EventArgs)
+        Dim i As Integer = sender.Tag
         Dim temp As String = My.Settings.ResultsRow
-        temp = temp.Remove(sender.Tag, 1)
-        If row(sender.Tag).Checked Then
-            temp = temp.Insert(sender.Tag, "1")
-            row(sender.Tag).BackColor = Color.LightGreen
+        temp = temp.Remove(i, 1)
+        If row(i).Checked Then
+            temp = temp.Insert(i, "1")
+            row(i).BackColor = Color.LightGreen
         Else
-            temp = temp.Insert(sender.Tag, "0")
-            row(sender.Tag).BackColor = Main.default_color
+            temp = temp.Insert(i, "0")
+            row(i).BackColor = Main.default_color
         End If
         My.Settings.ResultsRow = temp
         Main.UpdateRows()
@@ -406,10 +414,12 @@
         If My.Settings.SaberDragonHorn Then
             extra = 5
         End If
+
         For x = 0 To 2
             If Not Main.equipment(x).Visible Then
                 Continue For
             End If
+
             before = Main.eq_durability(x).Items.Count
             after = Main.durability(Main.equipment(x).Tag) + extra
             first = 0
@@ -418,24 +428,27 @@
             ElseIf Not My.Settings.SaberDragonHorn Then
                 first = 1
             End If
-            If after < before Then
-                For y = after To before - 1
-                    Main.eq_durability(x).Items.RemoveAt(Main.eq_durability(x).Items.Count - 1)
-                Next
-            Else
-                For y = before + first To after
-                    Main.eq_durability(x).Items.Add(y)
-                Next
-            End If
-            If Main.eq_durability(x).Items.Count > 0 Then
-                If Main.eq_durability(x).Text = "" Then
-                    Main.eq_durability(x).SelectedIndex = Main.durability(Main.equipment(x).Tag) - first
+
+            With Main.eq_durability(x)
+                If after < before Then
+                    For y = after To before - 1
+                        .Items.RemoveAt(.Items.Count - 1)
+                    Next
+                Else
+                    For y = before + first To after
+                        .Items.Add(y)
+                    Next
                 End If
-                Main.eq_durability(x).Show()
-            Else
-                Main.eq_durability(x).Hide()
-                Main.Calculate()
-            End If
+                If .Items.Count > 0 Then
+                    If .Text = "" Then
+                        .SelectedIndex = Main.durability(Main.equipment(x).Tag) - first
+                    End If
+                    .Show()
+                Else
+                    .Hide()
+                    Main.Calculate()
+                End If
+            End With
         Next
     End Sub
 
@@ -462,28 +475,30 @@
     End Sub
 
     Private Sub ChangeHeavenlapse(sender As Object, e As EventArgs)
+        Dim i As Integer = sender.Tag
         Dim temp As String = My.Settings.Heavenlapse
-        temp = temp.Remove(sender.Tag, 1)
-        If heavenlapse(sender.Tag).Checked Then
-            temp = temp.Insert(sender.Tag, "1")
-            heavenlapse(sender.Tag).BackColor = Color.LightGreen
+        temp = temp.Remove(i, 1)
+        If heavenlapse(i).Checked Then
+            temp = temp.Insert(i, "1")
+            heavenlapse(i).BackColor = Color.LightGreen
         Else
-            temp = temp.Insert(sender.Tag, "0")
-            heavenlapse(sender.Tag).BackColor = Main.default_color
+            temp = temp.Insert(i, "0")
+            heavenlapse(i).BackColor = Main.default_color
         End If
         My.Settings.Heavenlapse = temp
         Main.Calculate()
     End Sub
 
     Private Sub ChangeAphelionDustwake(sender As Object, e As EventArgs)
+        Dim i As Integer = sender.Tag
         Dim temp As String = My.Settings.AphelionDustwake
-        temp = temp.Remove(sender.Tag, 1)
-        If aphelion_dustwake(sender.Tag).Checked Then
-            temp = temp.Insert(sender.Tag, "1")
-            aphelion_dustwake(sender.Tag).BackColor = Color.LightGreen
+        temp = temp.Remove(i, 1)
+        If aphelion_dustwake(i).Checked Then
+            temp = temp.Insert(i, "1")
+            aphelion_dustwake(i).BackColor = Color.LightGreen
         Else
-            temp = temp.Insert(sender.Tag, "0")
-            aphelion_dustwake(sender.Tag).BackColor = Main.default_color
+            temp = temp.Insert(i, "0")
+            aphelion_dustwake(i).BackColor = Main.default_color
         End If
         My.Settings.AphelionDustwake = temp
         Main.Calculate()
@@ -495,7 +510,7 @@
         End If
         If sender.Tag < 3 Then
             auto = True
-            If order(1) < order(2) Then
+            If party(1) < party(2) Then
                 member(3).Checked = True
             Else
                 member(4).Checked = True
@@ -547,15 +562,15 @@
 
         Dim y As Integer = 3
         For x = 0 To 2
-            order(x) = My.Settings.PartyOrder.Substring(x, 1)
-            If x = order(0) Then
+            party(x) = My.Settings.PartyOrder.Substring(x, 1)
+            If x = party(0) Then
+                empty.Left = 80 + x * 65
                 Continue For
             End If
             member(y).Text = member_name(x)
             member(y).Left = 80 + x * 65
             y += 1
         Next
-        void.Location = New Point(80 + order(0) * 65)
 
         Main.ChangePartyOrder()
         If Boost.Visible Then

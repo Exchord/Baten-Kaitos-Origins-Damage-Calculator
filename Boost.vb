@@ -128,7 +128,7 @@
                 .MaxLength = 8
                 ChangeBox(boost(4, 0, z), Main.enemy_offense_boost(z))
                 .Tag = 4
-                .Name = 0 & z
+                .Name = "0" & z
                 AddHandler .KeyPress, AddressOf FilterInput
                 AddHandler .TextChanged, AddressOf CustomBoost
                 AddHandler .MouseWheel, AddressOf ScrollBoost
@@ -245,37 +245,39 @@
     End Sub
 
     Private Sub SwitchCharacter(sender As Object, e As MouseEventArgs)
-        Main.item_target = sender.Tag
-        character(sender.Tag).Image = Main.char_icon(sender.Tag)
+        Dim new_char As Integer = sender.Tag
+        Main.item_target = new_char
+        character(new_char).Image = Main.char_icon(new_char)
         For x = 0 To 2
-            If x <> sender.Tag Then
+            If x <> new_char Then
                 character(x).Image = Main.ChangeOpacity(Main.char_icon(x), 0.5)
             End If
         Next
     End Sub
 
     Private Sub Add(sender As Object, e As MouseEventArgs)
+        Dim magnus As Integer = sender.Tag
         Dim result As Double
-        If sender.Tag < 8 Then
+        If magnus < 8 Then
             Dim x As Integer = Main.item_target
             For y = 0 To 5
                 For z = 0 To 1
-                    result = LimitBoost(Main.offense_boost(x, y, z) + Main.boost_data(sender.Tag, y) * 0.01)
+                    result = LimitBoost(Main.offense_boost(x, y, z) + Main.boost_data(magnus, y) * 0.01)
                     Main.offense_boost(x, y, z) = result
                     ChangeBox(boost(x, y, z), result)
                 Next
             Next
-        ElseIf sender.Tag = 8 Then
+        ElseIf magnus = 8 Then
             For y = 0 To 5
                 For z = 0 To 1
-                    result = LimitBoost(Main.defense_boost(y, z) - Main.boost_data(sender.Tag, y) * 0.01)
+                    result = LimitBoost(Main.defense_boost(y, z) - Main.boost_data(magnus, y) * 0.01)
                     Main.defense_boost(y, z) = result
                     ChangeBox(boost(3, y, z), result)
                 Next
             Next
-        ElseIf sender.Tag = 9 Then
+        ElseIf magnus = 9 Then
             For z = 0 To 1
-                result = LimitBoost(Main.enemy_offense_boost(z) - Main.boost_data(sender.Tag, z) * 0.01)
+                result = LimitBoost(Main.enemy_offense_boost(z) - Main.boost_data(magnus, z) * 0.01)
                 Main.enemy_offense_boost(z) = result
                 ChangeBox(boost(4, 0, z), result)
             Next
@@ -284,48 +286,50 @@
     End Sub
 
     Private Sub NextTurn(sender As Object, e As EventArgs)
-        If sender.Tag = 4 Then
+        Dim x As Integer = sender.Tag
+        If x = 4 Then
             Main.enemy_offense_boost(0) = Main.enemy_offense_boost(1)
             Main.enemy_offense_boost(1) = 0
 
             ChangeBox(boost(4, 0, 0), boost(4, 0, 1).Text)
             ChangeBox(boost(4, 0, 1), 0)
         Else
-            For x = 0 To 5
-                If sender.Tag = 3 Then
-                    Main.defense_boost(x, 0) = Main.defense_boost(x, 1)
-                    Main.defense_boost(x, 1) = 0
+            For y = 0 To 5
+                If x = 3 Then
+                    Main.defense_boost(y, 0) = Main.defense_boost(y, 1)
+                    Main.defense_boost(y, 1) = 0
                 Else
-                    Main.offense_boost(sender.Tag, x, 0) = Main.offense_boost(sender.Tag, x, 1)
-                    Main.offense_boost(sender.Tag, x, 1) = 0
+                    Main.offense_boost(x, y, 0) = Main.offense_boost(x, y, 1)
+                    Main.offense_boost(x, y, 1) = 0
                 End If
 
-                ChangeBox(boost(sender.Tag, x, 0), boost(sender.Tag, x, 1).Text)
-                ChangeBox(boost(sender.Tag, x, 1), 0)
+                ChangeBox(boost(x, y, 0), boost(x, y, 1).Text)
+                ChangeBox(boost(x, y, 1), 0)
             Next
         End If
         Main.Calculate()
     End Sub
 
     Private Sub ResetBoost(sender As Object, e As EventArgs)
-        If sender.Tag = 4 Then
+        Dim x As Integer = sender.Tag
+        If x = 4 Then
             Main.enemy_offense_boost(0) = 0
             Main.enemy_offense_boost(1) = 0
 
             ChangeBox(boost(4, 0, 0), 0)
             ChangeBox(boost(4, 0, 1), 0)
         Else
-            For x = 0 To 5
-                If sender.Tag = 3 Then
-                    Main.defense_boost(x, 0) = 0
-                    Main.defense_boost(x, 1) = 0
+            For y = 0 To 5
+                If x = 3 Then
+                    Main.defense_boost(y, 0) = 0
+                    Main.defense_boost(y, 1) = 0
                 Else
-                    Main.offense_boost(sender.Tag, x, 0) = 0
-                    Main.offense_boost(sender.Tag, x, 1) = 0
+                    Main.offense_boost(x, y, 0) = 0
+                    Main.offense_boost(x, y, 1) = 0
                 End If
 
-                ChangeBox(boost(sender.Tag, x, 0), 0)
-                ChangeBox(boost(sender.Tag, x, 1), 0)
+                ChangeBox(boost(x, y, 0), 0)
+                ChangeBox(boost(x, y, 1), 0)
             Next
         End If
         Main.Calculate()
@@ -349,8 +353,8 @@
 
         Dim x, y, z As Integer
         x = sender.Tag
-        y = sender.Name.ToString.ElementAt(0).ToString
-        z = sender.Name.ToString.ElementAt(1).ToString
+        y = sender.Name.SubString(0, 1)
+        z = sender.Name.SubString(1, 1)
 
         With boost(x, y, z)
             If Not IsNumeric(.Text) OrElse (.Text > 1000 Or .Text < -1000) Then
@@ -383,7 +387,7 @@
         FixBoost(sender, e)
         Dim x, y As Integer
         x = sender.Tag
-        y = sender.Name.ToString.ElementAt(0).ToString
+        y = sender.Name.SubString(0, 1)
 
         For Each box As Control In {boost(x, y, 0), boost(x, y, 1)}
             If e.Delta > 0 Then

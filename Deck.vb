@@ -4,7 +4,8 @@
     Dim card(455), all_on(25), all_off(25) As PictureBox
     Dim magnus(455) As Bitmap
     Public hover As ToolTip
-    Dim active(455) As Boolean
+    Dim active(455), auto As Boolean
+
     ReadOnly group_start() As Integer = {1, 7, 11, 21, 29, 45, 75, 125, 142, 163, 176, 189, 203, 236, 246, 258, 269, 293, 305, 319, 333, 351, 360, 371, 423, 439, 443, 453}
 
     Private Sub Deck_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -125,33 +126,42 @@
     End Sub
 
     Public Sub ToggleCard(sender As Object, e As EventArgs)
-        If active(sender.Tag) Then
-            card(sender.Tag).Image = Main.ChangeOpacity(magnus(sender.Tag), 0.5)
-            active(sender.Tag) = False
-            Main.deck_magnus(sender.Tag) = "0"
+        Dim id As Integer = sender.Tag
+        If active(id) Then
+            card(id).Image = Main.ChangeOpacity(magnus(id), 0.5)
+            active(id) = False
+            Main.deck_magnus(id) = "0"
         Else
-            card(sender.Tag).Image = magnus(sender.Tag)
-            active(sender.Tag) = True
-            Main.deck_magnus(sender.Tag) = "1"
+            card(id).Image = magnus(id)
+            active(id) = True
+            Main.deck_magnus(id) = "1"
         End If
-        Main.ShowDeck()
+        If Not auto Then
+            Main.ShowDeck()
+        End If
     End Sub
 
     Private Sub EnableGroup(sender As Object, e As EventArgs)
-        For x = group_start(sender.Tag) To group_start(sender.Tag + 1) - 1
+        auto = True
+        Dim group As Integer = sender.Tag
+        For x = group_start(group) To group_start(group + 1) - 1
             If Not active(x) Then
                 ToggleCard(card(x), e)
             End If
         Next
+        auto = False
         Main.ShowDeck()
     End Sub
 
     Private Sub DisableGroup(sender As Object, e As EventArgs)
-        For x = group_start(sender.Tag) To group_start(sender.Tag + 1) - 1
+        auto = True
+        Dim group As Integer = sender.Tag
+        For x = group_start(group) To group_start(group + 1) - 1
             If active(x) Then
                 ToggleCard(card(x), e)
             End If
         Next
+        auto = False
         Main.ShowDeck()
     End Sub
 

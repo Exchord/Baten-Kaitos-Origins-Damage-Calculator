@@ -9,6 +9,7 @@
     Dim panel As DoubleBufferPanel
     Dim clear As Button
     Public hover As ToolTip
+
     ReadOnly effects() As Integer = {9, 10, 11, 12, 13, 14, 15, 22, 36, 37, 38, 41, 42, 43, 48}
 
     Private Sub QuestMagnus_Load(sender As Object, e As EventArgs) Handles MyBase.Load
@@ -165,11 +166,12 @@
     End Sub
 
     Private Sub Add(sender As Object, e As MouseEventArgs)
+        Dim id As Integer = sender.Tag
         For x = 0 To 23
             If inventory(x).Tag = 0 Then
-                inventory(x).Image = magnus(sender.Tag)
-                inventory(x).Tag = sender.Tag
-                Main.QM_inventory(x) = sender.Tag
+                inventory(x).Image = magnus(id)
+                inventory(x).Tag = id
+                Main.QM_inventory(x) = id
                 Main.CheckQuestMagnus()
                 If move_slot = x Then
                     move_slot = -1
@@ -183,11 +185,12 @@
         If e.Button <> MouseButtons.Left Then
             Return
         End If
-        inventory(sender.Name).Image = magnus(0)
-        inventory(sender.Name).Tag = 0
-        Main.QM_inventory(sender.Name) = sender.Tag
+        Dim slot As Integer = sender.Name
+        inventory(slot).Image = magnus(0)
+        inventory(slot).Tag = 0
+        Main.QM_inventory(slot) = sender.Tag
         Main.CheckQuestMagnus()
-        If move_slot = sender.Name Then
+        If move_slot = slot Then
             move_slot = -1
         End If
     End Sub
