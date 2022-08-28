@@ -825,6 +825,16 @@ Public Class Main
             Return
         End If
 
+        'game version
+        My.Settings.EnglishVersion = Not JP
+        If Settings.Visible Then
+            With Settings.setting(4)
+                RemoveHandler .CheckedChanged, AddressOf Settings.ChangeSetting
+                .Checked = Not JP
+                AddHandler .CheckedChanged, AddressOf Settings.ChangeSetting
+            End With
+        End If
+
         'levels
         For x = 0 To 2
             Me.level(x) = Math.Max(1, Math.Min(Read(level_address + x * 244, 2), 100))
@@ -3704,24 +3714,19 @@ Public Class Main
     End Sub
 
     Public Sub ToggleEffectiveHP()
+        My.Settings.EffectiveHPRemaining = Not My.Settings.EffectiveHPRemaining
         If My.Settings.EffectiveHPRemaining Then
-            My.Settings.EffectiveHPRemaining = False
-            table(0, rows - 1).Text = "HP remaining"
-            If Settings.Visible Then
-                RemoveHandler Settings.setting(3).CheckedChanged, AddressOf Settings.ChangeSetting
-                Settings.setting(3).Checked = False
-                AddHandler Settings.setting(3).CheckedChanged, AddressOf Settings.ChangeSetting
-                Settings.row(31).Text = "HP remaining"
-            End If
-        Else
-            My.Settings.EffectiveHPRemaining = True
             table(0, rows - 1).Text = "Effective HP remaining"
-            If Settings.Visible Then
-                RemoveHandler Settings.setting(3).CheckedChanged, AddressOf Settings.ChangeSetting
-                Settings.setting(3).Checked = True
-                AddHandler Settings.setting(3).CheckedChanged, AddressOf Settings.ChangeSetting
-                Settings.row(31).Text = "Effective HP remaining"
-            End If
+        Else
+            table(0, rows - 1).Text = "HP remaining"
+        End If
+        If Settings.Visible Then
+            Settings.row(31).Text = table(0, rows - 1).Text
+            With Settings.setting(3)
+                RemoveHandler .CheckedChanged, AddressOf Settings.ChangeSetting
+                .Checked = My.Settings.EffectiveHPRemaining
+                AddHandler .CheckedChanged, AddressOf Settings.ChangeSetting
+            End With
         End If
         Calculate()
     End Sub
