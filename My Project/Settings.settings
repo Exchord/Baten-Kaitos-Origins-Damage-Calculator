@@ -122,5 +122,8 @@
     <Setting Name="PartyOrder" Type="System.String" Scope="User">
       <Value Profile="(Default)">012</Value>
     </Setting>
+    <Setting Name="EnglishVersion" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

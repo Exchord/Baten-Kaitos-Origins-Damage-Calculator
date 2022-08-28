@@ -172,7 +172,10 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 - <i>Show effective HP remaining:</i> Switch between true HP and effective HP for the last row in the output table. You can also click the row title in the main window to toggle this setting.
 
-- <i>Guillo's retroactive EX combo bonus:</i> If any of Guillo's standard attacks (except Medium Attack) directly precedes an EX combo, the projectile will likely hit the target after the EX combo bonus becomes active. This depends on the attack and the distance between Guillo and the enemy.
+- <i>Guillo's English EX combos:</i> The following EX combos are stronger in the English version: Black Yang, White Yin, Fiery Ice Queen, Blazing Glacial Queen, Frigid Queen's Parade, Frigid Queen's Festival
+
+- <i>Guillo's retroactive EX combo bonus:</i> If any of Guillo's standard attacks (except Medium Attack A) directly precedes an EX combo, the projectile will likely hit the target after the EX combo bonus becomes active. This depends on the attack and the distance between Guillo and the enemy.  
+For example, if you use Weak Attack, Icefan, and Sigil Cry in a row, the weak attack may get the 1.3 factor from Ice Queen.
 
 - <i>Secret Queen after enemy gets up:</i> Secret Queen and Secret Queen II are EX combos that can only be triggered if the enemy is down. If the enemy gets up as Milly runs toward them, the first hit will not be a critical hit.
 
@@ -189,7 +192,7 @@ This feature allows you to experiment beyond the limitations of the calculator a
 
 The checkboxes on the right side allow you to hide or show any of the rows in the output table. You can also hide a row by middle-clicking its title in the main window.
 
-![](https://i.imgur.com/yPbStdN.png)
+![](https://i.imgur.com/yYYJQSN.png)
 
 ### Combo results
 ![](https://i.imgur.com/DAs7OdF.png)  

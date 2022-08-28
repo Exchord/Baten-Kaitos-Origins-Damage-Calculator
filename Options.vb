@@ -1,7 +1,7 @@
 ﻿Public Class Settings
     Inherits Form
 
-    Public row(31), setting(7) As CheckBox
+    Public row(31), setting(8) As CheckBox
     Dim tooltips(5), heavenlapse(9), aphelion_dustwake(13) As CheckBox
     Dim random_hits(20), tooltips_label, party_label(2), empty, version As Label
     Dim show_all, hide_all, documentation As Button
@@ -20,7 +20,7 @@
         MaximizeBox = False
         Text = "Settings"
         Icon = New Icon(Me.GetType(), "icon.ico")
-        MinimumSize = New Size(700, 523)
+        MinimumSize = New Size(700, 548)
         MaximumSize = New Size(700, 856)
         LoadWindowData()
         AddHandler Click, AddressOf ChangeFocus
@@ -28,7 +28,7 @@
 
         ' MAIN SETTINGS
 
-        For x = 0 To 6
+        For x = 0 To 7
             setting(x) = New CheckBox()
             With setting(x)
                 .Size = New Size(350, 24)
@@ -43,24 +43,26 @@
         setting(1).Text = "Highlight hits when hovering over an attack card"
         setting(2).Text = "Read combo from Dolphin"
         setting(3).Text = "Show effective HP remaining"
-        setting(4).Text = "Guillo's retroactive EX combo bonus"
-        setting(5).Text = "Secret Queen after enemy gets up"
-        setting(6).Text = "Saber Dragon Horn (+5 max durability on all equipment)"
+        setting(4).Text = "Guillo's English EX combos"
+        setting(5).Text = "Guillo's retroactive EX combo bonus"
+        setting(6).Text = "Secret Queen after enemy gets up"
+        setting(7).Text = "Saber Dragon Horn (+5 max durability on all equipment)"
         setting(0).Checked = My.Settings.TargetAutoClose
         setting(1).Checked = My.Settings.HighlightHits
         setting(2).Checked = My.Settings.ReadCombo
         setting(3).Checked = My.Settings.EffectiveHPRemaining
-        setting(4).Checked = My.Settings.GuilloExtraBonus
-        setting(5).Checked = My.Settings.SecretQueenGetUp
-        setting(6).Checked = My.Settings.SaberDragonHorn
-        For x = 0 To 6
+        setting(4).Checked = My.Settings.EnglishVersion
+        setting(5).Checked = My.Settings.GuilloExtraBonus
+        setting(6).Checked = My.Settings.SecretQueenGetUp
+        setting(7).Checked = My.Settings.SaberDragonHorn
+        For x = 0 To 7
             AddHandler setting(x).CheckedChanged, AddressOf ChangeSetting
         Next
 
 
         ' RANDOM HITS
 
-        Dim random_hits_ypos As Integer = 219
+        Dim random_hits_ypos As Integer = 244
         For x = 0 To 19
             random_hits(x) = New Label()
             With random_hits(x)
@@ -129,7 +131,7 @@
 
         ' TOOLTIPS
 
-        Dim tooltips_ypos As Integer = 328
+        Dim tooltips_ypos As Integer = 353
 
         tooltips_label = New Label()
         With tooltips_label
@@ -150,7 +152,7 @@
                 .Location = New Point(10, tooltips_ypos + (x + 1) * 25)
                 .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
-                .Tag = x + 7
+                .Tag = x + 8
             End With
             Controls.Add(tooltips(x))
         Next
@@ -228,13 +230,15 @@
         ' APP INFO
 
         Dim i, count As Integer
-        While count < 2
+        For i = 0 To Main.version.Length - 1
             If Main.version.ElementAt(i) = "." Then
                 count += 1
             End If
-            i += 1
-        End While
-        Dim number As String = Main.version.Substring(0, i - 1)
+            If count = 2 Then
+                Exit For
+            End If
+        Next
+        Dim number As String = Main.version.Substring(0, i)
 
         version = New Label()
         With version
@@ -375,33 +379,36 @@
             Case 3
                 Main.ToggleEffectiveHP()
             Case 4
-                My.Settings.GuilloExtraBonus = Not My.Settings.GuilloExtraBonus
+                My.Settings.EnglishVersion = Not My.Settings.EnglishVersion
                 Main.Calculate()
             Case 5
-                My.Settings.SecretQueenGetUp = Not My.Settings.SecretQueenGetUp
+                My.Settings.GuilloExtraBonus = Not My.Settings.GuilloExtraBonus
                 Main.Calculate()
             Case 6
+                My.Settings.SecretQueenGetUp = Not My.Settings.SecretQueenGetUp
+                Main.Calculate()
+            Case 7
                 My.Settings.SaberDragonHorn = Not My.Settings.SaberDragonHorn
                 ToggleSaberDragonHorn()
-            Case 7
+            Case 8
                 My.Settings.TableTooltips = Not My.Settings.TableTooltips
                 Main.hover.Active = My.Settings.TableTooltips
-            Case 8
+            Case 9
                 My.Settings.TargetTooltips = Not My.Settings.TargetTooltips
                 If Target.Visible Then
                     Target.hover.Active = My.Settings.TargetTooltips
                 End If
-            Case 9
+            Case 10
                 My.Settings.DeckTooltips = Not My.Settings.DeckTooltips
                 If Deck.Visible Then
                     Deck.hover.Active = My.Settings.DeckTooltips
                 End If
-            Case 10
+            Case 11
                 My.Settings.QMTooltips = Not My.Settings.QMTooltips
                 If QuestMagnus.Visible Then
                     QuestMagnus.hover.Active = My.Settings.QMTooltips
                 End If
-            Case 11
+            Case 12
                 My.Settings.ItemTooltips = Not My.Settings.ItemTooltips
                 If Boost.Visible Then
                     Boost.hover.Active = My.Settings.ItemTooltips
@@ -508,6 +515,7 @@
         If auto OrElse sender.Checked = False Then
             Return
         End If
+
         If sender.Tag < 3 Then
             auto = True
             If party(1) < party(2) Then

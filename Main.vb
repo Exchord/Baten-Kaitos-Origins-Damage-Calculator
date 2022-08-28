@@ -149,6 +149,9 @@ Public Class Main
     ReadOnly shock_weapons() As Integer = {110, 136, 138, 159, 450}
     ReadOnly blind_weapons() As Integer = {122, 188, 452}
 
+    ReadOnly english_EX_combos() As Integer = {83, 85, 92, 93, 94, 95}
+    ReadOnly english_EX_combo_bonus() As Integer = {80, 80, 80, 110, 85, 150}
+
     Public ReadOnly default_color As Color = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
     ReadOnly button_row_1_Y_pos As Integer = 15
     ReadOnly button_row_2_Y_pos As Integer = 93
@@ -772,25 +775,25 @@ Public Class Main
         If emulator.Length = 0 Then
             MsgBox("Dolphin isn't open.")
             Return
-        ElseIf emulator.Length > 1 Then
+        End If
+        If emulator.Length > 1 Then
             MsgBox("Please use only one instance of Dolphin.")
             Return
+        End If
+        If emulator(0).MainWindowTitle = "Dolphin 4.0.2" OrElse emulator(0).MainWindowTitle.StartsWith("Dolphin 4.0.2 |") Then
+            dolphin_offset_1 = 0
+            dolphin_offset_2 = 0
+        ElseIf emulator(0).MainWindowTitle = "Dolphin 5.0" OrElse emulator(0).MainWindowTitle.StartsWith("Dolphin 5.0 |") Then
+            dolphin_offset_1 = &H80000000
+            dolphin_offset_2 = &H80000000 + &H100000000
         Else
-            If emulator(0).MainWindowTitle = "Dolphin 4.0.2" OrElse emulator(0).MainWindowTitle.StartsWith("Dolphin 4.0.2 |") Then
-                dolphin_offset_1 = 0
-                dolphin_offset_2 = 0
-            ElseIf emulator(0).MainWindowTitle = "Dolphin 5.0" OrElse emulator(0).MainWindowTitle.StartsWith("Dolphin 5.0 |") Then
-                dolphin_offset_1 = &H80000000
-                dolphin_offset_2 = &H80000000 + &H100000000
-            Else
-                MsgBox("This version of Dolphin is not supported. Please use Dolphin 5.0 or 4.0.2.")
-                Return
-            End If
-            hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, emulator(0).Id)
-            If hProcess = IntPtr.Zero Then
-                MsgBox("Failed to open Dolphin.")
-                Return
-            End If
+            MsgBox("This version of Dolphin is not supported. Please use Dolphin 5.0 or 4.0.2.")
+            Return
+        End If
+        hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, emulator(0).Id)
+        If hProcess = IntPtr.Zero Then
+            MsgBox("Failed to open Dolphin.")
+            Return
         End If
 
         Dim JP As Boolean
@@ -1300,10 +1303,12 @@ Public Class Main
         Dim first_heavenlapse_hit As Integer = My.Settings.Heavenlapse.IndexOf("1") + 1
         Dim shield_limit As Integer = Math.Floor(true_max_HP * Me.shield_limit(combo_target))
         shield_break_hit = 0
+        Dim member As Integer = Me.member(0) - 1
+        Dim prev_member As Integer
 
         'check pre-equipped magnus for the first turn
-        If member(0) > 0 AndAlso equipment(member(0) - 1).Tag > 0 AndAlso IsAttack(combo(0).Tag) Then
-            eq = equipment(member(0) - 1).Tag
+        If member + 1 > 0 AndAlso equipment(member).Tag > 0 AndAlso IsAttack(combo(0).Tag) Then
+            eq = equipment(member).Tag
             equip(0) = eq
             Dim temp() As Integer = GetEquipment(eq)
             armor_equipped = temp(0)
@@ -1311,8 +1316,8 @@ Public Class Main
             weapon_offense = temp(2)
             weapon_crush = temp(3)
             weapon_factor = temp(4)
-            If eq_durability(member(0) - 1).Text <> "" Then
-                durability = eq_durability(member(0) - 1).Text
+            If eq_durability(member).Text <> "" Then
+                durability = eq_durability(member).Text
             Else
                 durability = 0
             End If
@@ -1331,30 +1336,34 @@ Public Class Main
         End If
 
         If cards > 0 Then
-            turns_per_member(member(0) - 1) += 1
+            turns_per_member(member) += 1
         End If
 
         'step through combo card by card
         For x = 0 To cards - 1
+            Dim id As Integer = combo(x).Tag
+            member = Me.member(x) - 1
+
             'secondary targets die instantly from Arabesque if their HP is 0, and any follow-up attacks won't hit
             If secondary_target.Checked And true_HP = 0 And x > 0 AndAlso combo(x - 1).Tag = 24 Then
                 secondary_target_defeated = True
             End If
 
-            If Not IsAttack(combo(x).Tag) Then
+            If Not IsAttack(id) Then
                 'save previous equipment for next combo
                 If x > 0 Then
+                    prev_member = Me.member(x - 1) - 1
                     If durability > 0 Or armor_equipped Then
-                        post_combo_equip(member(x - 1) - 1, 0) = equip(x - 1)
-                        post_combo_equip(member(x - 1) - 1, 1) = durability
+                        post_combo_equip(prev_member, 0) = equip(x - 1)
+                        post_combo_equip(prev_member, 1) = durability
                     Else
-                        post_combo_equip(member(x - 1) - 1, 0) = 0
-                        post_combo_equip(member(x - 1) - 1, 1) = 0
+                        post_combo_equip(prev_member, 0) = 0
+                        post_combo_equip(prev_member, 1) = 0
                     End If
                 End If
 
                 'get weapon stats upon equip
-                eq = combo(x).Tag
+                eq = id
                 equip(x) = eq
                 Dim temp() As Integer = GetEquipment(eq)
                 armor_equipped = temp(0)
@@ -1362,7 +1371,7 @@ Public Class Main
                 weapon_offense = temp(2)
                 weapon_crush = temp(3)
                 weapon_factor = temp(4)
-                durability = Me.durability(combo(x).Tag)
+                durability = Me.durability(id)
                 If durability = 0 And Not armor_equipped Then
                     full_turn_weapon = True
                 Else
@@ -1370,7 +1379,7 @@ Public Class Main
                 End If
 
                 If x > 0 Then
-                    turns_per_member(member(x) - 1) += 1
+                    turns_per_member(member) += 1
                 End If
                 first_hit(x + 1) = hits + 1                     'save ID of first hit for the next card
 
@@ -1379,8 +1388,8 @@ Public Class Main
             End If
 
             'change weapon stats upon changing members
-            If x > 0 AndAlso member(x) <> member(x - 1) Then
-                turns_per_member(member(x) - 1) += 1
+            If x > 0 AndAlso member <> Me.member(x - 1) - 1 Then
+                turns_per_member(member) += 1
 
                 'secondary targets die instantly at the end of a turn if their HP is 0, and any follow-up attacks won't hit
                 If secondary_target.Checked And true_HP = 0 Then
@@ -1388,15 +1397,17 @@ Public Class Main
                 End If
 
                 'save equips and durability for the next combo
+                prev_member = Me.member(x - 1) - 1
                 If durability > 0 Or armor_equipped Then
-                    post_combo_equip(member(x - 1) - 1, 0) = equip(x - 1)
-                    post_combo_equip(member(x - 1) - 1, 1) = durability
+                    post_combo_equip(prev_member, 0) = equip(x - 1)
+                    post_combo_equip(prev_member, 1) = durability
                 Else
-                    post_combo_equip(member(x - 1) - 1, 0) = 0
-                    post_combo_equip(member(x - 1) - 1, 1) = 0
+                    post_combo_equip(prev_member, 0) = 0
+                    post_combo_equip(prev_member, 1) = 0
                     equip(x) = 0
                 End If
 
+                equip(x) = 0
                 durability = 0
                 weapon_offense = 0
                 weapon_crush = 0
@@ -1406,8 +1417,8 @@ Public Class Main
                 armor_equipped = False
 
                 'check pre-equipped magnus for the current turn
-                If turns_per_member(member(x) - 1) = 1 And equipment(member(x) - 1).Tag > 0 Then
-                    eq = equipment(member(x) - 1).Tag
+                If turns_per_member(member) = 1 And equipment(member).Tag > 0 Then
+                    eq = equipment(member).Tag
                     equip(x) = eq
                     Dim temp() As Integer = GetEquipment(eq)
                     armor_equipped = temp(0)
@@ -1415,8 +1426,8 @@ Public Class Main
                     weapon_offense = temp(2)
                     weapon_crush = temp(3)
                     weapon_factor = temp(4)
-                    If eq_durability(member(x) - 1).Text <> "" Then
-                        durability = eq_durability(member(x) - 1).Text
+                    If eq_durability(member).Text <> "" Then
+                        durability = eq_durability(member).Text
                     Else
                         durability = 0
                     End If
@@ -1428,8 +1439,8 @@ Public Class Main
                 End If
 
                 'check for equipment magnus from earlier in the combo
-                If turns_per_member(member(x) - 1) > 1 And post_combo_equip(member(x) - 1, 0) > 0 Then
-                    eq = post_combo_equip(member(x) - 1, 0)
+                If turns_per_member(member) > 1 And post_combo_equip(member, 0) > 0 Then
+                    eq = post_combo_equip(member, 0)
                     equip(x) = eq
                     Dim temp() As Integer = GetEquipment(eq)
                     armor_equipped = temp(0)
@@ -1437,7 +1448,7 @@ Public Class Main
                     weapon_offense = temp(2)
                     weapon_crush = temp(3)
                     weapon_factor = temp(4)
-                    durability = post_combo_equip(member(x) - 1, 1)
+                    durability = post_combo_equip(member, 1)
                     If durability = 0 And Not armor_equipped Then
                         full_turn_weapon = True
                     Else
@@ -1448,17 +1459,19 @@ Public Class Main
                 equip(x) = equip(x - 1)
             End If
 
+            eq = equip(x)
             CheckCombo(x)
 
-            offense = LevelToOffense(level(member(x) - 1))
+            offense = LevelToOffense(level(member))
             attack = GetAttack(x)
 
             Dim skip_extra_hit As Boolean
 
             'step through current attack hit by hit
             For y = 1 To attack_data(attack, 0)
+
                 'Strong Attack ** charge animation takes away one durability point
-                If attack = 29 And y = 1 And durability > 0 And IsWeapon(equip(x)) Then
+                If attack = 29 And y = 1 And durability > 0 And IsWeapon(eq) Then
                     durability -= 1
                 End If
 
@@ -1467,11 +1480,11 @@ Public Class Main
                     If secondary_target_defeated Then                           'skip every hit if secondary target is already dead
                         Continue For
                     End If
-                    If Not multi_target_attacks.Contains(combo(x).Tag) Then     'if secondary target, skip single-target attacks 
+                    If Not multi_target_attacks.Contains(id) Then     'if secondary target, skip single-target attacks 
                         skip_extra_hit = True
                         Continue For
                     End If
-                    If combo(x).Tag = 28 And y < 3 Then                         'if secondary target, skip first 2 hits of Open Your Eyes
+                    If id = 28 And y < 3 Then                         'if secondary target, skip first 2 hits of Open Your Eyes
                         Continue For
                     End If
                 End If
@@ -1496,18 +1509,18 @@ Public Class Main
                 End If
 
                 'random hits from Heavenlapse
-                If combo(x).Tag = 38 AndAlso My.Settings.Heavenlapse.ElementAt(y - 1) = "0" Then
+                If id = 38 AndAlso My.Settings.Heavenlapse.ElementAt(y - 1) = "0" Then
                     Continue For
                 End If
 
                 'random hits from Aphelion Dustwake
-                If combo(x).Tag = 44 AndAlso My.Settings.AphelionDustwake.ElementAt(y - 1) = "0" Then
+                If id = 44 AndAlso My.Settings.AphelionDustwake.ElementAt(y - 1) = "0" Then
                     Continue For
                 End If
 
                 'Sagi's and Milly's attacks miss the Marauder cockpit
-                If combo_target = 123 And member(x) <> 3 Then
-                    If Not (((combo(x).Tag = 14 Or combo(x).Tag = 17) And y = 2) Or combo(x).Tag = 18 Or (combo(x).Tag = 19 And y = 7) Or combo(x).Tag = 8) Then
+                If combo_target = 123 And member + 1 <> 3 Then
+                    If Not (((id = 14 Or id = 17) And y = 2) Or id = 18 Or (id = 19 And y = 7) Or id = 8) Then
                         'exceptions: Ascension 2nd hit, Transcension 2nd hit, Blast Tooth, Rime Blade 7th hit, Pegasus Jump
                         Continue For
                     End If
@@ -1518,7 +1531,7 @@ Public Class Main
 
                 'if variable element, change attack element to match weapon
                 If attack_data(attack, 27) = 6 Then
-                    If Not (combo(x).Tag = 38 AndAlso y > first_heavenlapse_hit) Then       'Heavenlapse can't change element mid-attack
+                    If Not (id = 38 AndAlso y > first_heavenlapse_hit) Then       'Heavenlapse can't change element mid-attack
                         If (durability > 0 Or full_turn_weapon) And Not armor_equipped Then
                             attack_element = weapon_element
                         Else
@@ -1536,17 +1549,17 @@ Public Class Main
                 crush_deviation = DeviationToNumber(hits + 1, 1)
 
                 'attack boost only lasts two turns - in case the same character attacks again in the same combo
-                Select Case turns_per_member(member(x) - 1)
+                Select Case turns_per_member(member)
                     Case 1
-                        attack_boost_factor = 1 + offense_boost(member(x) - 1, attack_element, 0)
+                        attack_boost_factor = 1 + offense_boost(member, attack_element, 0)
                     Case 2
-                        attack_boost_factor = 1 + offense_boost(member(x) - 1, attack_element, 1)
+                        attack_boost_factor = 1 + offense_boost(member, attack_element, 1)
                     Case > 2
                         attack_boost_factor = 1
                 End Select
 
                 'lightning yields a 20% bonus if Electric Helm or Blitz Helm is equipped  
-                If (equip(x) = 300 Or equip(x) = 315) And attack_element = 3 Then
+                If (eq = 300 Or eq = 315) And attack_element = 3 Then
                     armor_factor = 1.2
                 Else
                     armor_factor = 1
@@ -1556,7 +1569,7 @@ Public Class Main
                 If durability > 0 Or full_turn_weapon Then
                     If Not armor_equipped Then
                         element_compatibility = Me.element_compatibility(weapon_element, attack_data(attack, 27))
-                        If equip(x) = 75 Then           'Cutthroat Knife, 50% chance of critical hits
+                        If eq = 75 Then           'Cutthroat Knife, 50% chance of critical hits
                             If weapon_crit(hits + 1) Then
                                 weapon_factor = 1.5
                             Else
@@ -1579,11 +1592,17 @@ Public Class Main
                 End If
 
                 qm_bonus = QM_total_bonus(attack_element)
-                aura_offense = Me.aura_offense(member(x) - 1, attack_element)
-                aura_crush = Me.aura_crush(member(x) - 1, attack_element)
+                aura_offense = Me.aura_offense(member, attack_element)
+                aura_crush = Me.aura_crush(member, attack_element)
 
                 If EX(x) > 0 Then
-                    ex_offense_factor = EX_combo_data(EX(x), 8) * 0.01 + 1
+                    'some of Guillo's EX combos are stronger in the English version
+                    If My.Settings.EnglishVersion AndAlso english_EX_combos.Contains(EX(x)) Then
+                        Dim index As Integer = Array.IndexOf(english_EX_combos, EX(x))
+                        ex_offense_factor = english_EX_combo_bonus(index) * 0.01 + 1
+                    Else
+                        ex_offense_factor = EX_combo_data(EX(x), 8) * 0.01 + 1
+                    End If
                     ex_crush_factor = EX_combo_data(EX(x), 9) * 0.01 + 1
                 Else
                     ex_offense_factor = 1
@@ -1657,7 +1676,7 @@ Public Class Main
                 'before Sagi's awakening, any damage output on machina armas is reduced by 90%
                 If ((combo_target >= 115 And combo_target <= 121) Or combo_target = 133) And Not (final_phase.Visible And final_phase.Checked) Then
                     multiplier = 0.1
-                ElseIf combo_target = 126 And member(x) = 3 Then     'when Guillo attacks a Sandfeeder, the damage output is reduced by 80%
+                ElseIf combo_target = 126 And member + 1 = 3 Then     'when Guillo attacks a Sandfeeder, the damage output is reduced by 80%
                     multiplier = 0.2
                 Else
                     multiplier = 1
@@ -1726,13 +1745,13 @@ Public Class Main
                 'status effect induced by a weapon
                 effect_element = 0
                 If weapon_effect(hits) AndAlso (durability > 0 Or full_turn_weapon) Then
-                    If flames_weapons.Contains(equip(x)) And resistance(combo_target, 0) > 0 Then
+                    If flames_weapons.Contains(eq) And resistance(combo_target, 0) > 0 Then
                         effect_element = 1
-                    ElseIf freeze_weapons.Contains(equip(x)) And resistance(combo_target, 1) > 0 Then
+                    ElseIf freeze_weapons.Contains(eq) And resistance(combo_target, 1) > 0 Then
                         effect_element = 2
-                    ElseIf shock_weapons.Contains(equip(x)) And resistance(combo_target, 2) > 0 Then
+                    ElseIf shock_weapons.Contains(eq) And resistance(combo_target, 2) > 0 Then
                         effect_element = 3
-                    ElseIf blind_weapons.Contains(equip(x)) And resistance(combo_target, 3) > 0 Then
+                    ElseIf blind_weapons.Contains(eq) And resistance(combo_target, 3) > 0 Then
                         effect_element = 5
                     End If
                 End If
@@ -1741,14 +1760,14 @@ Public Class Main
                 boost_element = -1
                 If weapon_boost(hits) AndAlso (durability > 0 Or full_turn_weapon) Then
                     Dim result As Double
-                    If equip(x) = 142 Then      'Rosevine: physical offense -40%
+                    If eq = 142 Then      'Rosevine: physical offense -40%
                         boost_element = 6
                         result = Round(enemy_offense_boost(0) - 0.4)
                         enemy_offense_boost(0) = LimitBoost(result)
                         result = Round(enemy_offense_boost(1) - 0.4)
                         enemy_offense_boost(1) = LimitBoost(result)
                     Else
-                        Dim boost_index As Integer = Array.IndexOf(boost_weapons, equip(x))
+                        Dim boost_index As Integer = Array.IndexOf(boost_weapons, eq)
                         If boost_index >= 0 Then
                             boost_element = boost_weapon_element(boost_index)
                             result = Round(defense_boost(boost_element, 0) - boost_weapon_bonus(boost_index) * 0.01)
@@ -1793,14 +1812,14 @@ Public Class Main
             End If
 
             'extra hit when a turn ends or when using Arabesque on secondary targets
-            If member(x + 1) <> member(x) Or (secondary_target.Checked And combo(x).Tag = 24) Then
+            If Me.member(x + 1) <> member + 1 Or (secondary_target.Checked And id = 24) Then
                 '  ((fire attack           and no flames immunity             ) or darkness attack      ) and ((regular knockdown                          ) or (knockout                                 ) or (shock knockdown                   ) or death       )
                 If ((hit_element(hits) = 1 And resistance(combo_target, 0) > 0) Or hit_element(hits) = 5) And ((crush_status >= knockdown And knockdown > 0) Or (crush_status >= knockout And knockout > 0) Or (enemy_status = 3 And knockdown > 0) Or true_HP = 0) Then
                     knockdown_hit(hits + 1) = True
                     ShowHitModifiers()
 
                     attack_element = hit_element(hits)
-                    Select Case member(x)
+                    Select Case member + 1
                         Case 1                                              'Sagi
                             offense = Math.Round(LevelToOffense(level(0)) * 10, MidpointRounding.AwayFromZero)
                         Case 2                                              'Milly
@@ -1848,7 +1867,7 @@ Public Class Main
                 End If
 
                 'Firedrake Regalia / Aetherdrake Regalia
-                If equip(x) = 238 Or equip(x) = 249 Then
+                If eq = 238 Or eq = 249 Then
                     knockdown_hit(hits + 1) = False
                     ShowHitModifiers()
 
@@ -1875,7 +1894,7 @@ Public Class Main
                     'before Sagi's awakening, any damage output on Machina Armas is reduced by 90%
                     If ((combo_target >= 115 And combo_target <= 121) Or combo_target = 133) And Not (final_phase.Visible And final_phase.Checked) Then
                         multiplier = 0.1
-                    ElseIf combo_target = 126 And member(x) = 3 Then     'when Guillo attacks a Sandfeeder, the damage output is reduced by 80%
+                    ElseIf combo_target = 126 And member + 1 = 3 Then     'when Guillo attacks a Sandfeeder, the damage output is reduced by 80%
                         multiplier = 0.2
                     Else
                         multiplier = 1
@@ -1966,12 +1985,13 @@ Public Class Main
             post_combo_status = enemy_status
 
             'equipment after final card
+            Dim final_member As Integer = Me.member(cards - 1) - 1
             If durability > 0 Or armor_equipped Or IsWeapon(combo(cards - 1).Tag) Then
-                post_combo_equip(member(cards - 1) - 1, 0) = equip(cards - 1)
-                post_combo_equip(member(cards - 1) - 1, 1) = durability
+                post_combo_equip(final_member, 0) = equip(cards - 1)
+                post_combo_equip(final_member, 1) = durability
             Else
-                post_combo_equip(member(cards - 1) - 1, 0) = 0
-                post_combo_equip(member(cards - 1) - 1, 1) = 0
+                post_combo_equip(final_member, 0) = 0
+                post_combo_equip(final_member, 1) = 0
             End If
 
             'equipment from characters who didn't participate in the combo
@@ -2362,44 +2382,50 @@ Public Class Main
                 Dim EX As Integer = Me.EX(index)
                 Select Case card
                     Case < 10
-                        If (EX = 41 Or EX = 42) And card = 2 Then                'Medium Attack * (Reverse Knight, Reverse Tail)
+                        If (EX = 41 Or EX = 42) And card = 2 Then            'Medium Attack * (Reverse Knight, Reverse Tail)
                             Return 26
-                        ElseIf EX = 43 And card = 5 Then                         'Medium Attack B * (Trail Rush)
+                        End If
+                        If EX = 43 And card = 5 Then                         'Medium Attack B * (Trail Rush)
                             Return 30
-                        ElseIf EX = 44 And card = 5 Then                         'Medium Attack B ** (Horse Prance)
+                        End If
+                        If EX = 44 And card = 5 Then                         'Medium Attack B ** (Horse Prance)
                             Return 31
-                        ElseIf EX = 45 And card = 3 Then                         'Strong Attack * (Capricorn Header)
+                        End If
+                        If EX = 45 And card = 3 Then                         'Strong Attack * (Capricorn Header)
                             Return 28
-                        ElseIf (EX > 45 And EX < 49) And card = 2 Then           'Medium Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
+                        End If
+                        If (EX > 45 And EX < 49) And card = 2 Then           'Medium Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
                             Return 27
-                        ElseIf (EX > 45 And EX < 49) And card = 3 Then           'Strong Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
+                        End If
+                        If (EX > 45 And EX < 49) And card = 3 Then           'Strong Attack ** (Moon Crash, Paralysis Bell, Empyreal Thunder)
                             Return 29
-                        ElseIf (EX > 48 And EX < 55) And card = 5 Then           'Medium Attack B ** (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
+                        End If
+                        If (EX > 48 And EX < 55) And card = 5 Then           'Medium Attack B ** (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
                             Return 31
                         End If
                         Return card + 15            'regular attacks
                     Case 10
-                        If EX > 48 And EX < 55 Then                              'Rabbit Dash * (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
+                        If EX > 48 And EX < 55 Then                          'Rabbit Dash * (Dancing Doll, Dancing Drop, Dancing Condor, Arabesque Dance, Arabesque Doll, Arabesque Thunder)
                             Return 32
-                        ElseIf EX = 55 Or EX = 56 Then                           'Rabbit Dash ** (Secret Queen, Secret Queen II)
+                        End If
+                        If EX = 55 Or EX = 56 Then                           'Rabbit Dash ** (Secret Queen, Secret Queen II)
                             Return 33
                         End If
                         If index = cards - 1 And (index = 0 OrElse Not IsAttack(combo(index - 1).Tag)) Then     'the Rabbit Dash attack only happens in isolation, i.e. no preceeding or subsequent attacks
                             Return 25
-                        Else
-                            Return 21               'Rabbit Dash turns into Strong Attack B if used in a regular combo
                         End If
+                        Return 21                   'Rabbit Dash turns into Strong Attack B if used in a regular combo
                     Case < 24
                         Return card + 13            'special attacks up to Arabesque
                     Case 24
                         Dim equip As Integer = Me.equip(index)                         'There are 3 variations of Arabesque. Which one is used depends on the element of the weapon equipped at the start of Milly's turn.
                         If magnus_element(equip) = 1 And IsWeapon(equip) Then
                             Return 38                                                  'Arabesque (fire weapon)
-                        ElseIf magnus_element(equip) = 3 And IsWeapon(equip) Then
-                            Return 39                                                  'Arabesque (lightning weapon)
-                        Else
-                            Return 37                                                  'Arabesque (physical weapon or no weapon)
                         End If
+                        If magnus_element(equip) = 3 And IsWeapon(equip) Then
+                            Return 39                                                  'Arabesque (lightning weapon)
+                        End If
+                        Return 37                                                      'Arabesque (physical weapon or no weapon)
                     Case Else
                         Return card + 15            'special attacks beyond Arabesque
                 End Select
@@ -2495,11 +2521,11 @@ Public Class Main
     End Sub
 
     Private Sub RemoveCard(sender As Object, e As MouseEventArgs)
+        card_panel(1).Focus()
         If e.Button = MouseButtons.Right Then
             RemoveSingleCard(sender, e)
             Return
         End If
-        card_panel(1).Focus()
 
         cards = sender.Name
 
@@ -2798,51 +2824,61 @@ Public Class Main
             If final_combo > 0 Then
                 SaveEXCombo(check_turn, first_card, last_card, final_combo, combo_start, combo_length)
             End If
+            Return
+        End If
 
-        ElseIf My.Settings.GuilloExtraBonus AndAlso (member(first_card) = 3 And final_combo > 0 And combo_start > 0) Then
-            'Guillo's retroactive EX combo bonus: if any of Guillo's standard attacks (except Medium Attack) directly precedes an EX combo,
-            'the projectile will likely hit the target after the EX combo bonus becomes active (depends on the attack and the distance between Guillo and the enemy)
+        'Guillo's retroactive EX combo bonus: if any of Guillo's standard attacks (except Medium Attack) directly precedes an EX combo,
+        'the projectile will likely hit the target after the EX combo bonus becomes active (depends on the attack and the distance between Guillo and the enemy)
+        If My.Settings.GuilloExtraBonus AndAlso (member(first_card) = 3 And final_combo > 0 And combo_start > 0) Then
             Dim attacks() As Integer = {1, 3, 4, 5, 6}
-            If attacks.Contains(combo(first_card + combo_start - 1).Tag) Then
-                EX(first_card + combo_start - 1) = final_combo
+            Dim card_before_EX As Integer = first_card + combo_start - 1
+            If attacks.Contains(combo(card_before_EX).Tag) Then
+                EX(card_before_EX) = final_combo
             End If
         End If
     End Sub
 
     Private Function FindEXCombo(first As Integer, last As Integer, combo_string As String, first_card As Integer) As Integer()
-        Dim final_combo, combo_start, combo_length As Integer
+        Dim final_combo, combo_start, final_length, requirement, equip, length As Integer
         For x = first To last
-            If combo_string.Contains(EX_string(x)) And (EX_combo_data(x, 0) > combo_length Or final_combo = 52) Then
-                'EX combos requiring specific weapon elements
-                If EX_combo_data(x, 10) >= 1 And EX_combo_data(x, 10) <= 4 Then
-                    If magnus_element(equip(first_card)) <> EX_combo_data(x, 10) Or Not IsWeapon(equip(first_card)) Then
+            If combo_string.Contains(EX_string(x)) Then
+                length = EX_combo_data(x, 0)
+                If length <= final_length And final_combo <> 52 Then
+                    Continue For
+                End If
+                requirement = EX_combo_data(x, 10)
+                equip = Me.equip(first_card)
+
+                If requirement >= 1 And requirement <= 4 Then           'EX combos requiring specific weapon elements
+                    If magnus_element(equip) <> requirement Or Not IsWeapon(equip) Then
                         Continue For
                     End If
                 End If
-                'EX combos requiring armor
-                If EX_combo_data(x, 10) = 5 And Not IsArmor(equip(first_card)) Then
+
+                If requirement = 5 And Not IsArmor(equip) Then          'EX combos requiring armor
                     Continue For
                 End If
-                'EX combos requiring an accessory
-                If EX_combo_data(x, 10) = 6 And Not IsAccessory(equip(first_card)) Then
+
+                If requirement = 6 And Not IsAccessory(equip) Then      'EX combos requiring an accessory
                     Continue For
                 End If
-                'enemy down (Secret Queen combos)
-                If EX_combo_data(x, 10) = 7 AndAlso Not down.Checked Then
+
+                If requirement = 7 AndAlso Not down.Checked Then        'enemy down (Secret Queen combos)
                     Continue For
                 End If
+
                 final_combo = x
-                combo_length = EX_combo_data(x, 0)
                 combo_start = combo_string.IndexOf(EX_string(x))
-                'Secret Queen: only if combo starts with Rabbit Dash
-                If (final_combo = 55 Or final_combo = 56) And combo_start > 0 Then
+                final_length = length
+
+                If (final_combo = 55 Or final_combo = 56) And combo_start > 0 Then      'Secret Queen: only if combo starts with Rabbit Dash
                     final_combo = 0
                     combo_start = 0
-                    combo_length = 0
+                    final_length = 0
                 End If
             End If
         Next
-        Return {final_combo, combo_start, combo_length}
+        Return {final_combo, combo_start, final_length}
     End Function
 
     Private Sub SaveEXCombo(check_turn As Integer, first_card As Integer, last_card As Integer, final_combo As Integer, combo_start As Integer, combo_length As Integer)
@@ -2904,9 +2940,10 @@ Public Class Main
                 Exit For
             End If
             transparent = False
+            Dim id As Integer = hand(x).Tag
 
             'spirit number too low
-            If Not relay AndAlso cards > 0 AndAlso spirit_number(hand(x).Tag) <= spirit_number(combo(cards - 1).Tag) Then
+            If Not relay AndAlso cards > 0 AndAlso spirit_number(id) <= spirit_number(combo(cards - 1).Tag) Then
                 transparent = True
             End If
 
@@ -2916,12 +2953,12 @@ Public Class Main
             End If
 
             'after switching characters: not a weak attack, not an equipment magnus with relay mark
-            If relay AndAlso (spirit_number(hand(x).Tag) < 1 Or spirit_number(hand(x).Tag) > 2 OrElse (spirit_number(hand(x).Tag) = 1 And Not relay_mark(hand(x).Tag))) Then
+            If relay AndAlso (spirit_number(id) < 1 Or spirit_number(id) > 2 OrElse (spirit_number(id) = 1 And Not relay_mark(id))) Then
                 transparent = True
             End If
 
             'after relay-equipping a magnus: not a weak attack
-            If relay_equip And spirit_number(hand(x).Tag) <> 2 Then
+            If relay_equip And spirit_number(id) <> 2 Then
                 transparent = True
             End If
 
@@ -2936,10 +2973,10 @@ Public Class Main
             End If
 
             If transparent Then
-                hand(x).Image = ChangeOpacity(magnus_image(hand(x).Tag), 0.5)
+                hand(x).Image = ChangeOpacity(magnus_image(id), 0.5)
                 hand(x).Cursor = Cursors.Default
             Else
-                hand(x).Image = magnus_image(hand(x).Tag)
+                hand(x).Image = magnus_image(id)
                 hand(x).Cursor = Cursors.Hand
             End If
         Next
