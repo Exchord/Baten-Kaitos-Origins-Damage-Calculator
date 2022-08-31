@@ -17,11 +17,9 @@ Public Class Main
 
     'characters
     Public char_icon(3) As Bitmap
-    Dim char_image(3) As PictureBox
-    Public equipment(3) As PictureBox
-    Dim level_selector(3), aura_type(3), aura_level(3) As ComboBox
+    Dim char_image(3), equipment(3) As PictureBox
+    Dim level_selector(3), aura_type(3), aura_level(3), eq_durability(3) As ComboBox
     Dim actual_level(3) As Label
-    Public eq_durability(3) As ComboBox
     Dim level(3), aura(3, 2), aura_offense(3, 6), aura_crush(3, 6) As Integer
 
     'combo
@@ -49,7 +47,7 @@ Public Class Main
     ReadOnly spirit_number() As Integer = {0, 2, 4, 6, 2, 4, 6, 3, 3, 5, 6, 7, 7, 7, 8, 8, 8, 9, 9, 9, 10, 7, 7, 7, 8, 8, 8, 9, 9, 7, 7, 7, 7, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 10, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0}
     ReadOnly MP_cost() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 1, 1, 1, 2, 2, 2, 3, 3, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 3, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 1, 2, 2, 1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     ReadOnly magnus_element() As Integer = {0, 6, 6, 6, 6, 6, 6, 6, 0, 6, 0, 0, 1, 3, 6, 1, 2, 6, 1, 2, 4, 0, 2, 3, 6, 2, 3, 1, 3, 1, 2, 3, 4, 2, 2, 3, 4, 5, 6, 1, 2, 3, 4, 5, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 4, 5, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 4, 4, 5, 0, 0, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 1, 1, 1, 1, 2, 2, 2, 3, 3, 4, 4, 5, 5, 0, 0, 0, 0, 0, 0, 0, 1, 1, 2, 3, 3, 4, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 2, 2, 2, 3, 3, 3, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 1, 1, 1, 2, 2, 2, 3, 3, 4, 5, 5, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 5, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 5, 5, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2, 3, 3, 3, 4, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 5, 5, 0, 0, 0, 0, 0, 1, 2, 3, 5, 0, 0, 0, 0, 0, 0, 1, 2, 2, 3, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 5, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 0, 0}
-    Public ReadOnly durability() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 8, 8, 18, 18, 10, 10, 6, 6, 5, 10, 10, 10, 0, 12, 12, 6, 15, 15, 15, 5, 7, 8, 15, 15, 10, 10, 10, 5, 5, 5, 8, 18, 18, 0, 8, 8, 4, 6, 6, 6, 10, 5, 10, 10, 10, 10, 10, 10, 12, 8, 18, 12, 6, 15, 15, 15, 10, 15, 18, 7, 7, 12, 12, 0, 13, 20, 15, 10, 10, 10, 10, 12, 0, 10, 0, 5, 5, 10, 5, 6, 20, 8, 20, 20, 12, 12, 12, 16, 16, 16, 9, 12, 16, 0, 15, 12, 8, 20, 12, 12, 20, 12, 12, 5, 16, 16, 16, 16, 9, 9, 20, 0, 20, 16, 20, 15, 12, 5, 10, 5, 5, 7, 7, 0, 5, 7, 7, 7, 5, 5, 5, 10, 7, 7, 5, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 7, 0, 8, 8, 10, 6, 8, 10, 8, 7, 8, 7, 8, 5, 8, 7, 0, 10, 13, 8, 8, 15, 10, 8, 6, 7, 8, 8, 8, 8, 10, 10, 7, 7, 7, 7, 7, 7, 7, 11, 12, 8, 8, 7, 7, 7, 10, 8, 7, 8, 7, 5, 10, 7, 8, 7, 7, 10, 8, 7, 8, 7, 5, 10, 7, 7, 8, 6, 8, 8, 7, 8, 8, 6, 8, 8, 4, 8, 6, 6, 8, 8, 8, 12, 7, 8, 8, 13, 8, 6, 8, 8, 8, 8, 8, 8, 4, 4, 4, 8, 8, 8, 5, 5, 8, 8, 8, 13, 8, 10, 10, 8, 8, 8, 5, 10, 8, 8, 8, 8, 8, 15, 13, 8, 10, 10, 10, 8, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 5, 0, 0, 0, 8, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 7, 0, 9, 10, 0, 10, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 5, 10, 5, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+    ReadOnly durability() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 8, 8, 18, 18, 10, 10, 6, 6, 5, 10, 10, 10, 0, 12, 12, 6, 15, 15, 15, 5, 7, 8, 15, 15, 10, 10, 10, 5, 5, 5, 8, 18, 18, 0, 8, 8, 4, 6, 6, 6, 10, 5, 10, 10, 10, 10, 10, 10, 12, 8, 18, 12, 6, 15, 15, 15, 10, 15, 18, 7, 7, 12, 12, 0, 13, 20, 15, 10, 10, 10, 10, 12, 0, 10, 0, 5, 5, 10, 5, 6, 20, 8, 20, 20, 12, 12, 12, 16, 16, 16, 9, 12, 16, 0, 15, 12, 8, 20, 12, 12, 20, 12, 12, 5, 16, 16, 16, 16, 9, 9, 20, 0, 20, 16, 20, 15, 12, 5, 10, 5, 5, 7, 7, 0, 5, 7, 7, 7, 5, 5, 5, 10, 7, 7, 5, 7, 7, 7, 7, 7, 7, 5, 5, 5, 5, 7, 0, 8, 8, 10, 6, 8, 10, 8, 7, 8, 7, 8, 5, 8, 7, 0, 10, 13, 8, 8, 15, 10, 8, 6, 7, 8, 8, 8, 8, 10, 10, 7, 7, 7, 7, 7, 7, 7, 11, 12, 8, 8, 7, 7, 7, 10, 8, 7, 8, 7, 5, 10, 7, 8, 7, 7, 10, 8, 7, 8, 7, 5, 10, 7, 7, 8, 6, 8, 8, 7, 8, 8, 6, 8, 8, 4, 8, 6, 6, 8, 8, 8, 12, 7, 8, 8, 13, 8, 6, 8, 8, 8, 8, 8, 8, 4, 4, 4, 8, 8, 8, 5, 5, 8, 8, 8, 13, 8, 10, 10, 8, 8, 8, 5, 10, 8, 8, 8, 8, 8, 15, 13, 8, 10, 10, 10, 8, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 8, 0, 8, 0, 0, 0, 5, 0, 0, 0, 8, 0, 0, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 8, 7, 0, 9, 10, 0, 10, 8, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 10, 10, 5, 10, 5, 10, 10, 10, 10, 10, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
     ReadOnly weapon_offense() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 28, 33, 50, 83, 93, 20, 25, 40, 62, 68, 95, 110, 7, 15, 30, 38, 56, 76, 10, 18, 47, 85, 51, 25, 53, 80, 99, 75, 20, 22, 33, 50, 90, 15, 28, 20, 30, 25, 35, 40, 53, 62, 68, 77, 93, 95, 100, 7, 28, 33, 23, 45, 38, 70, 56, 93, 87, 33, 18, 18, 18, 47, 47, 83, 85, 92, 93, 80, 25, 65, 83, 53, 93, 80, 99, 99, 93, 75, 17, 53, 25, 45, 75, 20, 43, 78, 28, 40, 74, 25, 43, 90, 100, 42, 45, 25, 45, 30, 20, 53, 60, 87, 20, 32, 40, 82, 74, 20, 36, 65, 43, 75, 95, 85, 42, 45, 10, 45, 23, 73, 12, 50, 91, 18, 47, 36, 55, 35, 60, 15, 58, 50, 80, 15, 27, 69, 30, 68, 43, 70, 35, 77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 7, 4, 7, 7, 15, 13, 10, 13, 13, 0, 0}
     ReadOnly weapon_crush() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 14, 16, 25, 41, 46, 10, 15, 20, 31, 36, 47, 55, 3, 7, 15, 18, 28, 43, 10, 25, 23, 42, 25, 12, 26, 40, 0, 37, 5, 10, 16, 25, 41, 15, 14, 20, 10, 20, 15, 20, 20, 31, 36, 36, 46, 47, 47, 3, 14, 20, 7, 15, 18, 28, 28, 46, 43, 20, 25, 25, 25, 23, 23, 41, 55, 42, 46, 25, 12, 12, 41, 26, 46, 40, 0, 0, 46, 37, 15, 40, 20, 40, 78, 15, 36, 63, 20, 33, 67, 20, 38, 82, 92, 35, 37, 20, 40, 17, 15, 40, 36, 80, 15, 20, 33, 67, 67, 20, 20, 40, 38, 87, 82, 78, 35, 60, 5, 20, 12, 30, 5, 25, 40, 10, 21, 15, 28, 14, 30, 5, 12, 10, 30, 5, 5, 25, 10, 21, 15, 28, 14, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 13, 7, 7, 10, 13, 20, 13, 13, 0, 0}
 
@@ -1487,7 +1485,7 @@ Public Class Main
 
                 skip_extra_hit = False
                 If secondary_target.Checked Then
-                    If secondary_target_defeated Then                           'skip every hit if secondary target is already dead
+                    If secondary_target_defeated Then                 'skip every hit if secondary target is already dead
                         Continue For
                     End If
                     If Not multi_target_attacks.Contains(id) Then     'if secondary target, skip single-target attacks 
@@ -1579,7 +1577,7 @@ Public Class Main
                 If durability > 0 Or full_turn_weapon Then
                     If Not armor_equipped Then
                         element_compatibility = Me.element_compatibility(weapon_element, attack_data(attack, 27))
-                        If eq = 75 Then           'Cutthroat Knife, 50% chance of critical hits
+                        If eq = 75 Then                 'Cutthroat Knife, 50% chance of critical hits
                             If weapon_crit(hits + 1) Then
                                 weapon_factor = 1.5
                             Else
@@ -2117,35 +2115,39 @@ Public Class Main
             End With
         Next
 
+        Dim offense As ComboBox = hit_modifier(hit, 0)
+        Dim crush As ComboBox = hit_modifier(hit, 1)
+        Dim defense As ComboBox = hit_modifier(hit, 2)
+
         'on fire/dark knockdown extra hits, offense/defense deviation ranges from -20% to +4%
-        If knockdown_hit(hit) And hit_modifier(hit, 0).Items.Count < 25 Then
-            hit_modifier(hit, 0).Items.Clear()
-            hit_modifier(hit, 2).Items.Clear()
+        If knockdown_hit(hit) And offense.Items.Count < 25 Then
+            offense.Items.Clear()
+            defense.Items.Clear()
             For i = 4 To 1 Step -1
-                hit_modifier(hit, 0).Items.Add("+" & i & "%")
-                hit_modifier(hit, 2).Items.Add("+" & i & "%")
+                offense.Items.Add("+" & i & "%")
+                defense.Items.Add("+" & i & "%")
             Next
             For i = 0 To -20 Step -1
-                hit_modifier(hit, 0).Items.Add(i & "%")
-                hit_modifier(hit, 2).Items.Add(i & "%")
+                offense.Items.Add(i & "%")
+                defense.Items.Add(i & "%")
             Next
-            hit_modifier(hit, 0).SelectedIndex = 12
-            hit_modifier(hit, 2).SelectedIndex = 12
-            hit_modifier(hit, 1).SelectedIndex = 4
-        ElseIf Not knockdown_hit(hit) And hit_modifier(hit, 0).Items.Count >= 25 Then
-            hit_modifier(hit, 0).Items.Clear()
-            hit_modifier(hit, 2).Items.Clear()
+            offense.SelectedIndex = 12
+            defense.SelectedIndex = 12
+            crush.SelectedIndex = 4
+        ElseIf Not knockdown_hit(hit) And offense.Items.Count >= 25 Then
+            offense.Items.Clear()
+            defense.Items.Clear()
             For i = 4 To 1 Step -1
-                hit_modifier(hit, 0).Items.Add("+" & i & "%")
-                hit_modifier(hit, 2).Items.Add("+" & i & "%")
+                offense.Items.Add("+" & i & "%")
+                defense.Items.Add("+" & i & "%")
             Next
             For i = 0 To -4 Step -1
-                hit_modifier(hit, 0).Items.Add(i & "%")
-                hit_modifier(hit, 2).Items.Add(i & "%")
+                offense.Items.Add(i & "%")
+                defense.Items.Add(i & "%")
             Next
-            hit_modifier(hit, 0).SelectedIndex = 4
-            hit_modifier(hit, 2).SelectedIndex = 4
-            hit_modifier(hit, 1).SelectedIndex = 4
+            offense.SelectedIndex = 4
+            defense.SelectedIndex = 4
+            crush.SelectedIndex = 4
         End If
     End Sub
 
@@ -3120,6 +3122,7 @@ Public Class Main
     End Sub
 
     Public Sub ChangeTarget(new_target As Integer, enemy_HP As Integer, go As Boolean)
+        Dim old_target As Integer = combo_target
         combo_target = new_target
         target_image.Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(110, 132))
         target_data(0).Text = enemy_name(new_target)
@@ -3139,7 +3142,7 @@ Public Class Main
             target_data(4).Text = ""
         End If
 
-        true_max_HP = HP(combo_target)
+        true_max_HP = HP(new_target)
         target_data(8).Text = true_max_HP
         If enemy_HP < 0 Or enemy_HP > true_max_HP Then
             Me.enemy_HP.Text = true_max_HP
@@ -3153,7 +3156,7 @@ Public Class Main
             Boost.character(3).Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(70, 84))
         End If
 
-        If multi_phase_enemies.Contains(combo_target) Then
+        If multi_phase_enemies.Contains(new_target) Then
             target_data(11).Hide()
             final_phase.Show()
         Else
@@ -3161,7 +3164,7 @@ Public Class Main
             target_data(11).Show()
         End If
 
-        If shield_limit(combo_target) > 0 And Not (final_phase.Visible And Not final_phase.Checked) Then
+        If shield_limit(new_target) > 0 And Not (final_phase.Visible And Not final_phase.Checked) Then
             target_data(12).Hide()
             shield.Show()
         Else
@@ -3179,8 +3182,15 @@ Public Class Main
             target_data(8).Cursor = Cursors.Default
         End If
 
+        If new_target = old_target Then
+            If go Then
+                Calculate()
+            End If
+            Return
+        End If
+
         Dim armor_durability As Integer
-        Select Case combo_target
+        Select Case new_target
             Case 26                     'Armored Cancerite
                 armor_defense = 50
                 armor_durability = 8
@@ -3611,7 +3621,7 @@ Public Class Main
                 Next
             Case 21                 'reset defense deviation
                 For x = 1 To hits
-                    hit_modifier(x, 2).SelectedIndex = Math.Floor(hit_modifier(x, 0).Items.Count * 0.5)
+                    hit_modifier(x, 2).SelectedIndex = Math.Floor(hit_modifier(x, 2).Items.Count * 0.5)
                 Next
             Case 27                 'remove all "minimum 1" hits
                 For x = 1 To hits
@@ -3729,6 +3739,50 @@ Public Class Main
             End With
         End If
         Calculate()
+    End Sub
+
+    Public Sub ToggleSaberDragonHorn()
+        My.Settings.SaberDragonHorn = Not My.Settings.SaberDragonHorn
+
+        Dim first, extra, before, after As Integer
+        If My.Settings.SaberDragonHorn Then
+            extra = 5
+        End If
+
+        For x = 0 To 2
+            If Not equipment(x).Visible Then
+                Continue For
+            End If
+
+            before = eq_durability(x).Items.Count
+            after = durability(equipment(x).Tag) + extra
+            If durability(equipment(x).Tag) = 0 Then
+                first = 0
+            Else
+                first = 1
+            End If
+
+            With eq_durability(x)
+                If after < before Then
+                    For y = after To before - 1
+                        .Items.RemoveAt(.Items.Count - 1)
+                    Next
+                Else
+                    For y = before + first To after
+                        .Items.Add(y)
+                    Next
+                End If
+                If .Items.Count > 0 Then
+                    If .Text = "" Then
+                        .SelectedIndex = durability(equipment(x).Tag) - first
+                    End If
+                    .Show()
+                Else
+                    .Hide()
+                    Calculate()
+                End If
+            End With
+        Next
     End Sub
 
     Private Sub ShowDescription(sender As Object, e As EventArgs)

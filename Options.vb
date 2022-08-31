@@ -353,6 +353,55 @@
         tooltips_label.Focus()
     End Sub
 
+    Public Sub ChangeSetting(sender As Object, e As EventArgs)
+        With My.Settings
+            Select Case sender.Tag
+                Case 0
+                    .TargetAutoClose = Not .TargetAutoClose
+                Case 1
+                    .HighlightHits = Not .HighlightHits
+                Case 2
+                    .ReadCombo = Not .ReadCombo
+                Case 3
+                    Main.ToggleEffectiveHP()
+                Case 4
+                    .EnglishVersion = Not .EnglishVersion
+                    Main.Calculate()
+                Case 5
+                    .GuilloExtraBonus = Not .GuilloExtraBonus
+                    Main.Calculate()
+                Case 6
+                    .SecretQueenGetUp = Not .SecretQueenGetUp
+                    Main.Calculate()
+                Case 7
+                    Main.ToggleSaberDragonHorn()
+                Case 8
+                    .TableTooltips = Not .TableTooltips
+                    Main.hover.Active = .TableTooltips
+                Case 9
+                    .TargetTooltips = Not .TargetTooltips
+                    If Target.Visible Then
+                        Target.hover.Active = .TargetTooltips
+                    End If
+                Case 10
+                    .DeckTooltips = Not .DeckTooltips
+                    If Deck.Visible Then
+                        Deck.hover.Active = .DeckTooltips
+                    End If
+                Case 11
+                    .QMTooltips = Not .QMTooltips
+                    If QuestMagnus.Visible Then
+                        QuestMagnus.hover.Active = .QMTooltips
+                    End If
+                Case 12
+                    .ItemTooltips = Not .ItemTooltips
+                    If Boost.Visible Then
+                        Boost.hover.Active = .ItemTooltips
+                    End If
+            End Select
+        End With
+    End Sub
+
     Public Sub ToggleRow(sender As Object, e As EventArgs)
         Dim i As Integer = sender.Tag
         Dim temp As String = My.Settings.ResultsRow
@@ -366,97 +415,6 @@
         End If
         My.Settings.ResultsRow = temp
         Main.UpdateRows()
-    End Sub
-
-    Public Sub ChangeSetting(sender As Object, e As EventArgs)
-        Select Case sender.Tag
-            Case 0
-                My.Settings.TargetAutoClose = Not My.Settings.TargetAutoClose
-            Case 1
-                My.Settings.HighlightHits = Not My.Settings.HighlightHits
-            Case 2
-                My.Settings.ReadCombo = Not My.Settings.ReadCombo
-            Case 3
-                Main.ToggleEffectiveHP()
-            Case 4
-                My.Settings.EnglishVersion = Not My.Settings.EnglishVersion
-                Main.Calculate()
-            Case 5
-                My.Settings.GuilloExtraBonus = Not My.Settings.GuilloExtraBonus
-                Main.Calculate()
-            Case 6
-                My.Settings.SecretQueenGetUp = Not My.Settings.SecretQueenGetUp
-                Main.Calculate()
-            Case 7
-                My.Settings.SaberDragonHorn = Not My.Settings.SaberDragonHorn
-                ToggleSaberDragonHorn()
-            Case 8
-                My.Settings.TableTooltips = Not My.Settings.TableTooltips
-                Main.hover.Active = My.Settings.TableTooltips
-            Case 9
-                My.Settings.TargetTooltips = Not My.Settings.TargetTooltips
-                If Target.Visible Then
-                    Target.hover.Active = My.Settings.TargetTooltips
-                End If
-            Case 10
-                My.Settings.DeckTooltips = Not My.Settings.DeckTooltips
-                If Deck.Visible Then
-                    Deck.hover.Active = My.Settings.DeckTooltips
-                End If
-            Case 11
-                My.Settings.QMTooltips = Not My.Settings.QMTooltips
-                If QuestMagnus.Visible Then
-                    QuestMagnus.hover.Active = My.Settings.QMTooltips
-                End If
-            Case 12
-                My.Settings.ItemTooltips = Not My.Settings.ItemTooltips
-                If Boost.Visible Then
-                    Boost.hover.Active = My.Settings.ItemTooltips
-                End If
-        End Select
-    End Sub
-
-    Private Sub ToggleSaberDragonHorn()
-        Dim first, extra, before, after As Integer
-        If My.Settings.SaberDragonHorn Then
-            extra = 5
-        End If
-
-        For x = 0 To 2
-            If Not Main.equipment(x).Visible Then
-                Continue For
-            End If
-
-            before = Main.eq_durability(x).Items.Count
-            after = Main.durability(Main.equipment(x).Tag) + extra
-            first = 0
-            If Main.durability(Main.equipment(x).Tag) > 0 Then
-                first = 1
-            ElseIf Not My.Settings.SaberDragonHorn Then
-                first = 1
-            End If
-
-            With Main.eq_durability(x)
-                If after < before Then
-                    For y = after To before - 1
-                        .Items.RemoveAt(.Items.Count - 1)
-                    Next
-                Else
-                    For y = before + first To after
-                        .Items.Add(y)
-                    Next
-                End If
-                If .Items.Count > 0 Then
-                    If .Text = "" Then
-                        .SelectedIndex = Main.durability(Main.equipment(x).Tag) - first
-                    End If
-                    .Show()
-                Else
-                    .Hide()
-                    Main.Calculate()
-                End If
-            End With
-        Next
     End Sub
 
     Private Sub ShowAll(sender As Object, e As EventArgs)

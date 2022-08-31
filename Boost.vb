@@ -414,7 +414,7 @@
         Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
     End Function
 
-    Public Function LimitBoost(input As Double) As Double
+    Private Function LimitBoost(input As Double) As Double
         Return Math.Max(-1000, Math.Min(Round(input), 1000))
     End Function
 
