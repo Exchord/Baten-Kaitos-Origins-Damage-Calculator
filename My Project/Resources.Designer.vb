@@ -6413,6 +6413,46 @@ Namespace My.Resources
         '''<summary>
         '''  Looks up a localized resource of type System.Drawing.Bitmap.
         '''</summary>
+        Friend ReadOnly Property artifact1() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("artifact1", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property artifact2() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("artifact2", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property artifact3() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("artifact3", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
+        Friend ReadOnly Property artifact4() As System.Drawing.Bitmap
+            Get
+                Dim obj As Object = ResourceManager.GetObject("artifact4", resourceCulture)
+                Return CType(obj,System.Drawing.Bitmap)
+            End Get
+        End Property
+        
+        '''<summary>
+        '''  Looks up a localized resource of type System.Drawing.Bitmap.
+        '''</summary>
         Friend ReadOnly Property dolphin() As System.Drawing.Bitmap
             Get
                 Dim obj As Object = ResourceManager.GetObject("dolphin", resourceCulture)

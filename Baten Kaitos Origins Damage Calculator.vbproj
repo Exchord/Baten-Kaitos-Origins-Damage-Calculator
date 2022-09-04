@@ -116,6 +116,9 @@
     <Compile Include="DoubleBufferPanel.vb">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MP.vb">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Options.vb">
       <SubType>Form</SubType>
     </Compile>
@@ -2501,6 +2504,18 @@
     <None Include="Resources\spreadsheet.png" />
     <None Include="Resources\dolphin.png" />
     <None Include="Resources\settings.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\artifact1.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\artifact2.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\artifact3.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\artifact4.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
 </Project>

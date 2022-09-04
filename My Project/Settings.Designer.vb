@@ -544,6 +544,42 @@ Namespace My
                 Me("EnglishVersion") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("-1, -1")>  _
+        Public Property MPWindowLocation() As Global.System.Drawing.Point
+            Get
+                Return CType(Me("MPWindowLocation"),Global.System.Drawing.Point)
+            End Get
+            Set
+                Me("MPWindowLocation") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("1")>  _
+        Public Property DeckClass() As Integer
+            Get
+                Return CType(Me("DeckClass"),Integer)
+            End Get
+            Set
+                Me("DeckClass") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property MPTooltips() As Boolean
+            Get
+                Return CType(Me("MPTooltips"),Boolean)
+            End Get
+            Set
+                Me("MPTooltips") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

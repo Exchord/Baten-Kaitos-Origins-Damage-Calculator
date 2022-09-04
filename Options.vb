@@ -2,7 +2,7 @@
     Inherits Form
 
     Public row(31), setting(8) As CheckBox
-    Dim tooltips(5), heavenlapse(9), aphelion_dustwake(13) As CheckBox
+    Dim tooltips(6), heavenlapse(9), aphelion_dustwake(13) As CheckBox
     Dim random_hits(20), tooltips_label, party_label(2), empty, version As Label
     Dim show_all, hide_all, documentation As Button
     Dim panel, party_panel(2) As Panel
@@ -20,7 +20,7 @@
         MaximizeBox = False
         Text = "Settings"
         Icon = New Icon(Me.GetType(), "icon.ico")
-        MinimumSize = New Size(700, 548)
+        MinimumSize = New Size(700, 573)
         MaximumSize = New Size(700, 856)
         LoadWindowData()
         AddHandler Click, AddressOf ChangeFocus
@@ -145,10 +145,10 @@
         End With
         Controls.Add(tooltips_label)
 
-        For x = 0 To 4
+        For x = 0 To 5
             tooltips(x) = New CheckBox()
             With tooltips(x)
-                .Size = New Size(120, 24)
+                .Size = New Size(124, 24)
                 .Location = New Point(10, tooltips_ypos + (x + 1) * 25)
                 .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
@@ -157,16 +157,18 @@
             Controls.Add(tooltips(x))
         Next
         tooltips(0).Text = "Variables"
-        tooltips(1).Text = "Enemies"
-        tooltips(2).Text = "Battle magnus"
-        tooltips(3).Text = "Quest magnus"
-        tooltips(4).Text = "Item magnus"
+        tooltips(1).Text = "Target"
+        tooltips(2).Text = "Deck"
+        tooltips(3).Text = "Quest Magnus"
+        tooltips(4).Text = "Temporary Boost"
+        tooltips(5).Text = "Magnus Power"
         tooltips(0).Checked = My.Settings.TableTooltips
         tooltips(1).Checked = My.Settings.TargetTooltips
         tooltips(2).Checked = My.Settings.DeckTooltips
         tooltips(3).Checked = My.Settings.QMTooltips
         tooltips(4).Checked = My.Settings.ItemTooltips
-        For x = 0 To 4
+        tooltips(5).Checked = My.Settings.MPTooltips
+        For x = 0 To 5
             AddHandler tooltips(x).CheckedChanged, AddressOf ChangeSetting
         Next
 
@@ -397,6 +399,11 @@
                     .ItemTooltips = Not .ItemTooltips
                     If Boost.Visible Then
                         Boost.hover.Active = .ItemTooltips
+                    End If
+                Case 13
+                    .MPTooltips = Not .MPTooltips
+                    If MP.Visible Then
+                        MP.hover.Active = .MPTooltips
                     End If
             End Select
         End With

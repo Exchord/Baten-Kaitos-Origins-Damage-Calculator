@@ -3,11 +3,13 @@ Public Class Main
     Inherits Form
 
     Dim target_data(13), combo_results As Label
+    Public MP_display As Label
     Dim enemy_HP As TextBox
     Dim final_phase, shield, secondary_target, down As CheckBox
     Dim enemy_status, armor_durability As ComboBox
     Dim target_image, button(7), hand(300) As PictureBox
-    Dim next_combo As Button
+    Dim MP_button, next_combo As Button
+    Public burst As Button
     Dim card_panel(2), output_panel As DoubleBufferPanel
     Dim magnus_image(455) As Bitmap
     Public hover As ToolTip
@@ -24,7 +26,7 @@ Public Class Main
 
     'combo
     Dim combo(125) As PictureBox
-    Dim member(125), first_hit(125), equip(125), EX(125) As Integer
+    Dim member(125), first_hit(125), equip(125), EX(125), MP_gain(125) As Integer
 
     'hits
     Dim table(1000, 32) As Label
@@ -32,11 +34,12 @@ Public Class Main
     Dim hit_card(1000), hit_element(1000), shield_break_hit As Integer
     Dim weapon_effect(1000), weapon_boost(1000), qm_crit(1000), weapon_crit(1000), knockdown_hit(1000), min_one(1000) As Boolean
 
-    Dim cards, hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense, turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
-    Public combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
-    Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Double
+    Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense, turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
+    Public cards, combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
+    Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2), current_MP As Double
     Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2) As Double
     Dim relay, relay_equip, post_combo_down, post_combo_shield As Boolean
+    Public burst_active As Boolean
     Public deck_magnus(455) As String
     Dim hProcess As IntPtr
 
@@ -175,7 +178,7 @@ Public Class Main
         DoubleBuffered = True
         KeyPreview = True
         BackColor = Color.LightGray
-        MinimumSize = New Size(864, 531)
+        MinimumSize = New Size(864, 524)
         LoadWindowData()
 
 
@@ -293,8 +296,9 @@ Public Class Main
             .Size = New Size(125, 150)
             .Location = New Point(target_x, 14)
             .Cursor = Cursors.Hand
+            .Name = 7
             .SizeMode = PictureBoxSizeMode.StretchImage
-            AddHandler .Click, AddressOf ShowTargetWindow
+            AddHandler .Click, AddressOf ButtonClick
         End With
         Controls.Add(target_image)
 
@@ -369,36 +373,36 @@ Public Class Main
         End With
 
         With target_data(5)
-            .Size = New Size(74, 24)
+            .Size = New Size(49, 24)
             .Location = New Point(target_x, 175)
             .Text = "HP"
         End With
 
         With target_data(6)
-            .Size = New Size(74, 24)
+            .Size = New Size(49, 24)
             .Location = New Point(target_x, 200)
-            .Text = "Effective HP"
+            .Text = "Eff. HP"
         End With
 
         With target_data(7)                                         'effective HP
-            .Size = New Size(59, 24)
-            .Location = New Point(target_x + 75, 200)
+            .Size = New Size(54, 24)
+            .Location = New Point(target_x + 50, 200)
         End With
 
         With target_data(8)                                         'true max HP
-            .Size = New Size(59, 24)
-            .Location = New Point(target_x + 135, 175)
+            .Size = New Size(54, 24)
+            .Location = New Point(target_x + 105, 175)
             AddHandler .Click, AddressOf ResetHP
         End With
 
         With target_data(9)                                         'effective max HP
-            .Size = New Size(59, 24)
-            .Location = New Point(target_x + 135, 200)
+            .Size = New Size(54, 24)
+            .Location = New Point(target_x + 105, 200)
         End With
 
         With target_data(10)
-            .Size = New Size(114, 24)
-            .Location = New Point(target_x + 195, 200)
+            .Size = New Size(104, 24)
+            .Location = New Point(target_x + 160, 200)
             .Text = "Armor durability"
         End With
 
@@ -421,9 +425,9 @@ Public Class Main
         enemy_HP = New TextBox()
         With enemy_HP
             .AutoSize = False
-            .Size = New Size(59, 24)
+            .Size = New Size(54, 24)
             .TextAlign = HorizontalAlignment.Center
-            .Location = New Point(target_x + 75, 175)
+            .Location = New Point(target_x + 50, 175)
             .MaxLength = 5
             AddHandler .TextChanged, AddressOf CheckHP
             AddHandler .MouseWheel, AddressOf ScrollHP
@@ -434,8 +438,8 @@ Public Class Main
 
         down = New CheckBox
         With down
-            .Size = New Size(79, 24)
-            .Location = New Point(target_x + 195, 175)
+            .Size = New Size(74, 24)
+            .Location = New Point(target_x + 160, 175)
             .BackColor = default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Down"
@@ -446,8 +450,8 @@ Public Class Main
         enemy_status = New ComboBox()
         With enemy_status
             .DropDownStyle = ComboBoxStyle.DropDownList
-            .Size = New Size(79, 24)
-            .Location = New Point(target_x + 275, 175)
+            .Size = New Size(69, 24)
+            .Location = New Point(target_x + 235, 175)
             For x = 0 To 4
                 .Items.Add(status_name(x))
             Next
@@ -459,8 +463,8 @@ Public Class Main
         armor_durability = New ComboBox()
         With armor_durability
             .DropDownStyle = ComboBoxStyle.DropDownList
-            .Size = New Size(44, 24)
-            .Location = New Point(target_x + 310, 200)
+            .Size = New Size(39, 24)
+            .Location = New Point(target_x + 265, 200)
             AddHandler .SelectedIndexChanged, AddressOf ChangeArmorDurability
         End With
         Controls.Add(armor_durability)
@@ -474,15 +478,15 @@ Public Class Main
             With button(x)
                 If x < 3 Then
                     .Size = New Size(40, 64)
-                    .Location = New Point(680 + x * 50, button_row_1_Y_pos)
+                    .Location = New Point(673 + x * 50, button_row_1_Y_pos)
                 Else
                     .Size = New Size(48, 48)
-                    .Location = New Point(676 + (x - 3) * 50, button_row_2_Y_pos)
+                    .Location = New Point(669 + (x - 3) * 50, button_row_2_Y_pos)
                 End If
                 .Image = New Bitmap(My.Resources.ResourceManager.GetObject(button_resource(x)), .Size)
                 .Name = x
                 .Cursor = Cursors.Hand
-                AddHandler .Click, AddressOf ButtonAction
+                AddHandler .Click, AddressOf ButtonClick
                 AddHandler .MouseDown, AddressOf MoveButtonDown
                 AddHandler .MouseUp, AddressOf MoveButtonUp
                 AddHandler .MouseLeave, AddressOf MoveButtonUp
@@ -491,20 +495,31 @@ Public Class Main
             Controls.Add(button(x))
         Next
 
-        combo_results = New Label
+        combo_results = New Label()
         With combo_results
             .Size = New Size(124, 50)
-            .Location = New Point(700, 150)
+            .Location = New Point(693, 150)
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .TextAlign = ContentAlignment.MiddleRight
             AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(combo_results)
 
+        MP_button = New Button()
+        With MP_button
+            .Size = New Size(54, 30)
+            .Location = New Point(668, 206)
+            .UseVisualStyleBackColor = True
+            .Text = "MP"
+            .Name = 6
+            AddHandler .Click, AddressOf ButtonClick
+        End With
+        Controls.Add(MP_button)
+
         next_combo = New Button()
         With next_combo
             .Size = New Size(96, 30)
-            .Location = New Point(729, 206)
+            .Location = New Point(722, 206)
             .Text = "Next combo"
             .UseVisualStyleBackColor = True
             .Enabled = False
@@ -552,6 +567,32 @@ Public Class Main
                 AddHandler .MouseLeave, AddressOf UnhighlightHits
             End With
         Next
+
+
+        ' MP
+
+        MP_display = New Label()
+        With MP_display
+            .Hide()
+            .Size = New Size(54, 30)
+            .Location = New Point(25, 25)
+            '.BackColor = default_color
+            .TextAlign = ContentAlignment.MiddleLeft
+            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+        End With
+        card_panel(1).Controls.Add(MP_display)
+
+        burst = New Button()
+        With burst
+            .Hide()
+            .Size = New Size(65, 30)
+            .Location = New Point(19, 25)
+            .UseVisualStyleBackColor = True
+            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            .Text = "Burst"
+            AddHandler .Click, AddressOf ToggleBurst
+        End With
+        card_panel(1).Controls.Add(burst)
 
 
         ' OUTPUT TABLE
@@ -720,7 +761,6 @@ Public Class Main
             level_selector(1).Text = .MillyLevel
             level_selector(2).Text = .GuilloLevel
             For x = 0 To 2
-                FixLevel(level_selector(x), New EventArgs)
                 aura_type(x).SelectedIndex = CInt("&H" & .Auras.ElementAt(x * 2))
                 aura_level(x).SelectedIndex = CInt("&H" & .Auras.ElementAt(x * 2 + 1))
             Next
@@ -2089,6 +2129,64 @@ Public Class Main
         combo_results.Text = final_cards & final_hits & vbCrLf & final_damage & vbCrLf & TP_bonus
     End Sub
 
+    Private Sub ChangeMP(card As Integer)
+        If Not MP.Visible Then
+            MP_display.Hide()
+            MP_display.Text = ""
+            Return
+        End If
+        If burst_active Then
+            burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            Return
+        End If
+
+        Dim value As Double = MP.current_MP
+        Dim delta As Double
+        If card = cards - 1 Then                                                                'add card
+            delta = MP.factor * MP_gain(cards - 1) - 100 * MP_cost(combo(cards - 1).Tag)
+            value = Math.Min(value + delta, MP.max_MP)
+        Else
+            For x = card To cards Step -1                                                       'remove card(s)
+                delta = MP.factor * MP_gain(x) - 100 * MP_cost(combo(x).Tag)
+                value = Math.Max(0, Math.Min(value - delta, MP.max_MP))
+            Next
+        End If
+
+        MP.MP.Text = value
+        DisplayMP()
+    End Sub
+
+    Public Sub DisplayMP()
+        MP_display.Text = current_MP
+        MP_display.Hide()
+        burst.Hide()
+        If MP.Visible Then
+            burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            MP_display.Left = 25 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            If current_MP < 500 Then
+                MP_display.Show()
+            Else
+                burst.Show()
+            End If
+            If burst_active Then
+                burst.Text = "Cancel"
+            Else
+                burst.Text = "Burst"
+            End If
+        End If
+        CheckCards()
+    End Sub
+
+    Private Sub ToggleBurst(sender As Object, e As EventArgs)
+        If burst_active Then
+            MP.MP.Text = "0"
+            DisplayMP()
+            MP.burst.Checked = False
+        Else
+            MP.burst.Checked = True
+        End If
+    End Sub
+
     Private Function Round(input As Double) As Double
         Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
     End Function
@@ -2528,6 +2626,7 @@ Public Class Main
 
         cards += 1
         UpdateTurns()
+        ChangeMP(cards - 1)
         CheckCards()
         Calculate()
     End Sub
@@ -2539,6 +2638,7 @@ Public Class Main
             Return
         End If
 
+        Dim cards_prev As Integer = cards
         cards = sender.Name
 
         'switch characters
@@ -2556,11 +2656,20 @@ Public Class Main
         Next
 
         UpdateTurns()
+        If e.Clicks = -1 Then           'after clicking "Next combo"
+            MP.MP.Text = current_MP
+            DisplayMP()
+        Else
+            ChangeMP(cards_prev - 1)
+        End If
         CheckCards()
         Calculate()
     End Sub
 
     Private Sub RemoveSingleCard(sender As Object, e As MouseEventArgs)
+        If MP.Visible Then
+            Return
+        End If
         Dim card As Integer = sender.Name
         Dim id As Integer = sender.Tag
 
@@ -2599,6 +2708,7 @@ Public Class Main
                 turn(turns) = x
                 turns += 1
             End If
+            MP_gain(x) = x + 1 - turn(turns - 1)
         Next
         If cards > 0 AndAlso character <> member(cards - 1) Then                'enable relay combo
             relay = True
@@ -2945,7 +3055,7 @@ Public Class Main
         CheckCards()
     End Sub
 
-    Private Sub CheckCards()
+    Public Sub CheckCards()
         Dim transparent As Boolean
         For x = 0 To 299
             If Not hand(x).Visible Then
@@ -2981,6 +3091,11 @@ Public Class Main
 
             'only for X relays (infinite combo): same character can only attack again after two more turns
             If turns > 1 AndAlso character = member(turn(turns - 2)) Then
+                transparent = True
+            End If
+
+            'not enough MP
+            If MP.Visible AndAlso MP_cost(id) * 100 > current_MP Then
                 transparent = True
             End If
 
@@ -3237,24 +3352,20 @@ Public Class Main
     End Sub
 
     Private Sub CheckHP(sender As Object, e As EventArgs)
-        With enemy_HP
-            If .Text = "" Then
-                .ForeColor = Color.Red
-            ElseIf Not IsNonNegativeInteger(.Text) Then
-                ResetHP(sender, e)
-            ElseIf .Text > true_max_HP Then
-                .ForeColor = Color.Red
-            Else
-                ChangeHP()
-            End If
-            If .Text <> true_max_HP.ToString Then
-                target_data(8).BackColor = Color.LightYellow
-                target_data(8).Cursor = Cursors.Hand
-            Else
-                target_data(8).BackColor = default_color
-                target_data(8).Cursor = Cursors.Default
-            End If
-        End With
+        Dim new_HP As String = enemy_HP.Text
+        If new_HP = "" Then
+            enemy_HP.ForeColor = Color.Red
+            Return
+        End If
+        If Not IsNonNegativeInteger(new_HP) Then
+            ResetHP(sender, e)
+            Return
+        End If
+        If new_HP > true_max_HP Then
+            enemy_HP.ForeColor = Color.Red
+            Return
+        End If
+        ChangeHP()
         Calculate()
     End Sub
 
@@ -3277,6 +3388,13 @@ Public Class Main
             target_data(9).Hide()
         End If
         target_data(8).Text = true_max_HP
+        If true_HP <> true_max_HP Then
+            target_data(8).BackColor = Color.LightYellow
+            target_data(8).Cursor = Cursors.Hand
+        Else
+            target_data(8).BackColor = default_color
+            target_data(8).Cursor = Cursors.Default
+        End If
         If shield.Visible Then
             If true_HP < Math.Floor(true_max_HP * shield_limit(combo_target)) Then
                 shield.Enabled = False
@@ -3366,6 +3484,9 @@ Public Class Main
             Next
             RemoveCard(combo(cards - 1), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
         End If
+        If e.KeyCode = Keys.R Then
+            ChangeSize()
+        End If
     End Sub
 
     Public Function ChangeOpacity(img As Image, opacityvalue As Single) As Bitmap
@@ -3393,6 +3514,9 @@ Public Class Main
             .Target = combo_target
             .FinalPhase = final_phase.Checked
             .Character = character - 1
+            For x = 0 To 2
+                FixLevel(level_selector(x), New EventArgs)
+            Next
             .SagiLevel = level_selector(0).Text
             .MillyLevel = level_selector(1).Text
             .GuilloLevel = level_selector(2).Text
@@ -3428,18 +3552,20 @@ Public Class Main
     End Sub
 
     Private Sub FixHP(sender As Object, e As EventArgs)
-        If sender.ForeColor = Color.Red Then
-            ResetHP(sender, e)
+        If enemy_HP.ForeColor = Color.Red Then
+            enemy_HP.Text = true_HP
             Return
         End If
         'remove leading zeros
-        Dim value As Integer = sender.Text
-        sender.Text = value
+        Dim value As Integer = enemy_HP.Text
+        enemy_HP.Text = value
     End Sub
 
     Private Sub FixLevel(sender As Object, e As EventArgs)
+        Dim chr As Integer = sender.Tag
         If sender.ForeColor = Color.Red Then
-            level_selector(sender.Tag).SelectedIndex = 0
+            Dim level As Integer = Math.Max(1, Math.Min(Me.level(chr) - QM_total_bonus(8), 100))
+            level_selector(chr).SelectedIndex = level - 1
             Return
         End If
         'remove leading zeros
@@ -3449,29 +3575,33 @@ Public Class Main
 
     Private Sub ChangeLevel(sender As Object, e As EventArgs)
         Dim chr As Integer = sender.Tag
+        Dim box As ComboBox = level_selector(chr)
+        Dim new_level As String = box.Text
 
-        If level_selector(chr).Text = "" Then
-            level_selector(chr).ForeColor = Color.Red
+        If new_level = "" Then
+            box.ForeColor = Color.Red
             Return
         End If
-        If Not IsNonNegativeInteger(level_selector(chr).Text) Then
-            level_selector(chr).SelectedIndex = 0
+        If Not IsNonNegativeInteger(new_level) Then
+            box.SelectedIndex = 0
             Return
         End If
-        If level_selector(chr).Text = 0 Or level_selector(chr).Text > 100 Then
-            level_selector(chr).ForeColor = Color.Red
+        If new_level < 1 Or new_level > 100 Then
+            box.ForeColor = Color.Red
             Return
         End If
-        level_selector(chr).ForeColor = Color.Black
-        level(chr) = Math.Max(1, Math.Min(100, level_selector(chr).Text + QM_total_bonus(8)))
+
+        box.ForeColor = Color.Black
+        Dim final_level As Integer = Math.Max(1, Math.Min(100, new_level + QM_total_bonus(8)))
+        level(chr) = final_level
 
         With actual_level(chr)
-            If level(chr) > level_selector(chr).Text Then
-                .Text = level(chr)
+            If final_level > new_level Then
+                .Text = final_level
                 .ForeColor = Color.Green
                 .Show()
-            ElseIf level(chr) < level_selector(chr).Text Then
-                .Text = level(chr)
+            ElseIf final_level < new_level Then
+                .Text = final_level
                 .ForeColor = Color.Red
                 .Show()
             Else
@@ -3484,7 +3614,7 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Function IsNonNegativeInteger(input As String) As Boolean
+    Public Function IsNonNegativeInteger(input As String) As Boolean
         Dim number As Integer
         If Integer.TryParse(input, number) Then
             If number >= 0 Then
@@ -3586,6 +3716,18 @@ Public Class Main
         Next
     End Sub
 
+    Private Sub ChangeSize()
+        Dim rows As Integer = My.Settings.ResultsRow.Count(Function(c As Char) c = "1")
+        Width = 176 + hits * 52
+        Height = 494 + rows * 25
+        If output_panel.VerticalScroll.Visible Then
+            Width += 17
+        End If
+        If output_panel.HorizontalScroll.Visible Then
+            Height += 17
+        End If
+    End Sub
+
     Private Sub ChangeDeviation(sender As Object, e As EventArgs)
         Calculate()
     End Sub
@@ -3656,11 +3798,15 @@ Public Class Main
     End Sub
 
     Private Sub NextCombo(sender As Object, e As EventArgs)
+        If burst_active Then
+            MP.burst.Checked = False
+            current_MP = 0
+        End If
         Dim attack As Boolean
         If cards > 1 OrElse IsAttack(combo(0).Tag) Then
             attack = True
         End If
-        RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
+        RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, -1, 0, 0, 0))
         If attack Then
             enemy_HP.Text = post_combo_HP
             If armor_durability.Visible Then
@@ -3806,16 +3952,6 @@ Public Class Main
         CheckAura(chr, True)
     End Sub
 
-    Private Sub ShowTargetWindow(sender As Object, e As EventArgs)
-        sender.Focus()
-        If Target.Visible Then
-            Target.Focus()
-            Target.WindowState = FormWindowState.Normal
-        Else
-            Target.Show()
-        End If
-    End Sub
-
     Private Sub MoveButtonDown(sender As Object, e As EventArgs)
         If sender.Name < 3 Then
             sender.Top = button_row_1_Y_pos + 2
@@ -3834,30 +3970,23 @@ Public Class Main
         sender.Show()
     End Sub
 
-    Private Sub ButtonAction(sender As Object, e As EventArgs)
+    Private Sub ButtonClick(sender As Object, e As EventArgs)
         combo_results.Focus()
-        Dim form As Form = Nothing
-        Select Case sender.Name
-            Case 0
-                form = Deck
-            Case 1
-                form = QuestMagnus
-            Case 2
-                form = Boost
+        Dim form() As Form = {Deck, QuestMagnus, Boost, Nothing, Nothing, Settings, MP, Target}
+        Dim f As Integer = sender.Name
+        Select Case f
             Case 3
                 Dolphin()
                 Return
             Case 4
                 CopyTable()
                 Return
-            Case 5
-                form = Settings
         End Select
-        If form.Visible Then
-            form.Focus()
-            form.WindowState = FormWindowState.Normal
+        If form(f).Visible Then
+            form(f).Focus()
+            form(f).WindowState = FormWindowState.Normal
         Else
-            form.Show()
+            form(f).Show()
         End If
     End Sub
 
