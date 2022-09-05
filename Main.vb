@@ -2,14 +2,12 @@
 Public Class Main
     Inherits Form
 
-    Dim target_data(13), combo_results As Label
-    Public MP_display As Label
+    Dim target_data(13), combo_results, MP_display As Label
     Dim enemy_HP As TextBox
     Dim final_phase, shield, secondary_target, down As CheckBox
     Dim enemy_status, armor_durability As ComboBox
     Dim target_image, button(7), hand(300) As PictureBox
-    Dim MP_button, next_combo As Button
-    Public burst As Button
+    Dim MP_button, next_combo, burst As Button
     Dim card_panel(2), output_panel As DoubleBufferPanel
     Dim magnus_image(455) As Bitmap
     Public hover As ToolTip
@@ -36,8 +34,8 @@ Public Class Main
 
     Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense, turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
     Public cards, combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
-    Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2), current_MP As Double
-    Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2) As Double
+    Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Double
+    Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2), current_MP As Double
     Dim relay, relay_equip, post_combo_down, post_combo_shield As Boolean
     Public burst_active As Boolean
     Public deck_magnus(455) As String
@@ -2131,8 +2129,6 @@ Public Class Main
 
     Private Sub ChangeMP(card As Integer)
         If Not MP.Visible Then
-            MP_display.Hide()
-            MP_display.Text = ""
             Return
         End If
         If burst_active Then
@@ -2140,7 +2136,7 @@ Public Class Main
             Return
         End If
 
-        Dim value As Double = MP.current_MP
+        Dim value As Double = current_MP
         Dim delta As Double
         If card = cards - 1 Then                                                                'add card
             delta = MP.factor * MP_gain(cards - 1) - 100 * MP_cost(combo(cards - 1).Tag)
@@ -2153,25 +2149,28 @@ Public Class Main
         End If
 
         MP.MP.Text = value
-        DisplayMP()
+        DisplayMP(value)
     End Sub
 
-    Public Sub DisplayMP()
-        MP_display.Text = current_MP
+    Public Sub DisplayMP(new_MP As Double)
+        current_MP = new_MP
         MP_display.Hide()
         burst.Hide()
+        MP_display.Text = new_MP
         If MP.Visible Then
-            burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
-            MP_display.Left = 25 + cards * 50 + card_panel(1).AutoScrollPosition.X
-            If current_MP < 500 Then
+            If new_MP < 500 Then
+                MP_display.Left = 25 + cards * 50 + card_panel(1).AutoScrollPosition.X
                 MP_display.Show()
             Else
+                If burst_active Then
+                    burst.Text = "Cancel"
+                    burst.ForeColor = Color.Red
+                Else
+                    burst.Text = "Burst"
+                    burst.ForeColor = Color.Black
+                End If
+                burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
                 burst.Show()
-            End If
-            If burst_active Then
-                burst.Text = "Cancel"
-            Else
-                burst.Text = "Burst"
             End If
         End If
         CheckCards()
@@ -2180,7 +2179,7 @@ Public Class Main
     Private Sub ToggleBurst(sender As Object, e As EventArgs)
         If burst_active Then
             MP.MP.Text = "0"
-            DisplayMP()
+            DisplayMP(0)
             MP.burst.Checked = False
         Else
             MP.burst.Checked = True
@@ -2658,7 +2657,7 @@ Public Class Main
         UpdateTurns()
         If e.Clicks = -1 Then           'after clicking "Next combo"
             MP.MP.Text = current_MP
-            DisplayMP()
+            DisplayMP(current_MP)
         Else
             ChangeMP(cards_prev - 1)
         End If

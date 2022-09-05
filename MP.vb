@@ -5,15 +5,18 @@
     Dim class_selector, deviation, knockdown As ComboBox
     Dim reset, yellow, orange As Button
     Public MP As TextBox
-    Dim magnus(8), artifact(4), plus_minus(4) As PictureBox
+    Dim card(8), artifact(4), plus_minus(4) As PictureBox
     Dim include_selection As CheckBox
     Public burst As CheckBox
     Public hover As ToolTip
-    Public factor, current_MP As Double
-    Public current_class, max_MP As Integer
+    Dim roman(4) As Bitmap
+    Private current_class As Integer
+    Public max_MP As Integer
+    Private current_MP As Double
+    Public factor As Double
     Dim auto As Boolean
 
-    ReadOnly mp_magnus() As Integer = {427, 428, 439, 440, 441, 87, 162, 187}
+    ReadOnly magnus() As Integer = {427, 428, 439, 440, 441, 87, 162, 187}
 
     Private Sub MP_Load(sender As Object, e As EventArgs) Handles MyBase.Load
         Hide()
@@ -33,17 +36,16 @@
             With label(x)
                 .BackColor = Main.default_color
                 .TextAlign = ContentAlignment.MiddleCenter
+                AddHandler .Click, AddressOf ChangeFocus
             End With
-            AddHandler label(x).Click, AddressOf ChangeFocus
         Next
 
 
-        ' CLASS
+        ' CLASS & FACTOR
 
         With label(0)
             .Size = New Size(59, 24)
             .Location = New Point(10, 10)
-            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .Text = "Class"
         End With
 
@@ -60,9 +62,6 @@
             AddHandler .LostFocus, AddressOf FixClass
         End With
         Controls.Add(class_selector)
-
-
-        ' FACTOR
 
         With label(1)
             .Size = New Size(59, 24)
@@ -127,8 +126,8 @@
         With MP
             .AutoSize = False
             .Size = New Size(90, 30)
-            .Font = New Font("Segoe UI", 12, FontStyle.Bold)
             .TextAlign = HorizontalAlignment.Center
+            .Font = New Font("Segoe UI", 12, FontStyle.Bold)
             .Location = New Point(125, 80)
             .MaxLength = 7
             AddHandler .TextChanged, AddressOf CustomMP
@@ -156,8 +155,8 @@
         Dim magnus_y As Integer = 130
 
         For x = 0 To 7
-            magnus(x) = New PictureBox()
-            With magnus(x)
+            card(x) = New PictureBox()
+            With card(x)
                 If x < 5 Then
                     .Size = New Size(50, 80)
                     .Location = New Point(35 + 55 * x, magnus_y)
@@ -165,14 +164,14 @@
                     .Size = New Size(40, 64)
                     .Location = New Point(225 + 45 * (x - 5), magnus_y + 137)
                 End If
-                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("_" & mp_magnus(x)), .Size)
+                .Image = New Bitmap(My.Resources.ResourceManager.GetObject("_" & magnus(x)), .Size)
                 .Cursor = Cursors.Hand
                 .Tag = x
                 AddHandler .Click, AddressOf ChangeMP
                 AddHandler .MouseEnter, AddressOf ShowName
                 AddHandler .Click, AddressOf ChangeFocus
             End With
-            Controls.Add(magnus(x))
+            Controls.Add(card(x))
         Next
 
         With label(4)
@@ -210,12 +209,12 @@
         ' ARTIFACTS
 
         For x = 0 To 3
+            roman(x) = My.Resources.ResourceManager.GetObject("artifact" & x + 1)
             artifact(x) = New PictureBox()
             With artifact(x)
                 .Size = New Size(40, 40)
                 .Location = New Point(35 + 40 * x, magnus_y + 130)
-                '.Image = New Bitmap(My.Resources.ResourceManager.GetObject("artifact" & x + 1), .Size)
-                .Image = Main.ChangeOpacity(New Bitmap(My.Resources.ResourceManager.GetObject("artifact" & x + 1), .Size), 0.5)
+                .Image = Main.ChangeOpacity(roman(x), 0.5)
                 .Cursor = Cursors.Hand
                 .Tag = x + 8
                 AddHandler .Click, AddressOf ChangeMP
@@ -287,11 +286,11 @@
 
         AddHandler Click, AddressOf ChangeFocus
         AddHandler Move, AddressOf SaveWindowData
-        AddHandler Resize, AddressOf SaveWindowData
 
         class_selector.SelectedIndex = My.Settings.DeckClass - 1
         current_MP = 0
         Show()
+        label(0).Focus()
         UpdateUI(True)
     End Sub
 
@@ -326,9 +325,6 @@
     End Sub
 
     Private Sub UpdateUI(change_text As Boolean)
-        If burst.Checked And current_class < 7 Then
-            burst.Checked = False
-        End If
         current_MP = Math.Max(0, Math.Min(current_MP, max_MP))
         If current_MP = 500 Then
             burst.Enabled = True
@@ -338,9 +334,9 @@
         End If
         For x = 0 To 3
             If current_MP < (x + 1) * 100 Then
-                artifact(x).Image = Main.ChangeOpacity(New Bitmap(My.Resources.ResourceManager.GetObject("artifact" & x + 1), artifact(x).Size), 0.5)
+                artifact(x).Image = Main.ChangeOpacity(roman(x), 0.5)
             Else
-                artifact(x).Image = New Bitmap(My.Resources.ResourceManager.GetObject("artifact" & x + 1), artifact(x).Size)
+                artifact(x).Image = roman(x)
             End If
         Next
         If change_text Then
@@ -348,9 +344,7 @@
             MP.Text = current_MP
             auto = False
         End If
-        Main.current_MP = current_MP
-        Main.DisplayMP()
-        Main.CheckCards()
+        Main.DisplayMP(current_MP)
     End Sub
 
     Private Sub ChangeClass(sender As Object, e As EventArgs)
@@ -399,46 +393,50 @@
     End Sub
 
     Private Sub ChangeMP(sender As Object, e As MouseEventArgs)
-        If burst.Checked Or e.Button = MouseButtons.Middle Then
+        If e.Button = MouseButtons.Middle Then
             Return
         End If
 
+        Dim action As Integer = sender.Tag
+        If burst.Checked And action < 16 Then
+            Return
+        End If
         Dim sign As Integer = 1
         If e.Button = MouseButtons.Right Then
             sign = -1
         End If
-        Dim item_factor() As Integer = {3, 7, 6, 4, 8}
-        Dim mp_drain() As Integer = {5, 10, 20}
-        Dim action As Integer = sender.Tag
+        Dim gain() As Integer = {3, 7, 6, 4, 8, 5, 10, 20}
 
         Select Case action
             Case < 5
                 If include_selection.Checked Then
-                    current_MP += sign * factor
+                    current_MP += sign * factor                                     'selecting MP charger
                 End If
-                current_MP += sign * factor * item_factor(action) * RandomFactor()
+                current_MP += sign * factor * gain(action) * RandomFactor()         'MP charge
             Case < 8
-                current_MP += Math.Truncate(sign * mp_drain(action - 5) * RandomFactor())
+                current_MP += sign * Math.Floor(gain(action) * RandomFactor())      'MP drain
             Case < 12
-                Dim level As Integer = action - 7                       'artifact
+                Dim level As Integer = action - 7                                   'artifact
                 If sign = -1 OrElse current_MP >= level * 100 Then
-                    current_MP += sign * (factor - 100 * level)
+                    current_MP += sign * (factor - level * 100)
                 End If
             Case 12
-                current_MP += factor                            'spirit draw (+)
+                current_MP += factor                                                'spirit draw (+)
             Case 14
-                current_MP -= factor                            'spirit draw (-)
+                current_MP -= factor                                                'spirit draw (-)
             Case 13
-                current_MP += knockdown.Text                    'lightning knockdown (+)
+                current_MP += knockdown.Text                                        'lightning knockdown (+)
             Case 15
-                current_MP -= knockdown.Text                    'lightning knockdown (-)
+                current_MP -= knockdown.Text                                        'lightning knockdown (-)
             Case 16
                 current_MP = Math.Floor(50 + 250 * (current_class - 1) / 29)        'yellow wingdash
             Case 17
                 current_MP = Math.Floor(100 + 400 * (current_class - 1) / 29)       'orange wingdash
             Case 18
-                current_MP = 0                                  'reset
+                current_MP = 0                                                      'reset
         End Select
+
+        burst.Checked = False
         UpdateUI(True)
     End Sub
 
@@ -446,14 +444,13 @@
         If auto Then
             Return
         End If
-        With MP
-            If Not IsNumeric(.Text) OrElse (.Text > max_MP Or .Text < 0) Then
-                .ForeColor = Color.Red
-                Return
-            End If
-            current_MP = Round(.Text)
-            .ForeColor = Color.Black
-        End With
+        Dim new_MP As String = MP.Text
+        If Not IsNumeric(new_MP) OrElse (new_MP > max_MP Or new_MP < 0) Then
+            MP.ForeColor = Color.Red
+            Return
+        End If
+        current_MP = Round(new_MP)
+        MP.ForeColor = Color.Black
         UpdateUI(False)
     End Sub
 
@@ -468,7 +465,7 @@
 
     Private Sub FixMP(sender As Object, e As EventArgs)
         If MP.ForeColor = Color.Red Then
-            sender.Text = current_MP
+            MP.Text = current_MP
             Return
         End If
         'remove leading zeros
@@ -484,7 +481,7 @@
             Main.burst_active = False
             burst.BackColor = Main.default_color
         End If
-        Main.DisplayMP()
+        Main.DisplayMP(current_MP)
     End Sub
 
     Private Function RandomFactor() As Double
@@ -501,7 +498,7 @@
     End Function
 
     Private Sub ShowName(sender As Object, e As EventArgs)
-        hover.SetToolTip(sender, Main.magnus_name(mp_magnus(sender.Tag)))
+        hover.SetToolTip(sender, Main.magnus_name(magnus(sender.Tag)))
     End Sub
 
     Private Sub FilterInput(sender As Object, e As KeyPressEventArgs)
@@ -524,6 +521,6 @@
     Private Sub CloseWindow(sender As Object, e As EventArgs) Handles Me.FormClosing
         Hide()
         Main.burst_active = False
-        Main.DisplayMP()
+        Main.DisplayMP(0)
     End Sub
 End Class
