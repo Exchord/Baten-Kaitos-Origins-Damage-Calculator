@@ -806,7 +806,7 @@ Public Class Main
     End Sub
 
     Private Sub Dolphin()
-        Dim dolphin_offset_1, dolphin_offset_2, game, level_address, aura_address, quest_magnus_address, pointer_address, battle_id_address, combo_address, offset As Int64
+        Dim dolphin_offset_1, dolphin_offset_2, game, level_address, aura_address, quest_magnus_address, deck_class_address, pointer_address, battle_id_address, combo_address, mp_address, offset As Int64
         Dim emulator As Process() = Process.GetProcessesByName("Dolphin")
         If emulator.Length = 0 Then
             MsgBox("Dolphin isn't open.")
@@ -839,17 +839,21 @@ Public Class Main
             level_address = &H1002CD15E + dolphin_offset_1
             aura_address = &H1002CD1E8 + dolphin_offset_1
             quest_magnus_address = &H1002D24F2 + dolphin_offset_1
+            deck_class_address = &H1002CD3DF + dolphin_offset_1
             pointer_address = &H10085C064 + dolphin_offset_1
             battle_id_address = &H1002CDB26 + dolphin_offset_1
             combo_address = &H1002D6D86 + dolphin_offset_1
+            mp_address = &H1002FB550 + dolphin_offset_1
             offset = &H1118C
         ElseIf game = &H474B3445 Then                           'GK4E (English version)
             level_address = &H1002C5466 + dolphin_offset_1
             aura_address = &H1002C54F0 + dolphin_offset_1
             quest_magnus_address = &H1002CAA9A + dolphin_offset_1
+            deck_class_address = &H1002C56E7 + dolphin_offset_1
             pointer_address = &H100847B84 + dolphin_offset_1
             battle_id_address = &H1002C5E2E + dolphin_offset_1
             combo_address = &H1002D3F4E + dolphin_offset_1
+            mp_address = &H1002FBC38 + dolphin_offset_1
             offset = &H183A4
         Else
             CloseHandle(hProcess)
@@ -912,17 +916,23 @@ Public Class Main
         End If
         CheckQuestMagnus()
 
+        'deck class
+        If MP.Visible Then
+            Dim deck_class As Integer = Math.Max(1, Math.Min(Read(deck_class_address, 1), 30))
+            MP.class_selector.SelectedIndex = deck_class - 1
+        End If
+
         Dim pointer As Int64 = Read(pointer_address, 4)
         If pointer <> 0 AndAlso Read(pointer + &H17FFF0000 - dolphin_offset_2 + 148, 2) = 3 Then
             'battle address in process memory (PC address):                   pointer + offset + &H17FFF0000 - dolphin_offset_2
             'emulated battle address:                                         pointer + offset
-            ReadBattleData(pointer + offset + &H17FFF0000 - dolphin_offset_2, pointer + offset, battle_id_address, combo_address, JP)
+            ReadBattleData(pointer + offset + &H17FFF0000 - dolphin_offset_2, pointer + offset, battle_id_address, combo_address, mp_address, JP)
         End If
 
         CloseHandle(hProcess)
     End Sub
 
-    Private Sub ReadBattleData(battle_address As Int64, emu_battle_address As Int64, battle_id_address As Int64, combo_address As Int64, JP As Boolean)
+    Private Sub ReadBattleData(battle_address As Int64, emu_battle_address As Int64, battle_id_address As Int64, combo_address As Int64, mp_address As Int64, JP As Boolean)
         secondary_target.Checked = False
 
         Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn(3), active_turn(3), prepared_turn_type(3), active_turn_type(3), first_card(3), next_card(3), enemy_party_size, enemy_party(5), targeted(3), current_target As Integer
@@ -984,7 +994,7 @@ Public Class Main
 
         If My.Settings.ReadCombo Then
             If cards > 0 Then
-                RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
+                RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, -1, 0, 0, 0))
             End If
 
             For x = 0 To party_size - 1
@@ -1239,6 +1249,12 @@ Public Class Main
             Next
             Boost.boost(4, 0, 0).Text = LimitBoost(enemy_offense_boost(final_target, 0))
             Boost.boost(4, 0, 1).Text = LimitBoost(enemy_offense_boost(final_target, 1))
+        End If
+
+        If MP.Visible Then
+            current_MP = Math.Max(0, Math.Min(ReadFloat(mp_address), MP.max_MP))
+            MP.MP.Text = current_MP
+            DisplayMP(current_MP)
         End If
 
         Calculate()
@@ -2656,8 +2672,10 @@ Public Class Main
 
         UpdateTurns()
         If e.Clicks = -1 Then           'after clicking "Next combo"
-            MP.MP.Text = current_MP
-            DisplayMP(current_MP)
+            If MP.Visible Then
+                MP.MP.Text = current_MP
+                DisplayMP(current_MP)
+            End If
         Else
             ChangeMP(cards_prev - 1)
         End If

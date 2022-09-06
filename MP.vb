@@ -2,7 +2,8 @@
     Inherits Form
 
     Dim label(8), spirit_draw As Label
-    Dim class_selector, deviation, knockdown As ComboBox
+    Dim deviation, knockdown As ComboBox
+    Public class_selector As ComboBox
     Dim reset, yellow, orange As Button
     Public MP As TextBox
     Dim card(8), artifact(4), plus_minus(4) As PictureBox
@@ -470,7 +471,7 @@
         End If
         'remove leading zeros
         Dim value As Double = MP.Text
-        MP.Text = value
+        MP.Text = Round(value)
     End Sub
 
     Private Sub ToggleBurst(sender As Object, e As EventArgs)
