@@ -19,7 +19,7 @@
 
     ReadOnly magnus() As Integer = {427, 428, 439, 440, 441, 87, 162, 187}
 
-    Private Sub MP_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         Font = New Font("Segoe UI", 9, FontStyle.Regular)
         BackColor = Color.LightGray
@@ -253,6 +253,7 @@
                 .Cursor = Cursors.Hand
                 .Tag = x + 12
                 AddHandler .Click, AddressOf ChangeMP
+                AddHandler .Click, AddressOf ChangeFocus
             End With
             Controls.Add(plus_minus(x))
         Next
@@ -311,14 +312,14 @@
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.MPWindowLocation = Location
         End If
     End Sub
 
     Private Sub ChangeFocus(sender As Object, e As EventArgs)
-        If sender.GetType.ToString = "Baten_Kaitos_Origins_Damage_Calculator.MP" Then
+        If sender Is Me Then
             label(0).Focus()
             Return
         End If
@@ -383,7 +384,7 @@
         UpdateUI(True)
     End Sub
 
-    Private Sub FixClass(sender As Object, e As EventArgs)
+    Private Sub FixClass()
         If class_selector.ForeColor = Color.Red Then
             class_selector.SelectedIndex = current_class - 1
             Return
@@ -441,7 +442,7 @@
         UpdateUI(True)
     End Sub
 
-    Private Sub CustomMP(sender As Object, e As EventArgs)
+    Private Sub CustomMP()
         If auto Then
             Return
         End If
@@ -456,7 +457,7 @@
     End Sub
 
     Private Sub ScrollMP(sender As Object, e As MouseEventArgs)
-        FixMP(sender, e)
+        FixMP()
         If e.Delta > 0 Then
             MP.Text = Math.Min(MP.Text + factor, max_MP)
         Else
@@ -464,7 +465,7 @@
         End If
     End Sub
 
-    Private Sub FixMP(sender As Object, e As EventArgs)
+    Private Sub FixMP()
         If MP.ForeColor = Color.Red Then
             MP.Text = current_MP
             Return
@@ -474,7 +475,7 @@
         MP.Text = Round(value)
     End Sub
 
-    Private Sub ToggleBurst(sender As Object, e As EventArgs)
+    Private Sub ToggleBurst()
         If burst.Checked Then
             Main.burst_active = True
             burst.BackColor = Color.LightYellow
@@ -486,12 +487,7 @@
     End Sub
 
     Private Function RandomFactor() As Double
-        Select Case deviation.SelectedIndex
-            Case -1
-                Return 1
-            Case Else
-                Return 1 + 0.01 * (4 - deviation.SelectedIndex)
-        End Select
+        Return 1 + 0.01 * (4 - deviation.SelectedIndex)
     End Function
 
     Private Function Round(input As Double) As Double
@@ -514,12 +510,17 @@
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Close()
-        End If
+        Select Case e.KeyCode
+            Case Keys.R
+                ChangeMP(reset, New MouseEventArgs(0, 0, 0, 0, 0))
+            Case Keys.Escape
+                Close()
+            Case Else
+                Main.SelectWindow(sender, e)
+        End Select
     End Sub
 
-    Private Sub CloseWindow(sender As Object, e As EventArgs) Handles Me.FormClosing
+    Private Sub CloseWindow() Handles Me.FormClosing
         Hide()
         Main.burst_active = False
         Main.DisplayMP(0)

@@ -8,7 +8,7 @@
 
     ReadOnly group_start() As Integer = {1, 7, 11, 21, 29, 45, 75, 125, 142, 163, 176, 189, 203, 236, 246, 258, 269, 293, 305, 319, 333, 351, 360, 371, 423, 439, 443, 453}
 
-    Private Sub Deck_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         AutoScroll = True
         BackColor = Color.LightGray
@@ -117,7 +117,7 @@
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.DeckWindowSize = Size
             My.Settings.DeckWindowScroll = New Point(HorizontalScroll.Value, VerticalScroll.Value)
@@ -166,9 +166,12 @@
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Close()
-        End If
+        Select Case e.KeyCode
+            Case Keys.Escape
+                Close()
+            Case Else
+                Main.SelectWindow(sender, e)
+        End Select
     End Sub
 
     Private Sub ShowName(sender As Object, e As EventArgs)

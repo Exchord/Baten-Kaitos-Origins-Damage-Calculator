@@ -167,7 +167,7 @@ Public Class Main
     Private Declare Function CloseHandle Lib "kernel32" (hObject As IntPtr) As Boolean
     Const PROCESS_ALL_ACCESS = &H1F0FF
 
-    Private Sub Main_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         Text = "Baten Kaitos Origins Damage Calculator"
         Icon = New Icon(Me.GetType(), "icon.ico")
@@ -727,7 +727,7 @@ Public Class Main
         AddHandler Move, AddressOf SaveWindowData
         AddHandler Resize, AddressOf SaveWindowData
         AddHandler Resize, AddressOf ResizePanel
-        ResizePanel(sender, e)
+        ResizePanel()
 
         UpdateRows()
         With My.Settings
@@ -769,7 +769,7 @@ Public Class Main
             Show()
             ChangeTarget(.Target, -1, False)
             final_phase.Checked = .FinalPhase
-            SwitchCharacter(char_image(.Character), e)
+            SwitchCharacter(char_image(.Character), New EventArgs)
         End With
     End Sub
 
@@ -790,7 +790,7 @@ Public Class Main
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.WindowSize = Size
             My.Settings.WindowLocation = Location
@@ -798,7 +798,7 @@ Public Class Main
     End Sub
 
     Private Sub ChangeFocus(sender As Object, e As EventArgs)
-        If sender.GetType.ToString = "Baten_Kaitos_Origins_Damage_Calculator.Main" Then
+        If sender Is Me Then
             target_image.Focus()
             Return
         End If
@@ -2192,7 +2192,7 @@ Public Class Main
         CheckCards()
     End Sub
 
-    Private Sub ToggleBurst(sender As Object, e As EventArgs)
+    Private Sub ToggleBurst()
         If burst_active Then
             MP.MP.Text = "0"
             DisplayMP(0)
@@ -2792,7 +2792,7 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ChangeDurability(sender As Object, e As EventArgs)
+    Private Sub ChangeDurability()
         Calculate()
     End Sub
 
@@ -3364,18 +3364,18 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ChangeArmorDurability(sender As Object, e As EventArgs)
+    Private Sub ChangeArmorDurability()
         Calculate()
     End Sub
 
-    Private Sub CheckHP(sender As Object, e As EventArgs)
+    Private Sub CheckHP()
         Dim new_HP As String = enemy_HP.Text
         If new_HP = "" Then
             enemy_HP.ForeColor = Color.Red
             Return
         End If
         If Not IsNonNegativeInteger(new_HP) Then
-            ResetHP(sender, e)
+            ResetHP()
             Return
         End If
         If new_HP > true_max_HP Then
@@ -3423,12 +3423,12 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ResetHP(sender As Object, e As EventArgs)
+    Private Sub ResetHP()
         enemy_HP.Text = HP(combo_target)
     End Sub
 
     Private Sub ScrollHP(sender As Object, e As MouseEventArgs)
-        FixHP(sender, e)
+        FixHP()
         If e.Delta > 0 Then
             If enemy_HP.Text < true_max_HP Then
                 enemy_HP.Text += 1
@@ -3440,7 +3440,7 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ToggleFinalPhase(sender As Object, e As EventArgs)
+    Private Sub ToggleFinalPhase()
         'the following bosses have a shield that can only break during the final phase
         'Machina Arma: Razer 3, Lord of the Lava Caves, Promachina Shanath, and the true final boss
         If combo_target = 117 Or combo_target = 131 Or combo_target = 133 Or combo_target = 140 Then
@@ -3470,7 +3470,7 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub ToggleShield(sender As Object, e As EventArgs)
+    Private Sub ToggleShield()
         If knockdown(combo_target) > 0 Then
             If shield.Checked Then
                 target_data(2).Text = knockdown(combo_target)
@@ -3488,7 +3488,7 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub ToggleSecondaryTarget(sender As Object, e As EventArgs)
+    Private Sub ToggleSecondaryTarget()
         Calculate()
     End Sub
 
@@ -3500,10 +3500,22 @@ Public Class Main
                 End If
             Next
             RemoveCard(combo(cards - 1), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
+            Return
         End If
-        If e.KeyCode = Keys.R Then
-            ChangeSize()
-        End If
+        Select Case e.KeyCode
+            Case Keys.E
+                Dolphin()
+            Case Keys.C
+                CopyTable()
+            Case Keys.N
+                If cards > 0 Then
+                    NextCombo()
+                End If
+            Case Keys.R
+                ChangeSize()
+            Case Else
+                SelectWindow(sender, e)
+        End Select
     End Sub
 
     Public Function ChangeOpacity(img As Image, opacityvalue As Single) As Bitmap
@@ -3518,13 +3530,13 @@ Public Class Main
         Return bmp
     End Function
 
-    Private Sub ResizePanel(sender As Object, e As EventArgs)
+    Private Sub ResizePanel()
         card_panel(0).Width = Width - 16
         card_panel(1).Width = Width - 16
         output_panel.Size = New Size(Width - 16, Height - 490)
     End Sub
 
-    Private Sub SaveSettings(sender As Object, e As FormClosingEventArgs) Handles Me.FormClosing
+    Private Sub SaveSettings() Handles Me.FormClosing
         With My.Settings
             .MagnusActive.Clear()
             .MagnusActive.AddRange(deck_magnus)
@@ -3568,7 +3580,7 @@ Public Class Main
         e.Handled = True
     End Sub
 
-    Private Sub FixHP(sender As Object, e As EventArgs)
+    Private Sub FixHP()
         If enemy_HP.ForeColor = Color.Red Then
             enemy_HP.Text = true_HP
             Return
@@ -3641,11 +3653,11 @@ Public Class Main
         Return False
     End Function
 
-    Private Sub ChangeStatus(sender As Object, e As EventArgs)
+    Private Sub ChangeStatus()
         Calculate()
     End Sub
 
-    Private Sub ToggleDown(sender As Object, e As EventArgs)
+    Private Sub ToggleDown()
         If down.Checked Then
             down.BackColor = Color.LightYellow
         Else
@@ -3814,7 +3826,7 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub NextCombo(sender As Object, e As EventArgs)
+    Private Sub NextCombo()
         If burst_active Then
             MP.burst.Checked = False
             current_MP = 0
@@ -3990,21 +4002,40 @@ Public Class Main
     Private Sub ButtonClick(sender As Object, e As EventArgs)
         combo_results.Focus()
         Dim form() As Form = {Deck, QuestMagnus, Boost, Nothing, Nothing, Settings, MP, Target}
-        Dim f As Integer = sender.Name
-        Select Case f
+        Dim index As Integer = sender.Name
+        Select Case index
             Case 3
                 Dolphin()
-                Return
             Case 4
                 CopyTable()
-                Return
+            Case Else
+                Dim window As Form = form(index)
+                OpenWindow(window)
         End Select
-        If form(f).Visible Then
-            form(f).Focus()
-            form(f).WindowState = FormWindowState.Normal
-        Else
-            form(f).Show()
+    End Sub
+
+    Private Sub OpenWindow(window As Form)
+        If window.Visible Then
+            window.Focus()
+            window.WindowState = FormWindowState.Normal
+            Return
         End If
+        window.Show()
+    End Sub
+
+    Public Sub SelectWindow(sender As Object, e As KeyEventArgs)
+        Dim form() As Form = {Target, Deck, QuestMagnus, Boost, Settings, MP}
+        Dim key() As Keys = {Keys.T, Keys.D, Keys.Q, Keys.B, Keys.S, Keys.M}
+        Dim index As Integer = Array.IndexOf(key, e.KeyCode)
+        If index = -1 Then
+            Return
+        End If
+        Dim window As Form = form(index)
+        If window Is sender Then
+            window.Close()
+            Return
+        End If
+        OpenWindow(window)
     End Sub
 
     Public Sub UpdateRows()

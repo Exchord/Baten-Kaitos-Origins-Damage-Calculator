@@ -5,13 +5,13 @@
     Dim card(10) As PictureBox
     Dim element(6), label(3) As Label
     Public boost(5, 6, 2) As TextBox
-    Dim next_turn(5), reset(5) As Button
+    Dim next_turn(5), reset(5), reset_all As Button
     Public hover As ToolTip
     Dim auto As Boolean
 
     ReadOnly magnus() As Integer = {389, 390, 391, 392, 393, 398, 399, 414, 417, 418}
 
-    Private Sub Boost_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         Font = New Font("Segoe UI", 9, FontStyle.Regular)
         BackColor = Color.LightGray
@@ -200,6 +200,17 @@
             Controls.Add(reset(x))
         Next
 
+        reset_all = New Button()
+        With reset_all
+            .Location = New Point(548, 494)
+            .Size = New Size(90, 32)
+            .UseVisualStyleBackColor = True
+            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            .Text = "Reset all"
+            AddHandler .Click, AddressOf ResetAll
+        End With
+        Controls.Add(reset_all)
+
         hover = New ToolTip()
         With hover
             .AutoPopDelay = 5000
@@ -230,14 +241,14 @@
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.BoostWindowLocation = Location
         End If
     End Sub
 
     Private Sub ChangeFocus(sender As Object, e As EventArgs)
-        If sender.GetType.ToString = "Baten_Kaitos_Origins_Damage_Calculator.Boost" Then
+        If sender Is Me Then
             label(0).Focus()
             Return
         End If
@@ -335,6 +346,12 @@
         Main.Calculate()
     End Sub
 
+    Private Sub ResetAll()
+        For x = 0 To 4
+            ResetBoost(reset(x), New EventArgs)
+        Next
+    End Sub
+
     Private Sub ChangeBox(box As Control, new_value As String)
         auto = True
         box.Text = new_value
@@ -399,15 +416,16 @@
     End Sub
 
     Private Sub FixBoost(sender As Object, e As EventArgs)
+        Dim boost As String = sender.Text
         If sender.ForeColor = Color.Red Then
-            If IsNumeric(sender.Text) Then
-                sender.Text = LimitBoost(sender.Text)
+            If IsNumeric(boost) Then
+                sender.Text = LimitBoost(boost)
             Else
                 sender.Text = "0"
             End If
             Return
         End If
-        sender.Text = Round(sender.Text)
+        sender.Text = Round(boost)
     End Sub
 
     Private Function Round(input As Double) As Double
@@ -447,8 +465,13 @@
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Close()
-        End If
+        Select Case e.KeyCode
+            Case Keys.R
+                ResetAll()
+            Case Keys.Escape
+                Close()
+            Case Else
+                Main.SelectWindow(sender, e)
+        End Select
     End Sub
 End Class

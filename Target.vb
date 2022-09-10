@@ -4,7 +4,7 @@
     Dim enemy(140) As PictureBox
     Public hover As ToolTip
 
-    Private Sub Target_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         AutoScroll = True
         BackColor = Color.LightGray
@@ -65,7 +65,7 @@
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.TargetWindowSize = Size
             My.Settings.TargetWindowScroll = VerticalScroll.Value
@@ -85,8 +85,11 @@
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Close()
-        End If
+        Select Case e.KeyCode
+            Case Keys.Escape
+                Close()
+            Case Else
+                Main.SelectWindow(sender, e)
+        End Select
     End Sub
 End Class

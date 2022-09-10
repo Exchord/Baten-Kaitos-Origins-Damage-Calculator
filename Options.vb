@@ -12,7 +12,7 @@
 
     ReadOnly member_name() As String = {"Sagi", "Milly", "Guillo"}
 
-    Private Sub Settings_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         Font = New Font("Segoe UI", 9, FontStyle.Regular)
         BackColor = Color.LightGray
@@ -343,7 +343,7 @@
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.SettingsWindowSize = Size
             My.Settings.SettingsWindowScroll = panel.VerticalScroll.Value
@@ -424,7 +424,7 @@
         Main.UpdateRows()
     End Sub
 
-    Private Sub ShowAll(sender As Object, e As EventArgs)
+    Private Sub ShowAll()
         For x = 0 To 31
             RemoveHandler row(x).CheckedChanged, AddressOf ToggleRow
             row(x).Checked = True
@@ -435,7 +435,7 @@
         Main.UpdateRows()
     End Sub
 
-    Private Sub HideAll(sender As Object, e As EventArgs)
+    Private Sub HideAll()
         For x = 0 To 31
             RemoveHandler row(x).CheckedChanged, AddressOf ToggleRow
             row(x).Checked = False
@@ -551,17 +551,20 @@
         End If
     End Sub
 
-    Private Sub ViewDocumentation(sender As Object, e As EventArgs)
+    Private Sub ViewDocumentation()
         Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator#readme")
     End Sub
 
-    Private Sub ResizePanel(sender As Object, e As EventArgs)
+    Private Sub ResizePanel()
         panel.Height = Height - 49
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Close()
-        End If
+        Select Case e.KeyCode
+            Case Keys.Escape
+                Close()
+            Case Else
+                Main.SelectWindow(sender, e)
+        End Select
     End Sub
 End Class

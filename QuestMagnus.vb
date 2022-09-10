@@ -12,7 +12,7 @@
 
     ReadOnly effects() As Integer = {9, 10, 11, 12, 13, 14, 15, 22, 36, 37, 38, 41, 42, 43, 48}
 
-    Private Sub QuestMagnus_Load(sender As Object, e As EventArgs) Handles MyBase.Load
+    Private Sub Open() Handles MyBase.Load
         Hide()
         BackColor = Color.LightGray
         KeyPreview = True
@@ -45,6 +45,7 @@
                 .Tag = Main.QM_inventory(x)
                 AddHandler .Click, AddressOf Remove
                 AddHandler .Click, AddressOf Swap
+                AddHandler .Click, AddressOf ChangeFocus
             End With
             Controls.Add(inventory(x))
         Next
@@ -78,6 +79,7 @@
                 Else
                     .BackColor = Main.default_color
                 End If
+                AddHandler .Click, AddressOf ChangeFocus
             End With
             Controls.Add(result(x))
         Next
@@ -99,7 +101,7 @@
             .AutoScroll = True
             .Location = New Point(0, 300)
             .Size = New Size(Width - 16, Height - 339)
-            AddHandler .Click, AddressOf FocusPanel
+            AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(panel)
 
@@ -118,6 +120,7 @@
                 .Tag = x
                 AddHandler .Click, AddressOf Add
                 AddHandler .MouseEnter, AddressOf ShowName
+                AddHandler .Click, AddressOf ChangeFocus
             End With
             panel.Controls.Add(card(x))
         Next
@@ -134,6 +137,7 @@
         AddHandler Resize, AddressOf ResizePanel
         AddHandler Resize, AddressOf SaveWindowData
         AddHandler Move, AddressOf SaveWindowData
+        AddHandler Click, AddressOf ChangeFocus
         AddHandler panel.Scroll, AddressOf SaveWindowData
         AddHandler panel.MouseWheel, AddressOf SaveWindowData
         panel.VerticalScroll.Value = My.Settings.QMWindowScroll
@@ -157,7 +161,7 @@
         CenterToScreen()
     End Sub
 
-    Private Sub SaveWindowData(sender As Object, e As EventArgs)
+    Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.QMWindowSize = Size
             My.Settings.QMWindowScroll = panel.VerticalScroll.Value
@@ -220,7 +224,7 @@
         hover.SetToolTip(sender, Main.QM_name(sender.Tag))
     End Sub
 
-    Private Sub ClearAll(sender As Object, e As EventArgs)
+    Private Sub ClearAll()
         move_slot = -1
         For x = 0 To 23
             inventory(x).Image = magnus(0)
@@ -230,17 +234,22 @@
         Main.CheckQuestMagnus()
     End Sub
 
-    Private Sub ResizePanel(sender As Object, e As EventArgs)
+    Private Sub ResizePanel()
         panel.Size = New Size(Width - 16, Height - 339)
     End Sub
 
-    Private Sub FocusPanel(sender As Object, e As EventArgs)
+    Private Sub ChangeFocus()
         panel.Focus()
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Escape Then
-            Close()
-        End If
+        Select Case e.KeyCode
+            Case Keys.R
+                ClearAll()
+            Case Keys.Escape
+                Close()
+            Case Else
+                Main.SelectWindow(sender, e)
+        End Select
     End Sub
 End Class
