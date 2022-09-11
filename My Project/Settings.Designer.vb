@@ -580,6 +580,18 @@ Namespace My
                 Me("MPTooltips") = value
             End Set
         End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("True")>  _
+        Public Property SettingsTooltips() As Boolean
+            Get
+                Return CType(Me("SettingsTooltips"),Boolean)
+            End Get
+            Set
+                Me("SettingsTooltips") = value
+            End Set
+        End Property
     End Class
 End Namespace
 

@@ -2,12 +2,14 @@
     Inherits Form
 
     Public row(31), setting(8) As CheckBox
-    Dim tooltips(6), heavenlapse(9), aphelion_dustwake(13) As CheckBox
+    Dim tooltips(7), heavenlapse(9), aphelion_dustwake(13) As CheckBox
     Dim random_hits(20), tooltips_label, party_label(2), empty, version As Label
     Dim show_all, hide_all, documentation As Button
     Dim panel, party_panel(2) As Panel
     Dim member(5) As RadioButton
     Dim party(3) As Integer
+    Dim description(8) As String
+    Dim hover As ToolTip
     Dim auto As Boolean
 
     ReadOnly member_name() As String = {"Sagi", "Milly", "Guillo"}
@@ -20,7 +22,7 @@
         MaximizeBox = False
         Text = "Settings"
         Icon = New Icon(Me.GetType(), "icon.ico")
-        MinimumSize = New Size(700, 573)
+        MinimumSize = New Size(700, 598)
         MaximumSize = New Size(700, 856)
         LoadWindowData()
         AddHandler Click, AddressOf ChangeFocus
@@ -36,9 +38,11 @@
                 .BackColor = Main.default_color
                 .Padding = New Padding(5, 0, 0, 0)
                 .Tag = x
+                AddHandler .MouseEnter, AddressOf ShowDescription
             End With
             Controls.Add(setting(x))
         Next
+
         setting(0).Text = "Auto-close target window"
         setting(1).Text = "Highlight hits when hovering over an attack card"
         setting(2).Text = "Read combo from Dolphin"
@@ -47,6 +51,16 @@
         setting(5).Text = "Guillo's retroactive EX combo bonus"
         setting(6).Text = "Secret Queen after enemy gets up"
         setting(7).Text = "Saber Dragon Horn (+5 max durability on all equipment)"
+
+        description(0) = "When you choose a target, the target window closes automatically."
+        description(1) = "When you hover over an attack card in your combo, all of its hits in the output table are highlighted in blue."
+        description(2) = "If this is checked, you can import combos from the game by clicking the Dolphin button."
+        description(3) = "Switch between true HP and effective HP for the last row in the output table. You can also click the row title in the main window to toggle this setting."
+        description(4) = "The following EX combos are stronger in the English version of the game: Black Yang, White Yin, Fiery Ice Queen, Blazing Glacial Queen, Frigid Queen's Parade, Frigid Queen's Festival"
+        description(5) = "If any of Guillo's standard attacks (except Medium Attack A) directly precedes an EX combo, the projectile will likely hit the target after the EX combo bonus becomes active." & vbCrLf & "This depends on the attack and the distance between Guillo and the enemy." & vbCrLf & "For example, if you use Weak Attack, Strong Attack, Icefan, and Sigil Cry in a row, the strong attack may get the 1.3 factor from Ice Queen."
+        description(6) = "Secret Queen and Secret Queen II are EX combos that can only be triggered if the enemy is down. If the enemy gets up as Milly runs toward them, the first hit will not be a critical hit."
+        description(7) = "Using this item raises the durability of equipped magnus to their max durability plus 5." & vbCrLf & "If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points."
+
         setting(0).Checked = My.Settings.TargetAutoClose
         setting(1).Checked = My.Settings.HighlightHits
         setting(2).Checked = My.Settings.ReadCombo
@@ -55,6 +69,7 @@
         setting(5).Checked = My.Settings.GuilloExtraBonus
         setting(6).Checked = My.Settings.SecretQueenGetUp
         setting(7).Checked = My.Settings.SaberDragonHorn
+
         For x = 0 To 7
             AddHandler setting(x).CheckedChanged, AddressOf ChangeSetting
         Next
@@ -145,7 +160,7 @@
         End With
         Controls.Add(tooltips_label)
 
-        For x = 0 To 5
+        For x = 0 To 6
             tooltips(x) = New CheckBox()
             With tooltips(x)
                 .Size = New Size(124, 24)
@@ -162,13 +177,15 @@
         tooltips(3).Text = "Quest Magnus"
         tooltips(4).Text = "Temporary Boost"
         tooltips(5).Text = "Magnus Power"
+        tooltips(6).Text = "Settings"
         tooltips(0).Checked = My.Settings.TableTooltips
         tooltips(1).Checked = My.Settings.TargetTooltips
         tooltips(2).Checked = My.Settings.DeckTooltips
         tooltips(3).Checked = My.Settings.QMTooltips
         tooltips(4).Checked = My.Settings.ItemTooltips
         tooltips(5).Checked = My.Settings.MPTooltips
-        For x = 0 To 5
+        tooltips(6).Checked = My.Settings.SettingsTooltips
+        For x = 0 To 6
             AddHandler tooltips(x).CheckedChanged, AddressOf ChangeSetting
         Next
 
@@ -179,7 +196,7 @@
             party_panel(x) = New Panel()
             With party_panel(x)
                 .Size = New Size(275, 24)
-                .Location = New Point(171, tooltips_ypos + x * 25)
+                .Location = New Point(171, tooltips_ypos + (x + 1) * 25)
             End With
             Controls.Add(party_panel(x))
 
@@ -245,7 +262,7 @@
         version = New Label()
         With version
             .Size = New Size(90, 24)
-            .Location = New Point(263, tooltips_ypos + 75)
+            .Location = New Point(263, tooltips_ypos + 105)
             .TextAlign = ContentAlignment.MiddleCenter
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .Text = "Version " & number
@@ -255,8 +272,8 @@
 
         documentation = New Button()
         With documentation
-            .Size = New Size(150, 30)
-            .Location = New Point(233, tooltips_ypos + 105)
+            .Size = New Size(150, 32)
+            .Location = New Point(233, tooltips_ypos + 135)
             .Text = "View documentation"
             .UseVisualStyleBackColor = True
             AddHandler .Click, AddressOf ViewDocumentation
@@ -316,6 +333,15 @@
         If My.Settings.EffectiveHPRemaining Then
             row(31).Text = "Effective HP remaining"
         End If
+
+        hover = New ToolTip()
+        With hover
+            .AutomaticDelay = 250
+            .AutoPopDelay = 30000
+            .InitialDelay = 250
+            .ReshowDelay = 50
+            .Active = My.Settings.SettingsTooltips
+        End With
 
         AddHandler Resize, AddressOf ResizePanel
         AddHandler Move, AddressOf SaveWindowData
@@ -405,6 +431,9 @@
                     If MP.Visible Then
                         MP.hover.Active = .MPTooltips
                     End If
+                Case 14
+                    .SettingsTooltips = Not .SettingsTooltips
+                    hover.Active = .SettingsTooltips
             End Select
         End With
     End Sub
@@ -553,6 +582,10 @@
 
     Private Sub ViewDocumentation()
         Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator#readme")
+    End Sub
+
+    Private Sub ShowDescription(sender As Object, e As EventArgs)
+        hover.SetToolTip(sender, description(sender.Tag))
     End Sub
 
     Private Sub ResizePanel()
