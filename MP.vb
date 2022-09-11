@@ -11,7 +11,7 @@
     Public burst As CheckBox
     Public hover As ToolTip
     Dim roman(4) As Bitmap
-    Private current_class As Integer
+    Private deck_class As Integer
     Public max_MP As Integer
     Private current_MP As Double
     Public factor As Double
@@ -131,7 +131,7 @@
             .Font = New Font("Segoe UI", 12, FontStyle.Bold)
             .Location = New Point(125, 80)
             .MaxLength = 7
-            AddHandler .TextChanged, AddressOf CustomMP
+            AddHandler .TextChanged, AddressOf CheckMP
             AddHandler .MouseWheel, AddressOf ScrollMP
             AddHandler .KeyPress, AddressOf FilterInput
             AddHandler .LostFocus, AddressOf FixMP
@@ -225,12 +225,12 @@
         Next
 
 
-        ' SPIRIT DRAWS & LIGHTNING KNOCKDOWN
+        ' SPIRIT DRAW & LIGHTNING KNOCKDOWN
 
         With label(5)
             .Size = New Size(135, 28)
             .Location = New Point(10, magnus_y + 190)
-            .Text = "Item / spirit draw"
+            .Text = "Free card / spirit draw"
         End With
 
         With label(6)
@@ -327,7 +327,8 @@
     End Sub
 
     Private Sub UpdateUI(change_text As Boolean)
-        current_MP = Math.Max(0, Math.Min(current_MP, max_MP))
+        current_MP = Main.Round(current_MP)
+        current_MP = Main.Clamp(current_MP, 0, max_MP)
         If current_MP = 500 Then
             burst.Enabled = True
         Else
@@ -365,11 +366,11 @@
             Return
         End If
         class_selector.ForeColor = Color.Black
-        current_class = new_class
-        factor = Math.Round(8 + (sender.Text - 1) / 29 * 12, 1)
+        deck_class = new_class
+        factor = Math.Round(8 + 12 * (new_class - 1) / 29, 1)
         label(2).Text = factor
 
-        Select Case current_class
+        Select Case new_class * 1
             Case < 3
                 max_MP = 200
             Case < 5
@@ -380,13 +381,13 @@
                 max_MP = 500
         End Select
 
-        My.Settings.DeckClass = current_class
+        My.Settings.DeckClass = new_class
         UpdateUI(True)
     End Sub
 
-    Private Sub FixClass()
+    Private Sub FixClass()                              'called when text box loses focus
         If class_selector.ForeColor = Color.Red Then
-            class_selector.SelectedIndex = current_class - 1
+            class_selector.SelectedIndex = deck_class - 1
             Return
         End If
         'remove leading zero
@@ -431,9 +432,9 @@
             Case 15
                 current_MP -= knockdown.Text                                        'lightning knockdown (-)
             Case 16
-                current_MP = Math.Floor(50 + 250 * (current_class - 1) / 29)        'yellow wingdash
+                current_MP = Math.Floor(50 + 250 * (deck_class - 1) / 29)           'yellow wingdash
             Case 17
-                current_MP = Math.Floor(100 + 400 * (current_class - 1) / 29)       'orange wingdash
+                current_MP = Math.Floor(100 + 400 * (deck_class - 1) / 29)          'orange wingdash
             Case 18
                 current_MP = 0                                                      'reset
         End Select
@@ -442,7 +443,7 @@
         UpdateUI(True)
     End Sub
 
-    Private Sub CustomMP()
+    Private Sub CheckMP()
         If auto Then
             Return
         End If
@@ -451,7 +452,7 @@
             MP.ForeColor = Color.Red
             Return
         End If
-        current_MP = Round(new_MP)
+        current_MP = Main.Round(new_MP)
         MP.ForeColor = Color.Black
         UpdateUI(False)
     End Sub
@@ -465,14 +466,14 @@
         End If
     End Sub
 
-    Private Sub FixMP()
+    Private Sub FixMP()                     'called when text box loses focus
         If MP.ForeColor = Color.Red Then
             MP.Text = current_MP
             Return
         End If
         'remove leading zeros
         Dim value As Double = MP.Text
-        MP.Text = Round(value)
+        MP.Text = Main.Round(value)
     End Sub
 
     Private Sub ToggleBurst()
@@ -490,20 +491,16 @@
         Return 1 + 0.01 * (4 - deviation.SelectedIndex)
     End Function
 
-    Private Function Round(input As Double) As Double
-        Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
-    End Function
-
     Private Sub ShowName(sender As Object, e As EventArgs)
         hover.SetToolTip(sender, Main.magnus_name(magnus(sender.Tag)))
     End Sub
 
     Private Sub FilterInput(sender As Object, e As KeyPressEventArgs)
-        If IsNumeric(e.KeyChar) Then
+        If IsNumeric(e.KeyChar) Then                                                        'allow numbers
             Return
         End If
         Select Case e.KeyChar
-            Case ChrW(Keys.Back), ".", ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)    'Ctrl+A/C/V/X/Z
+            Case ChrW(Keys.Back), ".", ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)       'allow backspace, point and Ctrl+A/C/V/X/Z
                 Return
         End Select
         e.Handled = True

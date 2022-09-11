@@ -278,7 +278,7 @@ Public Class Main
                 .Location = New Point(282, 37 + top)
                 .Tag = x + 1
                 .DropDownStyle = ComboBoxStyle.DropDownList
-                AddHandler .SelectedIndexChanged, AddressOf ChangeDurability
+                AddHandler .SelectedIndexChanged, AddressOf Calculate
             End With
             Controls.Add(eq_durability(x))
         Next
@@ -329,7 +329,7 @@ Public Class Main
             .BackColor = default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Secondary target"
-            AddHandler .CheckedChanged, AddressOf ToggleSecondaryTarget
+            AddHandler .CheckedChanged, AddressOf Calculate
         End With
         Controls.Add(secondary_target)
 
@@ -454,7 +454,7 @@ Public Class Main
                 .Items.Add(status_name(x))
             Next
             .SelectedIndex = 0
-            AddHandler .SelectedIndexChanged, AddressOf ChangeStatus
+            AddHandler .SelectedIndexChanged, AddressOf Calculate
         End With
         Controls.Add(enemy_status)
 
@@ -463,7 +463,7 @@ Public Class Main
             .DropDownStyle = ComboBoxStyle.DropDownList
             .Size = New Size(39, 24)
             .Location = New Point(target_x + 265, 200)
-            AddHandler .SelectedIndexChanged, AddressOf ChangeArmorDurability
+            AddHandler .SelectedIndexChanged, AddressOf Calculate
         End With
         Controls.Add(armor_durability)
 
@@ -877,7 +877,8 @@ Public Class Main
 
         'levels
         For x = 0 To 2
-            Me.level(x) = Math.Max(1, Math.Min(Read(level_address + x * 244, 2), 100))
+            Me.level(x) = Read(level_address + x * 244, 2)
+            Me.level(x) = Clamp(Me.level(x), 1, 100)
             level_selector(x).SelectedIndex = Me.level(x) - 1
         Next
 
@@ -918,7 +919,8 @@ Public Class Main
 
         'deck class
         If MP.Visible Then
-            Dim deck_class As Integer = Math.Max(1, Math.Min(Read(deck_class_address, 1), 30))
+            Dim deck_class As Integer = Read(deck_class_address, 1)
+            deck_class = Clamp(deck_class, 1, 30)
             MP.class_selector.SelectedIndex = deck_class - 1
         End If
 
@@ -994,7 +996,7 @@ Public Class Main
 
         If My.Settings.ReadCombo Then
             If cards > 0 Then
-                RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, -1, 0, 0, 0))
+                RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
             End If
 
             For x = 0 To party_size - 1
@@ -1226,9 +1228,10 @@ Public Class Main
         If final_target = 6 Then    'Machinanguis B
             final_target = 2
         End If
-        final_target = Math.Max(0, Math.Min(4, final_target))
+        final_target = Clamp(final_target, 0, 4)
 
         ChangeTarget(enemy_party(final_target), enemy_HP(final_target) + combo_damage, False)
+
         If final_phase_battles.Contains(battle_id) Then
             final_phase.Checked = True
         Else
@@ -1252,7 +1255,8 @@ Public Class Main
         End If
 
         If MP.Visible Then
-            current_MP = Math.Max(0, Math.Min(ReadFloat(mp_address), MP.max_MP))
+            current_MP = ReadFloat(mp_address)
+            current_MP = Clamp(current_MP, 0, MP.max_MP)
             MP.MP.Text = current_MP
             DisplayMP(current_MP)
         End If
@@ -1445,7 +1449,7 @@ Public Class Main
                 End If
                 first_hit(x + 1) = hits + 1                     'save ID of first hit for the next card
 
-                CheckCombo(x)
+                CheckCombo(x)                                   'check for EX combos in the current turn
                 Continue For
             End If
 
@@ -1522,7 +1526,7 @@ Public Class Main
             End If
 
             eq = equip(x)
-            CheckCombo(x)
+            CheckCombo(x)                   'check for EX combos in the current turn
 
             offense = LevelToOffense(level(member))
             attack = GetAttack(x)
@@ -2160,7 +2164,7 @@ Public Class Main
         Else
             For x = card To cards Step -1                                                       'remove card(s)
                 delta = MP.factor * MP_gain(x) - 100 * MP_cost(combo(x).Tag)
-                value = Math.Max(0, Math.Min(value - delta, MP.max_MP))
+                value = Clamp(value - delta, 0, MP.max_MP)
             Next
         End If
 
@@ -2192,7 +2196,7 @@ Public Class Main
         CheckCards()
     End Sub
 
-    Private Sub ToggleBurst()
+    Private Sub ToggleBurst()       'called when toggling MP burst in the MP window
         If burst_active Then
             MP.MP.Text = "0"
             DisplayMP(0)
@@ -2202,19 +2206,23 @@ Public Class Main
         End If
     End Sub
 
-    Private Function Round(input As Double) As Double
-        Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
+    Public Function Round(input As Double) As Double
+        Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)      'floating-point error mitigation while rounding to 3 decimals
+    End Function
+
+    Public Function Clamp(input As Double, min As Double, max As Double)        'limits input number to a range
+        Return Math.Max(min, Math.Min(input, max))
     End Function
 
     Private Function LimitBoost(input As Double) As Double
-        Return Math.Max(-1000, Math.Min(input, 1000))
+        Return Clamp(input, -1000, 1000)
     End Function
 
     Private Sub ShowHitModifiers()
         Dim hit As Integer = hits + 1
 
         For i = 0 To 2
-            If My.Settings.ResultsRow.ElementAt(hit_modifier_row(i)) = "0" Then
+            If My.Settings.ResultsRow.ElementAt(hit_modifier_row(i)) = "0" Then     'row hidden by user
                 Continue For
             End If
             With hit_modifier(hit, i)
@@ -2563,7 +2571,7 @@ Public Class Main
         If pre_decimal_length <= 0 Then
             pre_decimal_length = value.ToString.Length
         End If
-        Dim decimal_places As Integer = Math.Max(0, Math.Min(2, 6 - pre_decimal_length))
+        Dim decimal_places As Integer = Clamp(6 - pre_decimal_length, 0, 2)
         Return FormatNumber(Math.Round(Math.Round(value, 12), decimal_places, MidpointRounding.AwayFromZero), decimal_places, TriState.True, TriState.False, TriState.False)
     End Function
 
@@ -2792,10 +2800,6 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ChangeDurability()
-        Calculate()
-    End Sub
-
     Private Sub HighlightHits(sender As Object, e As EventArgs)
         If Not My.Settings.HighlightHits Then
             Return
@@ -2982,8 +2986,10 @@ Public Class Main
         For x = first To last
             If combo_string.Contains(EX_string(x)) Then
                 length = EX_combo_data(x, 0)
-                If length <= final_length And final_combo <> 52 Then
-                    Continue For
+                If length <= final_length Then
+                    If final_combo <> 52 Or x > 54 Then                 'if final combo is Arabesque Dance, check for Arabesque Doll and Arabesque Thunder
+                        Continue For
+                    End If
                 End If
                 requirement = EX_combo_data(x, 10)
                 equip = Me.equip(first_card)
@@ -3217,6 +3223,7 @@ Public Class Main
         element = aura_data(aura(check_char, 0), aura(check_char, 1), 2)
         bonus = aura_data(aura(check_char, 0), aura(check_char, 1), 3)
 
+        'select character's level range based on aura level
         Select Case aura(check_char, 1)
             Case 0
                 start_level = 1
@@ -3364,10 +3371,6 @@ Public Class Main
         End If
     End Sub
 
-    Private Sub ChangeArmorDurability()
-        Calculate()
-    End Sub
-
     Private Sub CheckHP()
         Dim new_HP As String = enemy_HP.Text
         If new_HP = "" Then
@@ -3488,10 +3491,6 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub ToggleSecondaryTarget()
-        Calculate()
-    End Sub
-
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         If e.KeyCode = Keys.Back And cards > 0 And ActiveControl IsNot enemy_HP Then
             For x = 0 To 2
@@ -3499,7 +3498,7 @@ Public Class Main
                     Return
                 End If
             Next
-            RemoveCard(combo(cards - 1), New MouseEventArgs(MouseButtons.Left, 0, 0, 0, 0))
+            RemoveCard(combo(cards - 1), New MouseEventArgs(0, 0, 0, 0, 0))
             Return
         End If
         Select Case e.KeyCode
@@ -3570,17 +3569,17 @@ Public Class Main
     End Sub
 
     Private Sub FilterInput(sender As Object, e As KeyPressEventArgs)
-        If IsNumeric(e.KeyChar) And Not e.KeyChar = "."c Then
+        If IsNumeric(e.KeyChar) Then                                                    'allow numbers
             Return
         End If
         Select Case e.KeyChar
-            Case ChrW(Keys.Back), ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)    'Ctrl+A/C/V/X/Z
+            Case ChrW(Keys.Back), ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)        'allow backspace and Ctrl+A/C/V/X/Z
                 Return
         End Select
         e.Handled = True
     End Sub
 
-    Private Sub FixHP()
+    Private Sub FixHP()                                         'called when text box loses focus
         If enemy_HP.ForeColor = Color.Red Then
             enemy_HP.Text = true_HP
             Return
@@ -3590,10 +3589,11 @@ Public Class Main
         enemy_HP.Text = value
     End Sub
 
-    Private Sub FixLevel(sender As Object, e As EventArgs)
+    Private Sub FixLevel(sender As Object, e As EventArgs)      'called when text box loses focus
         Dim chr As Integer = sender.Tag
         If sender.ForeColor = Color.Red Then
-            Dim level As Integer = Math.Max(1, Math.Min(Me.level(chr) - QM_total_bonus(8), 100))
+            Dim level As Integer = Me.level(chr) - QM_total_bonus(8)
+            level = Clamp(level, 1, 100)
             level_selector(chr).SelectedIndex = level - 1
             Return
         End If
@@ -3621,7 +3621,8 @@ Public Class Main
         End If
 
         box.ForeColor = Color.Black
-        Dim final_level As Integer = Math.Max(1, Math.Min(100, new_level + QM_total_bonus(8)))
+        Dim final_level As Integer = new_level + QM_total_bonus(8)
+        final_level = Clamp(final_level, 1, 100)
         level(chr) = final_level
 
         With actual_level(chr)
@@ -3652,10 +3653,6 @@ Public Class Main
         End If
         Return False
     End Function
-
-    Private Sub ChangeStatus()
-        Calculate()
-    End Sub
 
     Private Sub ToggleDown()
         If down.Checked Then
@@ -3765,7 +3762,8 @@ Public Class Main
         If e.Button = MouseButtons.Middle Then
             Return
         End If
-        Select Case sender.Tag
+        Dim row As Integer = sender.Tag
+        Select Case row
             Case 4                  'reset offense deviation
                 For x = 1 To hits
                     hit_modifier(x, 0).SelectedIndex = Math.Floor(hit_modifier(x, 0).Items.Count * 0.5)
@@ -3804,7 +3802,7 @@ Public Class Main
             Case Else
                 Return
         End Select
-        table(0, sender.Tag).BackColor = default_color
+        table(0, row).BackColor = default_color
         Calculate()
     End Sub
 
@@ -3835,7 +3833,7 @@ Public Class Main
         If cards > 1 OrElse IsAttack(combo(0).Tag) Then
             attack = True
         End If
-        RemoveCard(combo(0), New MouseEventArgs(MouseButtons.Left, -1, 0, 0, 0))
+        RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
         If attack Then
             enemy_HP.Text = post_combo_HP
             If armor_durability.Visible Then

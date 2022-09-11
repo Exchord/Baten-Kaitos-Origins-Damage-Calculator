@@ -111,7 +111,7 @@
                         .Tag = x
                         .Name = y & z
                         AddHandler .KeyPress, AddressOf FilterInput
-                        AddHandler .TextChanged, AddressOf CustomBoost
+                        AddHandler .TextChanged, AddressOf CheckBoost
                         AddHandler .MouseWheel, AddressOf ScrollBoost
                         AddHandler .LostFocus, AddressOf FixBoost
                     End With
@@ -130,7 +130,7 @@
                 .Tag = 4
                 .Name = "0" & z
                 AddHandler .KeyPress, AddressOf FilterInput
-                AddHandler .TextChanged, AddressOf CustomBoost
+                AddHandler .TextChanged, AddressOf CheckBoost
                 AddHandler .MouseWheel, AddressOf ScrollBoost
                 AddHandler .LostFocus, AddressOf FixBoost
             End With
@@ -271,14 +271,14 @@
         Dim result As Double
         If magnus < 8 Then
             Dim x As Integer = Main.item_target
-            For y = 0 To 5
+            For y = 0 To 5                          'party offense
                 For z = 0 To 1
                     result = LimitBoost(Main.offense_boost(x, y, z) + Main.boost_data(magnus, y) * 0.01)
                     Main.offense_boost(x, y, z) = result
                     ChangeBox(boost(x, y, z), result)
                 Next
             Next
-        ElseIf magnus = 8 Then
+        ElseIf magnus = 8 Then                      'enemy defense
             For y = 0 To 5
                 For z = 0 To 1
                     result = LimitBoost(Main.defense_boost(y, z) - Main.boost_data(magnus, y) * 0.01)
@@ -286,7 +286,7 @@
                     ChangeBox(boost(3, y, z), result)
                 Next
             Next
-        ElseIf magnus = 9 Then
+        ElseIf magnus = 9 Then                      'enemy offense
             For z = 0 To 1
                 result = LimitBoost(Main.enemy_offense_boost(z) - Main.boost_data(magnus, z) * 0.01)
                 Main.enemy_offense_boost(z) = result
@@ -298,7 +298,7 @@
 
     Private Sub NextTurn(sender As Object, e As EventArgs)
         Dim x As Integer = sender.Tag
-        If x = 4 Then
+        If x = 4 Then                               'enemy offense
             Main.enemy_offense_boost(0) = Main.enemy_offense_boost(1)
             Main.enemy_offense_boost(1) = 0
 
@@ -306,10 +306,10 @@
             ChangeBox(boost(4, 0, 1), 0)
         Else
             For y = 0 To 5
-                If x = 3 Then
+                If x = 3 Then                       'enemy defense
                     Main.defense_boost(y, 0) = Main.defense_boost(y, 1)
                     Main.defense_boost(y, 1) = 0
-                Else
+                Else                                'party offense
                     Main.offense_boost(x, y, 0) = Main.offense_boost(x, y, 1)
                     Main.offense_boost(x, y, 1) = 0
                 End If
@@ -323,7 +323,7 @@
 
     Private Sub ResetBoost(sender As Object, e As EventArgs)
         Dim x As Integer = sender.Tag
-        If x = 4 Then
+        If x = 4 Then                               'enemy offense
             Main.enemy_offense_boost(0) = 0
             Main.enemy_offense_boost(1) = 0
 
@@ -331,10 +331,10 @@
             ChangeBox(boost(4, 0, 1), 0)
         Else
             For y = 0 To 5
-                If x = 3 Then
+                If x = 3 Then                       'enemy defense
                     Main.defense_boost(y, 0) = 0
                     Main.defense_boost(y, 1) = 0
-                Else
+                Else                                'party offense
                     Main.offense_boost(x, y, 0) = 0
                     Main.offense_boost(x, y, 1) = 0
                 End If
@@ -363,7 +363,7 @@
         auto = False
     End Sub
 
-    Private Sub CustomBoost(sender As Object, e As EventArgs)
+    Private Sub CheckBoost(sender As Object, e As EventArgs)
         If auto Then
             Return
         End If
@@ -380,7 +380,7 @@
                 Return
             End If
 
-            Dim new_value As Double = Round(.Text)
+            Dim new_value As Double = Main.Round(.Text)
             If new_value = 0 Then
                 .Font = New Font("Segoe UI", 9, FontStyle.Regular)
             Else
@@ -408,14 +408,14 @@
 
         For Each box As Control In {boost(x, y, 0), boost(x, y, 1)}
             If e.Delta > 0 Then
-                box.Text = LimitBoost(box.Text + 1)
+                box.Text = Math.Min(box.Text + 1, 1000)
             Else
-                box.Text = LimitBoost(box.Text - 1)
+                box.Text = Math.Max(-1000, box.Text - 1)
             End If
         Next
     End Sub
 
-    Private Sub FixBoost(sender As Object, e As EventArgs)
+    Private Sub FixBoost(sender As Object, e As EventArgs)          'called when text box loses focus
         Dim boost As String = sender.Text
         If sender.ForeColor = Color.Red Then
             If IsNumeric(boost) Then
@@ -425,23 +425,19 @@
             End If
             Return
         End If
-        sender.Text = Round(boost)
+        sender.Text = Main.Round(boost)
     End Sub
 
-    Private Function Round(input As Double) As Double
-        Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)
-    End Function
-
     Private Function LimitBoost(input As Double) As Double
-        Return Math.Max(-1000, Math.Min(Round(input), 1000))
+        Return Main.Clamp(input, -1000, 1000)
     End Function
 
     Private Sub FilterInput(sender As Object, e As KeyPressEventArgs)
-        If IsNumeric(e.KeyChar) Then
+        If IsNumeric(e.KeyChar) Then                                                            'allow numbers
             Return
         End If
         Select Case e.KeyChar
-            Case ChrW(Keys.Back), "-", ".", ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)    'Ctrl+A/C/V/X/Z
+            Case ChrW(Keys.Back), "-", ".", ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)      'allow backspace, minus, point and Ctrl+A/C/V/X/Z
                 Return
         End Select
         e.Handled = True

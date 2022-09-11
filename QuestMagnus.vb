@@ -192,7 +192,7 @@
         Dim slot As Integer = sender.Name
         inventory(slot).Image = magnus(0)
         inventory(slot).Tag = 0
-        Main.QM_inventory(slot) = sender.Tag
+        Main.QM_inventory(slot) = 0
         Main.CheckQuestMagnus()
         If move_slot = slot Then
             move_slot = -1
