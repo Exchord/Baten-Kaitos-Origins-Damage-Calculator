@@ -29,7 +29,7 @@
         MaximizeBox = False
         Text = "Magnus Power"
         Icon = New Icon(Me.GetType(), "icon.ico")
-        Size = New Size(386, 427)
+        Size = New Size(386, 453)
         LoadWindowData()
 
         For x = 0 To 7
@@ -45,15 +45,15 @@
         ' CLASS & FACTOR
 
         With label(0)
-            .Size = New Size(59, 24)
-            .Location = New Point(10, 10)
-            .Text = "Class"
+            .Size = New Size(74, 24)
+            .Location = New Point(38, 15)
+            .Text = "Deck class"
         End With
 
         class_selector = New ComboBox()
         With class_selector
             .Size = New Size(54, 24)
-            .Location = New Point(70, 10)
+            .Location = New Point(113, 15)
             .MaxLength = 2
             For y = 1 To 30
                 .Items.Add(y)
@@ -65,14 +65,14 @@
         Controls.Add(class_selector)
 
         With label(1)
-            .Size = New Size(59, 24)
-            .Location = New Point(10, 35)
-            .Text = "Factor"
+            .Size = New Size(74, 24)
+            .Location = New Point(38, 40)
+            .Text = "MP factor"
         End With
 
         With label(2)
             .Size = New Size(54, 24)
-            .Location = New Point(70, 35)
+            .Location = New Point(113, 40)
         End With
 
 
@@ -80,7 +80,7 @@
 
         With label(3)
             .Size = New Size(120, 24)
-            .Location = New Point(175, 7)
+            .Location = New Point(212, 10)
             .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .BackColor = Color.Transparent
             .Text = "Wingdash"
@@ -89,7 +89,7 @@
         yellow = New Button()
         With yellow
             .Size = New Size(61, 29)
-            .Location = New Point(174, 31)
+            .Location = New Point(211, 36)
             .UseVisualStyleBackColor = True
             .Text = "Yellow"
             .Tag = 16
@@ -100,7 +100,7 @@
         orange = New Button()
         With orange
             .Size = New Size(61, 29)
-            .Location = New Point(235, 31)
+            .Location = New Point(272, 36)
             .UseVisualStyleBackColor = True
             .Text = "Orange"
             .Tag = 17
@@ -113,8 +113,8 @@
 
         reset = New Button()
         With reset
-            .Size = New Size(69, 32)
-            .Location = New Point(56, 79)
+            .Size = New Size(73, 32)
+            .Location = New Point(49, 83)
             .UseVisualStyleBackColor = True
             .Font = New Font("Segoe UI", 11, FontStyle.Regular)
             .Text = "Reset"
@@ -127,9 +127,9 @@
         With MP
             .AutoSize = False
             .Size = New Size(90, 30)
+            .Location = New Point(122, 84)
             .TextAlign = HorizontalAlignment.Center
             .Font = New Font("Segoe UI", 12, FontStyle.Bold)
-            .Location = New Point(125, 80)
             .MaxLength = 7
             AddHandler .TextChanged, AddressOf CheckMP
             AddHandler .MouseWheel, AddressOf ScrollMP
@@ -140,8 +140,8 @@
 
         burst = New CheckBox()
         With burst
-            .Size = New Size(104, 30)
-            .Location = New Point(216, 80)
+            .Size = New Size(107, 30)
+            .Location = New Point(213, 84)
             .BackColor = Main.default_color
             .Padding = New Padding(10, 0, 0, 0)
             .Font = New Font("Segoe UI", 11, FontStyle.Regular)
@@ -153,17 +153,17 @@
 
         ' MAGNUS
 
-        Dim magnus_y As Integer = 130
+        Dim magnus_y As Integer = 134
 
         For x = 0 To 7
             card(x) = New PictureBox()
             With card(x)
                 If x < 5 Then
                     .Size = New Size(50, 80)
-                    .Location = New Point(35 + 55 * x, magnus_y)
+                    .Location = New Point(50 + 55 * x, magnus_y)
                 Else
                     .Size = New Size(40, 64)
-                    .Location = New Point(225 + 45 * (x - 5), magnus_y + 137)
+                    .Location = New Point(225 + 45 * (x - 5), magnus_y + 157)
                 End If
                 .Image = New Bitmap(My.Resources.ResourceManager.GetObject("_" & magnus(x)), .Size)
                 .Cursor = Cursors.Hand
@@ -177,14 +177,14 @@
 
         With label(4)
             .Size = New Size(69, 24)
-            .Location = New Point(10, magnus_y + 95)
+            .Location = New Point(24, magnus_y + 95)
             .Text = "Deviation"
         End With
 
         deviation = New ComboBox()
         With deviation
             .Size = New Size(51, 24)
-            .Location = New Point(80, magnus_y + 95)
+            .Location = New Point(94, magnus_y + 95)
             .DropDownStyle = ComboBoxStyle.DropDownList
             For i = 4 To 1 Step -1
                 .Items.Add("+" & i & "%")
@@ -199,12 +199,20 @@
         include_selection = New CheckBox()
         With include_selection
             .Size = New Size(200, 24)
-            .Location = New Point(132, magnus_y + 95)
+            .Location = New Point(146, magnus_y + 95)
             .BackColor = Main.default_color
             .Padding = New Padding(5, 0, 0, 0)
             .Text = "Include MP from selecting card"
         End With
         Controls.Add(include_selection)
+
+        With label(5)
+            .Size = New Size(130, 24)
+            .Location = New Point(225, magnus_y + 129)
+            .BackColor = Color.Transparent
+            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            .Text = "MP drain"
+        End With
 
 
         ' ARTIFACTS
@@ -214,7 +222,7 @@
             artifact(x) = New PictureBox()
             With artifact(x)
                 .Size = New Size(40, 40)
-                .Location = New Point(35 + 40 * x, magnus_y + 130)
+                .Location = New Point(35 + 40 * x, magnus_y + 140)
                 .Image = Main.ChangeOpacity(roman(x), 0.5)
                 .Cursor = Cursors.Hand
                 .Tag = x + 8
@@ -227,15 +235,17 @@
 
         ' SPIRIT DRAW & LIGHTNING KNOCKDOWN
 
-        With label(5)
-            .Size = New Size(135, 28)
-            .Location = New Point(10, magnus_y + 190)
+        Dim spirit_draw_y As Integer = magnus_y + 207
+
+        With label(6)
+            .Size = New Size(130, 28)
+            .Location = New Point(15, spirit_draw_y)
             .Text = "Free card / spirit draw"
         End With
 
-        With label(6)
-            .Size = New Size(135, 28)
-            .Location = New Point(10, magnus_y + 220)
+        With label(7)
+            .Size = New Size(130, 28)
+            .Location = New Point(15, spirit_draw_y + 30)
             .Text = "Lightning knockdown"
         End With
 
@@ -244,10 +254,10 @@
             With plus_minus(x)
                 .Size = New Size(28, 28)
                 If x < 2 Then
-                    .Location = New Point(147, magnus_y + 190 + 30 * x)
+                    .Location = New Point(147, spirit_draw_y + 30 * x)
                     .Image = New Bitmap(My.Resources.ResourceManager.GetObject("plus"), .Size)
                 Else
-                    .Location = New Point(177, magnus_y + 190 + 30 * (x - 2))
+                    .Location = New Point(177, spirit_draw_y + 30 * (x - 2))
                     .Image = New Bitmap(My.Resources.ResourceManager.GetObject("minus"), .Size)
                 End If
                 .Cursor = Cursors.Hand
@@ -261,7 +271,7 @@
         knockdown = New ComboBox()
         With knockdown
             .Size = New Size(64, 28)
-            .Location = New Point(209, magnus_y + 222)
+            .Location = New Point(210, spirit_draw_y + 32)
             .DropDownStyle = ComboBoxStyle.DropDownList
             For y = 50 To 30 Step -0.5
                 If y <> Math.Floor(y) Then
@@ -274,7 +284,7 @@
         End With
         Controls.Add(knockdown)
 
-        For x = 0 To 6
+        For x = 0 To 7
             Controls.Add(label(x))
         Next
 
@@ -294,6 +304,7 @@
         Show()
         label(0).Focus()
         UpdateUI(True)
+        Main.ScrollToEnd()
     End Sub
 
     Private Sub LoadWindowData()

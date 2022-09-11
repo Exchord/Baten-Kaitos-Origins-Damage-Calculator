@@ -2,7 +2,7 @@
 Public Class Main
     Inherits Form
 
-    Dim target_data(13), combo_results, MP_display As Label
+    Dim target_data(13), combo_results, MP_display, dummy As Label
     Dim enemy_HP As TextBox
     Dim final_phase, shield, secondary_target, down As CheckBox
     Dim enemy_status, armor_durability As ComboBox
@@ -572,25 +572,31 @@ Public Class Main
         MP_display = New Label()
         With MP_display
             .Hide()
-            .Size = New Size(54, 30)
+            .Size = New Size(67, 30)
             .Location = New Point(25, 25)
-            '.BackColor = default_color
             .TextAlign = ContentAlignment.MiddleLeft
-            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold)
         End With
         card_panel(1).Controls.Add(MP_display)
 
         burst = New Button()
         With burst
             .Hide()
-            .Size = New Size(65, 30)
-            .Location = New Point(19, 25)
+            .Size = New Size(73, 32)
+            .Location = New Point(19, 24)
             .UseVisualStyleBackColor = True
-            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            .Font = New Font("Segoe UI", 11, FontStyle.Bold)
             .Text = "Burst"
             AddHandler .Click, AddressOf ToggleBurst
         End With
         card_panel(1).Controls.Add(burst)
+
+        dummy = New Label()
+        With dummy
+            .Size = New Size(1, 1)
+            .Location = New Point(91, 0)
+        End With
+        card_panel(1).Controls.Add(dummy)
 
 
         ' OUTPUT TABLE
@@ -2152,7 +2158,10 @@ Public Class Main
             Return
         End If
         If burst_active Then
+            dummy.Left = 91 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            burst.Hide()
             burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            burst.Show()
             Return
         End If
 
@@ -2174,6 +2183,8 @@ Public Class Main
 
     Public Sub DisplayMP(new_MP As Double)
         current_MP = new_MP
+        dummy.Left = 91 + cards * 50 + card_panel(1).AutoScrollPosition.X
+        dummy.Show()
         MP_display.Hide()
         burst.Hide()
         MP_display.Text = new_MP
@@ -2192,6 +2203,8 @@ Public Class Main
                 burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
                 burst.Show()
             End If
+        Else
+            dummy.Hide()
         End If
         CheckCards()
     End Sub
@@ -2206,11 +2219,19 @@ Public Class Main
         End If
     End Sub
 
+    Public Sub ScrollToEnd()
+        With card_panel(1).HorizontalScroll
+            If .Visible Then
+                .Value = .Maximum
+            End If
+        End With
+    End Sub
+
     Public Function Round(input As Double) As Double
         Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)      'floating-point error mitigation while rounding to 3 decimals
     End Function
 
-    Public Function Clamp(input As Double, min As Double, max As Double)        'limits input number to a range
+    Public Function Clamp(input As Double, min As Double, max As Double)                'limit input number to a range
         Return Math.Max(min, Math.Min(input, max))
     End Function
 
@@ -2594,6 +2615,11 @@ Public Class Main
             relay = False
         End If
         ShowDeck()
+        With card_panel(0).HorizontalScroll
+            If .Visible Then
+                .Value = .Minimum
+            End If
+        End With
     End Sub
 
     Public Sub ChangePartyOrder()
@@ -2652,6 +2678,7 @@ Public Class Main
         ChangeMP(cards - 1)
         CheckCards()
         Calculate()
+        ScrollToEnd()
     End Sub
 
     Private Sub RemoveCard(sender As Object, e As MouseEventArgs)
