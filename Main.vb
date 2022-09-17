@@ -152,8 +152,8 @@ Public Class Main
     ReadOnly english_EX_combo_bonus() As Integer = {80, 80, 80, 110, 85, 150}
 
     Public ReadOnly default_color As Color = Color.FromArgb(&H90, &HFF, &HFF, &HFF)
-    ReadOnly button_row_1_Y_pos As Integer = 15
-    ReadOnly button_row_2_Y_pos As Integer = 93
+    ReadOnly button_row_1_Y_pos As Integer = 14
+    ReadOnly button_row_2_Y_pos As Integer = 92
     ReadOnly rows As Integer = 32
     ReadOnly hit_modifier_row() As Integer = {4, 5, 21}
     ReadOnly clickable_rows() As Integer = {4, 5, 7, 8, 10, 16, 21, 27}
@@ -213,7 +213,7 @@ Public Class Main
                     .Items.Add(y)
                 Next
                 AddHandler .KeyPress, AddressOf FilterInput
-                AddHandler .TextChanged, AddressOf ChangeLevel
+                AddHandler .TextChanged, AddressOf CheckLevel
                 AddHandler .LostFocus, AddressOf FixLevel
             End With
             Controls.Add(level_selector(x))
@@ -342,10 +342,9 @@ Public Class Main
             End With
         Next
 
-        With target_data(0)
-            .Size = New Size(169, 24)
-            .Location = New Point(target_x + 135, target_y)
-            .Text = "Target"
+        With target_data(0)                                         'target name
+            .Size = New Size(169, 25)
+            .Location = New Point(target_x + 135, target_y - 1)
         End With
 
         With target_data(1)
@@ -593,8 +592,8 @@ Public Class Main
 
         dummy = New Label()
         With dummy
-            .Size = New Size(1, 1)
-            .Location = New Point(91, 0)
+            .Size = New Size(0, 0)
+            .Location = New Point(92, 0)
         End With
         card_panel(1).Controls.Add(dummy)
 
@@ -1224,6 +1223,12 @@ Public Class Main
             If cards > 0 Then
                 character = member(cards - 1)
                 ShowDeck()
+                ScrollToStart()
+                With card_panel(1).HorizontalScroll
+                    If .Visible Then
+                        card_panel(1).PerformLayout()
+                    End If
+                End With
                 Dim final_member As Integer = Array.IndexOf(party, character)
                 If targeted(final_member) > 0 Then
                     final_target = targeted(final_member) - 1
@@ -2158,7 +2163,7 @@ Public Class Main
             Return
         End If
         If burst_active Then
-            dummy.Left = 91 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            dummy.Left = 92 + cards * 50 + card_panel(1).AutoScrollPosition.X
             burst.Hide()
             burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
             burst.Show()
@@ -2183,7 +2188,7 @@ Public Class Main
 
     Public Sub DisplayMP(new_MP As Double)
         current_MP = new_MP
-        dummy.Left = 91 + cards * 50 + card_panel(1).AutoScrollPosition.X
+        dummy.Left = 92 + cards * 50 + card_panel(1).AutoScrollPosition.X
         dummy.Show()
         MP_display.Hide()
         burst.Hide()
@@ -2223,6 +2228,16 @@ Public Class Main
         With card_panel(1).HorizontalScroll
             If .Visible Then
                 .Value = .Maximum
+                card_panel(1).PerformLayout()
+            End If
+        End With
+    End Sub
+
+    Public Sub ScrollToStart()
+        With card_panel(0).HorizontalScroll
+            If .Visible Then
+                .Value = .Minimum
+                card_panel(0).PerformLayout()
             End If
         End With
     End Sub
@@ -2615,11 +2630,7 @@ Public Class Main
             relay = False
         End If
         ShowDeck()
-        With card_panel(0).HorizontalScroll
-            If .Visible Then
-                .Value = .Minimum
-            End If
-        End With
+        ScrollToStart()
     End Sub
 
     Public Sub ChangePartyOrder()
@@ -2695,6 +2706,7 @@ Public Class Main
         If character <> member(cards) Then
             character = member(cards)
             ShowDeck()
+            ScrollToStart()
         End If
 
         'clear cards and data beyond remaining cards
@@ -3236,7 +3248,7 @@ Public Class Main
 
         'change level (Hero License, Tub-Time Greythorne)
         For x = 0 To 2
-            ChangeLevel(level_selector(x), New EventArgs)
+            CheckLevel(level_selector(x), New EventArgs)
         Next
 
         Calculate()
@@ -3338,6 +3350,8 @@ Public Class Main
             target_data(12).Show()
         End If
 
+        Me.enemy_HP.ForeColor = Color.Black
+        true_HP = Me.enemy_HP.Text
         ChangeHP()
 
         If Me.enemy_HP.Text <> true_max_HP Then
@@ -3402,6 +3416,9 @@ Public Class Main
         Dim new_HP As String = enemy_HP.Text
         If new_HP = "" Then
             enemy_HP.ForeColor = Color.Red
+            true_HP = 0
+            ChangeHP()
+            Calculate()
             Return
         End If
         If Not IsNonNegativeInteger(new_HP) Then
@@ -3410,15 +3427,16 @@ Public Class Main
         End If
         If new_HP > true_max_HP Then
             enemy_HP.ForeColor = Color.Red
-            Return
+            true_HP = true_max_HP
+        Else
+            enemy_HP.ForeColor = Color.Black
+            true_HP = enemy_HP.Text
         End If
         ChangeHP()
         Calculate()
     End Sub
 
     Private Sub ChangeHP()
-        enemy_HP.ForeColor = Color.Black
-        true_HP = enemy_HP.Text
         If Not (final_phase.Visible And final_phase.Checked) And HP_limit(combo_target) > 0 Then
             effective_max_HP = Math.Floor(true_max_HP * (1 - HP_limit(combo_target))) + 1
             effective_HP = Math.Max(0, true_HP + effective_max_HP - true_max_HP)
@@ -3496,6 +3514,8 @@ Public Class Main
                 End If
             End If
         End If
+        enemy_HP.ForeColor = Color.Black
+        true_HP = enemy_HP.Text
         ChangeHP()
         Calculate()
     End Sub
@@ -3629,13 +3649,15 @@ Public Class Main
         sender.Text = value
     End Sub
 
-    Private Sub ChangeLevel(sender As Object, e As EventArgs)
+    Private Sub CheckLevel(sender As Object, e As EventArgs)
         Dim chr As Integer = sender.Tag
         Dim box As ComboBox = level_selector(chr)
         Dim new_level As String = box.Text
 
         If new_level = "" Then
             box.ForeColor = Color.Red
+            ChangeLevel(chr, 1)
+            Calculate()
             Return
         End If
         If Not IsNonNegativeInteger(new_level) Then
@@ -3644,20 +3666,27 @@ Public Class Main
         End If
         If new_level < 1 Or new_level > 100 Then
             box.ForeColor = Color.Red
-            Return
+        Else
+            box.ForeColor = Color.Black
         End If
 
-        box.ForeColor = Color.Black
-        Dim final_level As Integer = new_level + QM_total_bonus(8)
+        ChangeLevel(chr, new_level)
+        CheckAura(chr, False)
+        Calculate()
+    End Sub
+
+    Private Sub ChangeLevel(chr As Integer, level As Integer)
+        level = Clamp(level, 1, 100)
+        Dim final_level As Integer = level + QM_total_bonus(8)
         final_level = Clamp(final_level, 1, 100)
-        level(chr) = final_level
+        Me.level(chr) = final_level
 
         With actual_level(chr)
-            If final_level > new_level Then
+            If final_level > level Then
                 .Text = final_level
                 .ForeColor = Color.Green
                 .Show()
-            ElseIf final_level < new_level Then
+            ElseIf final_level < level Then
                 .Text = final_level
                 .ForeColor = Color.Red
                 .Show()
@@ -3666,9 +3695,6 @@ Public Class Main
                 .Hide()
             End If
         End With
-
-        CheckAura(chr, False)
-        Calculate()
     End Sub
 
     Public Function IsNonNegativeInteger(input As String) As Boolean

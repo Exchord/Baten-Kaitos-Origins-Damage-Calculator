@@ -374,29 +374,41 @@
         z = sender.Name.SubString(1, 1)
 
         With boost(x, y, z)
-            If Not IsNumeric(.Text) OrElse (.Text > 1000 Or .Text < -1000) Then
-                .Font = New Font("Segoe UI", 9, FontStyle.Regular)
+            Dim new_value As String = .Text
+            If new_value = "" Or new_value = "-" Or new_value = "." Or new_value = "-." Then
                 .ForeColor = Color.Red
+                ChangeBoost(x, y, z, 0)
                 Return
             End If
-
-            Dim new_value As Double = Main.Round(.Text)
-            If new_value = 0 Then
-                .Font = New Font("Segoe UI", 9, FontStyle.Regular)
-            Else
-                .Font = New Font("Segoe UI", 9, FontStyle.Bold)
+            If Not IsNumeric(new_value) Then
+                .Text = "0"
+                Return
             End If
-            .ForeColor = Color.Black
-
-            If x < 3 Then
-                Main.offense_boost(x, y, z) = new_value
-            ElseIf x = 3 Then
-                Main.defense_boost(y, z) = new_value
+            If new_value < -1000 Or new_value > 1000 Then
+                .ForeColor = Color.Red
             Else
-                Main.enemy_offense_boost(z) = new_value
+                .ForeColor = Color.Black
             End If
+            ChangeBoost(x, y, z, new_value)
         End With
+    End Sub
 
+    Private Sub ChangeBoost(x As Integer, y As Integer, z As Integer, value As Double)
+        value = Main.Round(value)
+        value = Main.Clamp(value, -1000, 1000)
+        If value = 0 Then
+            boost(x, y, z).Font = New Font("Segoe UI", 9, FontStyle.Regular)
+        Else
+            boost(x, y, z).Font = New Font("Segoe UI", 9, FontStyle.Bold)
+        End If
+        Select Case x
+            Case < 3
+                Main.offense_boost(x, y, z) = value
+            Case 3
+                Main.defense_boost(y, z) = value
+            Case 4
+                Main.enemy_offense_boost(z) = value
+        End Select
         Main.Calculate()
     End Sub
 
@@ -436,8 +448,22 @@
         If IsNumeric(e.KeyChar) Then                                                            'allow numbers
             Return
         End If
+        Dim text As String = sender.Text
+        Dim selection As String = sender.SelectedText
+        If e.KeyChar = "-" And sender.SelectionStart = 0 Then                                   'allow only one sign at the start
+            If Not text.Contains("-") OrElse selection.Contains("-") Then
+                Return
+            End If
+        End If
+        If e.KeyChar = "." Then                                                                 'allow only one decimal separator, and only after the sign
+            If Not text.Contains(".") OrElse selection.Contains(".") Then
+                If sender.SelectionStart > text.IndexOf("-") OrElse selection.Contains("-") Then
+                    Return
+                End If
+            End If
+        End If
         Select Case e.KeyChar
-            Case ChrW(Keys.Back), "-", ".", ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)      'allow backspace, minus, point and Ctrl+A/C/V/X/Z
+            Case ChrW(Keys.Back), ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)                'allow backspace and Ctrl+A/C/V/X/Z
                 Return
         End Select
         e.Handled = True

@@ -199,7 +199,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("1072, 1306")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("864, 1294")>  _
         Public Property WindowSize() As Global.System.Drawing.Size
             Get
                 Return CType(Me("WindowSize"),Global.System.Drawing.Size)

@@ -361,7 +361,7 @@
         Main.DisplayMP(current_MP)
     End Sub
 
-    Private Sub ChangeClass(sender As Object, e As EventArgs)
+    Private Sub ChangeClass()
         Dim new_class As String = class_selector.Text
 
         If new_class = "" Then
@@ -459,12 +459,22 @@
             Return
         End If
         Dim new_MP As String = MP.Text
-        If Not IsNumeric(new_MP) OrElse (new_MP > max_MP Or new_MP < 0) Then
+        If new_MP = "" Or new_MP = "." Then
             MP.ForeColor = Color.Red
+            current_MP = 0
+            UpdateUI(False)
             Return
         End If
-        current_MP = Main.Round(new_MP)
-        MP.ForeColor = Color.Black
+        If Not IsNumeric(new_MP) Then
+            MP.Text = "0"
+            Return
+        End If
+        If new_MP < 0 Or new_MP > max_MP Then
+            MP.ForeColor = Color.Red
+        Else
+            MP.ForeColor = Color.Black
+        End If
+        current_MP = new_MP
         UpdateUI(False)
     End Sub
 
@@ -510,8 +520,13 @@
         If IsNumeric(e.KeyChar) Then                                                        'allow numbers
             Return
         End If
+        If e.KeyChar = "." Then                                                             'allow only one decimal separator
+            If Not MP.Text.Contains(".") OrElse MP.SelectedText.Contains(".") Then
+                Return
+            End If
+        End If
         Select Case e.KeyChar
-            Case ChrW(Keys.Back), ".", ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)       'allow backspace, point and Ctrl+A/C/V/X/Z
+            Case ChrW(Keys.Back), ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)            'allow backspace and Ctrl+A/C/V/X/Z
                 Return
         End Select
         e.Handled = True
