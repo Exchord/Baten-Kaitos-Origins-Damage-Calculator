@@ -59,7 +59,7 @@
                 .Items.Add(y)
             Next
             AddHandler .KeyPress, AddressOf FilterInput
-            AddHandler .TextChanged, AddressOf ChangeClass
+            AddHandler .TextChanged, AddressOf CheckClass
             AddHandler .LostFocus, AddressOf FixClass
         End With
         Controls.Add(class_selector)
@@ -175,16 +175,26 @@
             Controls.Add(card(x))
         Next
 
+        include_selection = New CheckBox()
+        With include_selection
+            .Size = New Size(200, 24)
+            .Location = New Point(24, magnus_y + 95)
+            .BackColor = Main.default_color
+            .Padding = New Padding(5, 0, 0, 0)
+            .Text = "Include MP from selecting card"
+        End With
+        Controls.Add(include_selection)
+
         With label(4)
             .Size = New Size(69, 24)
-            .Location = New Point(24, magnus_y + 95)
+            .Location = New Point(225, magnus_y + 95)
             .Text = "Deviation"
         End With
 
         deviation = New ComboBox()
         With deviation
             .Size = New Size(51, 24)
-            .Location = New Point(94, magnus_y + 95)
+            .Location = New Point(295, magnus_y + 95)
             .DropDownStyle = ComboBoxStyle.DropDownList
             For i = 4 To 1 Step -1
                 .Items.Add("+" & i & "%")
@@ -195,16 +205,6 @@
             .SelectedIndex = 7
         End With
         Controls.Add(deviation)
-
-        include_selection = New CheckBox()
-        With include_selection
-            .Size = New Size(200, 24)
-            .Location = New Point(146, magnus_y + 95)
-            .BackColor = Main.default_color
-            .Padding = New Padding(5, 0, 0, 0)
-            .Text = "Include MP from selecting card"
-        End With
-        Controls.Add(include_selection)
 
         With label(5)
             .Size = New Size(130, 24)
@@ -361,11 +361,11 @@
         Main.DisplayMP(current_MP)
     End Sub
 
-    Private Sub ChangeClass()
+    Private Sub CheckClass()
         Dim new_class As String = class_selector.Text
-
         If new_class = "" Then
             class_selector.ForeColor = Color.Red
+            ChangeClass(1)
             Return
         End If
         If Not Main.IsNonNegativeInteger(new_class) Then
@@ -374,14 +374,19 @@
         End If
         If new_class < 1 Or new_class > 30 Then
             class_selector.ForeColor = Color.Red
-            Return
+        Else
+            class_selector.ForeColor = Color.Black
         End If
-        class_selector.ForeColor = Color.Black
+        ChangeClass(new_class)
+    End Sub
+
+    Private Sub ChangeClass(new_class As Integer)
+        new_class = Main.Clamp(new_class, 1, 30)
         deck_class = new_class
         factor = Math.Round(8 + 12 * (new_class - 1) / 29, 1)
         label(2).Text = factor
 
-        Select Case new_class * 1
+        Select Case new_class
             Case < 3
                 max_MP = 200
             Case < 5
@@ -492,9 +497,7 @@
             MP.Text = current_MP
             Return
         End If
-        'remove leading zeros
-        Dim value As Double = MP.Text
-        MP.Text = Main.Round(value)
+        MP.Text = Main.Round(MP.Text)
     End Sub
 
     Private Sub ToggleBurst()

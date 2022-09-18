@@ -204,10 +204,8 @@ Public Class Main
             level_selector(x) = New ComboBox()
             With level_selector(x)
                 .Size = New Size(59, 21)
-                .MaxDropDownItems = 20
-                .MaxLength = 3
-                .Text = "1"
                 .Location = New Point(90, 24 + top)
+                .MaxLength = 3
                 .Tag = x
                 For y = 1 To 100
                     .Items.Add(y)
@@ -233,7 +231,6 @@ Public Class Main
             aura_type(x) = New ComboBox()
             With aura_type(x)
                 .Size = New Size(69, 21)
-                .MaxDropDownItems = 12
                 .Location = New Point(155, 24 + top)
                 .Tag = x
                 .DropDownStyle = ComboBoxStyle.DropDownList
@@ -248,7 +245,6 @@ Public Class Main
             With aura_level(x)
                 .Hide()
                 .Size = New Size(69, 21)
-                .MaxDropDownItems = 12
                 .Location = New Point(155, 50 + top)
                 .Tag = x
                 .DropDownStyle = ComboBoxStyle.DropDownList
@@ -276,8 +272,8 @@ Public Class Main
                 .Hide()
                 .Size = New Size(48, 21)
                 .Location = New Point(282, 37 + top)
-                .Tag = x + 1
                 .DropDownStyle = ComboBoxStyle.DropDownList
+                .Tag = x + 1
                 AddHandler .SelectedIndexChanged, AddressOf Calculate
             End With
             Controls.Add(eq_durability(x))
@@ -423,9 +419,9 @@ Public Class Main
         With enemy_HP
             .AutoSize = False
             .Size = New Size(54, 24)
-            .TextAlign = HorizontalAlignment.Center
             .Location = New Point(target_x + 50, 175)
             .MaxLength = 5
+            .TextAlign = HorizontalAlignment.Center
             AddHandler .TextChanged, AddressOf CheckHP
             AddHandler .MouseWheel, AddressOf ScrollHP
             AddHandler .KeyPress, AddressOf FilterInput
@@ -446,9 +442,9 @@ Public Class Main
 
         enemy_status = New ComboBox()
         With enemy_status
-            .DropDownStyle = ComboBoxStyle.DropDownList
             .Size = New Size(69, 24)
             .Location = New Point(target_x + 235, 175)
+            .DropDownStyle = ComboBoxStyle.DropDownList
             For x = 0 To 4
                 .Items.Add(status_name(x))
             Next
@@ -459,9 +455,9 @@ Public Class Main
 
         armor_durability = New ComboBox()
         With armor_durability
-            .DropDownStyle = ComboBoxStyle.DropDownList
             .Size = New Size(39, 24)
             .Location = New Point(target_x + 265, 200)
+            .DropDownStyle = ComboBoxStyle.DropDownList
             AddHandler .SelectedIndexChanged, AddressOf Calculate
         End With
         Controls.Add(armor_durability)
@@ -496,8 +492,8 @@ Public Class Main
         With combo_results
             .Size = New Size(124, 50)
             .Location = New Point(693, 150)
-            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             .TextAlign = ContentAlignment.MiddleRight
+            .Font = New Font("Segoe UI", 9, FontStyle.Bold)
             AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(combo_results)
@@ -517,8 +513,8 @@ Public Class Main
         With next_combo
             .Size = New Size(96, 30)
             .Location = New Point(722, 206)
-            .Text = "Next combo"
             .UseVisualStyleBackColor = True
+            .Text = "Next combo"
             .Enabled = False
             AddHandler .Click, AddressOf NextCombo
         End With
@@ -531,8 +527,8 @@ Public Class Main
             card_panel(x) = New DoubleBufferPanel()
             With card_panel(x)
                 .AutoScroll = True
-                .Location = New Point(0, 220 + 30 + x * 100)
                 .Size = New Size(1163, 100)
+                .Location = New Point(0, 220 + 30 + x * 100)
                 AddHandler .Click, AddressOf ChangeFocus
             End With
             Controls.Add(card_panel(x))
@@ -603,8 +599,8 @@ Public Class Main
         output_panel = New DoubleBufferPanel()
         With output_panel
             .AutoScroll = True
-            .Location = New Point(0, 451)
             .Size = New Size(Width - 16, Height - 490)
+            .Location = New Point(0, 451)
             AddHandler .Click, AddressOf ChangeFocus
         End With
         Controls.Add(output_panel)
@@ -614,9 +610,9 @@ Public Class Main
             With table(0, y)
                 .Location = New Point(5, 25 * y)
                 .Size = New Size(150, 24)
+                .BackColor = default_color
                 .TextAlign = ContentAlignment.MiddleLeft
                 .Font = New Font("Segoe UI", 9, FontStyle.Bold)
-                .BackColor = default_color
                 .Text = variable(y)
                 .Tag = y
                 AddHandler .MouseClick, AddressOf ChangeFocus
@@ -641,10 +637,10 @@ Public Class Main
                 End If
                 table(x, y) = New Label
                 With table(x, y)
-                    .Location = New Point(104 + 52 * x, 25 * y)
                     .Size = New Size(51, 24)
-                    .TextAlign = ContentAlignment.MiddleCenter
+                    .Location = New Point(104 + 52 * x, 25 * y)
                     .BackColor = default_color
+                    .TextAlign = ContentAlignment.MiddleCenter
                     .Tag = x
                     .Name = y
                     AddHandler .MouseClick, AddressOf ChangeFocus
@@ -655,11 +651,11 @@ Public Class Main
                 hit_modifier(x, y) = New ComboBox
                 With hit_modifier(x, y)
                     .Hide()
-                    .DropDownStyle = ComboBoxStyle.DropDownList
                     .Size = New Size(51, 24)
+                    .Location = New Point(104 + x * 52, 25 * hit_modifier_row(y))
                     .Tag = x
                     .Name = y
-                    .Location = New Point(104 + x * 52, 25 * hit_modifier_row(y))
+                    .DropDownStyle = ComboBoxStyle.DropDownList
                     For i = 4 To 1 Step -1
                         .Items.Add("+" & i & "%")
                     Next
@@ -2163,21 +2159,25 @@ Public Class Main
             Return
         End If
         If burst_active Then
-            dummy.Left = 92 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            Dim scroll_pos As Integer = card_panel(1).AutoScrollPosition.X
+            dummy.Left = 92 + cards * 50 + scroll_pos
             burst.Hide()
-            burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
+            burst.Left = 19 + cards * 50 + scroll_pos
             burst.Show()
             Return
         End If
 
-        Dim value As Double = current_MP
+        Dim id As Integer
         Dim delta As Double
+        Dim value As Double = current_MP
         If card = cards - 1 Then                                                                'add card
-            delta = MP.factor * MP_gain(cards - 1) - 100 * MP_cost(combo(cards - 1).Tag)
+            id = combo(cards - 1).Tag
+            delta = MP.factor * MP_gain(cards - 1) - 100 * MP_cost(id)
             value = Math.Min(value + delta, MP.max_MP)
         Else
             For x = card To cards Step -1                                                       'remove card(s)
-                delta = MP.factor * MP_gain(x) - 100 * MP_cost(combo(x).Tag)
+                id = combo(x).Tag
+                delta = MP.factor * MP_gain(x) - 100 * MP_cost(id)
                 value = Clamp(value - delta, 0, MP.max_MP)
             Next
         End If
@@ -2188,14 +2188,15 @@ Public Class Main
 
     Public Sub DisplayMP(new_MP As Double)
         current_MP = new_MP
-        dummy.Left = 92 + cards * 50 + card_panel(1).AutoScrollPosition.X
+        Dim scroll_pos As Integer = card_panel(1).AutoScrollPosition.X
+        dummy.Left = 92 + cards * 50 + scroll_pos
         dummy.Show()
         MP_display.Hide()
         burst.Hide()
         MP_display.Text = new_MP
         If MP.Visible Then
             If new_MP < 500 Then
-                MP_display.Left = 25 + cards * 50 + card_panel(1).AutoScrollPosition.X
+                MP_display.Left = 25 + cards * 50 + scroll_pos
                 MP_display.Show()
             Else
                 If burst_active Then
@@ -2205,7 +2206,7 @@ Public Class Main
                     burst.Text = "Burst"
                     burst.ForeColor = Color.Black
                 End If
-                burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
+                burst.Left = 19 + cards * 50 + scroll_pos
                 burst.Show()
             End If
         Else
@@ -2214,7 +2215,7 @@ Public Class Main
         CheckCards()
     End Sub
 
-    Private Sub ToggleBurst()       'called when toggling MP burst in the MP window
+    Private Sub ToggleBurst()
         If burst_active Then
             MP.MP.Text = "0"
             DisplayMP(0)
