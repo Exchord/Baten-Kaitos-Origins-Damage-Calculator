@@ -93,7 +93,7 @@
             .UseVisualStyleBackColor = True
             .Text = "Yellow"
             .Tag = 16
-            AddHandler .Click, AddressOf ChangeMP
+            AddHandler .Click, AddressOf SetMP
         End With
         Controls.Add(yellow)
 
@@ -104,7 +104,7 @@
             .UseVisualStyleBackColor = True
             .Text = "Orange"
             .Tag = 17
-            AddHandler .Click, AddressOf ChangeMP
+            AddHandler .Click, AddressOf SetMP
         End With
         Controls.Add(orange)
 
@@ -119,7 +119,7 @@
             .Font = New Font("Segoe UI", 11, FontStyle.Regular)
             .Text = "Reset"
             .Tag = 18
-            AddHandler .Click, AddressOf ChangeMP
+            AddHandler .Click, AddressOf SetMP
         End With
         Controls.Add(reset)
 
@@ -417,7 +417,7 @@
         End If
 
         Dim action As Integer = sender.Tag
-        If burst.Checked And action < 16 Then
+        If burst.Checked Then
             Return
         End If
         Dim sign As Integer = 1
@@ -447,6 +447,14 @@
                 current_MP += knockdown.Text                                        'lightning knockdown (+)
             Case 15
                 current_MP -= knockdown.Text                                        'lightning knockdown (-)
+        End Select
+
+        UpdateUI(True)
+    End Sub
+
+    Private Sub SetMP(sender As Object, e As EventArgs)
+        Dim action As Integer = sender.Tag
+        Select Case action
             Case 16
                 current_MP = Math.Floor(50 + 250 * (deck_class - 1) / 29)           'yellow wingdash
             Case 17
@@ -454,7 +462,6 @@
             Case 18
                 current_MP = 0                                                      'reset
         End Select
-
         burst.Checked = False
         UpdateUI(True)
     End Sub
@@ -538,7 +545,7 @@
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         Select Case e.KeyCode
             Case Keys.R
-                ChangeMP(reset, New MouseEventArgs(0, 0, 0, 0, 0))
+                SetMP(reset, New EventArgs)
             Case Keys.Escape
                 Close()
             Case Else
