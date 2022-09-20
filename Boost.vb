@@ -267,13 +267,24 @@
     End Sub
 
     Private Sub Add(sender As Object, e As MouseEventArgs)
+        If e.Button = MouseButtons.Middle Then
+            Return
+        End If
+
         Dim magnus As Integer = sender.Tag
         Dim result As Double
+        Dim sign As Integer = 1
+        If e.Button = MouseButtons.Right Then
+            sign = -1
+        End If
+
         If magnus < 8 Then
             Dim x As Integer = Main.item_target
             For y = 0 To 5                          'party offense
                 For z = 0 To 1
-                    result = LimitBoost(Main.offense_boost(x, y, z) + Main.boost_data(magnus, y) * 0.01)
+                    result = Main.offense_boost(x, y, z) + sign * Main.boost_data(magnus, y) * 0.01
+                    result = LimitBoost(result)
+                    result = Main.Round(result)
                     Main.offense_boost(x, y, z) = result
                     ChangeBox(boost(x, y, z), result)
                 Next
@@ -281,14 +292,18 @@
         ElseIf magnus = 8 Then                      'enemy defense
             For y = 0 To 5
                 For z = 0 To 1
-                    result = LimitBoost(Main.defense_boost(y, z) - Main.boost_data(magnus, y) * 0.01)
+                    result = Main.defense_boost(y, z) - sign * Main.boost_data(magnus, y) * 0.01
+                    result = LimitBoost(result)
+                    result = Main.Round(result)
                     Main.defense_boost(y, z) = result
                     ChangeBox(boost(3, y, z), result)
                 Next
             Next
         ElseIf magnus = 9 Then                      'enemy offense
             For z = 0 To 1
-                result = LimitBoost(Main.enemy_offense_boost(z) - Main.boost_data(magnus, z) * 0.01)
+                result = Main.enemy_offense_boost(z) - sign * Main.boost_data(magnus, z) * 0.01
+                result = LimitBoost(result)
+                result = Main.Round(result)
                 Main.enemy_offense_boost(z) = result
                 ChangeBox(boost(4, 0, z), result)
             Next

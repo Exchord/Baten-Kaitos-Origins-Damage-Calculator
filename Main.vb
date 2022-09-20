@@ -2155,14 +2155,10 @@ Public Class Main
     End Sub
 
     Private Sub ChangeMP(card As Integer)
-        If Not MP.Visible Then
-            Return
-        End If
         If burst_active Then
-            Dim scroll_pos As Integer = card_panel(1).AutoScrollPosition.X
-            dummy.Left = 92 + cards * 50 + scroll_pos
+            dummy.Left = 92 + cards * 50 + card_panel(1).AutoScrollPosition.X
             burst.Hide()
-            burst.Left = 19 + cards * 50 + scroll_pos
+            burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
             burst.Show()
             Return
         End If
@@ -2188,15 +2184,14 @@ Public Class Main
 
     Public Sub DisplayMP(new_MP As Double)
         current_MP = new_MP
-        Dim scroll_pos As Integer = card_panel(1).AutoScrollPosition.X
-        dummy.Left = 92 + cards * 50 + scroll_pos
+        dummy.Left = 92 + cards * 50 + card_panel(1).AutoScrollPosition.X
         dummy.Show()
         MP_display.Hide()
         burst.Hide()
         MP_display.Text = new_MP
         If MP.Visible Then
             If new_MP < 500 Then
-                MP_display.Left = 25 + cards * 50 + scroll_pos
+                MP_display.Left = 25 + cards * 50 + card_panel(1).AutoScrollPosition.X
                 MP_display.Show()
             Else
                 If burst_active Then
@@ -2206,7 +2201,7 @@ Public Class Main
                     burst.Text = "Burst"
                     burst.ForeColor = Color.Black
                 End If
-                burst.Left = 19 + cards * 50 + scroll_pos
+                burst.Left = 19 + cards * 50 + card_panel(1).AutoScrollPosition.X
                 burst.Show()
             End If
         Else
@@ -2687,7 +2682,9 @@ Public Class Main
 
         cards += 1
         UpdateTurns()
-        ChangeMP(cards - 1)
+        If MP.Visible Then
+            ChangeMP(cards - 1)
+        End If
         CheckCards()
         Calculate()
         ScrollToEnd()
@@ -2719,13 +2716,13 @@ Public Class Main
         Next
 
         UpdateTurns()
-        If e.Clicks = -1 Then           'after clicking "Next combo"
-            If MP.Visible Then
+        If MP.Visible Then
+            If e.Clicks = -1 Then           'after clicking "Next combo"
                 MP.MP.Text = current_MP
                 DisplayMP(current_MP)
+            Else
+                ChangeMP(cards_prev - 1)
             End If
-        Else
-            ChangeMP(cards_prev - 1)
         End If
         CheckCards()
         Calculate()
@@ -3797,6 +3794,7 @@ Public Class Main
     End Sub
 
     Private Sub ChangeSize()
+        WindowState = FormWindowState.Normal
         Dim rows As Integer = My.Settings.ResultsRow.Count(Function(c As Char) c = "1")
         Width = 176 + hits * 52
         Height = 494 + rows * 25
