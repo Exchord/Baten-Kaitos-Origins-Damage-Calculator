@@ -6,7 +6,7 @@ This tool aims to simulate combos and calculate the damage output of each hit as
 
 Information on magnus, enemies, and combos: [BKO Documentation](https://docs.google.com/spreadsheets/d/1wXsL9PXnyIuvRiYNgX5p6uTaVBgJhXU1CDzXNFiwLRU/view#gid=1457790647)
 
-![](https://i.imgur.com/Y8SHiK3.png)
+![](https://i.imgur.com/9h5XvcK.png)
 
 The above screenshot is a simulation of [this combo](https://youtu.be/n9rcfXrhIZE?t=2503).
 
@@ -35,7 +35,7 @@ Sometimes you may already have a magnus equipped at the start of a combo. Right-
 
 
 ### Target
-![](https://i.imgur.com/SBMVbvA.png)  
+![](https://i.imgur.com/M8repeT.png)  
 Click the target image to open the target selection window. When you select a new target, the main window will update with some of the enemy's data:
 - Name
 - Knockdown threshold
@@ -81,7 +81,7 @@ Note that this program does not simulate multiple targets. If you use multi-targ
 
 
 ### HP and effective HP
-![](https://i.imgur.com/6aK0xCY.png)  
+![](https://i.imgur.com/f6lmZUm.png)  
 In the HP text box, you can enter a new value for the enemy's current HP, or use the mouse wheel to fine-tune the value. Next to the text box is the enemy's max HP, which you can click to reset the enemy's HP to the maximum.
 
 Below HP, you may find something called "effective HP". This refers to boss battles that end with the enemy striking down the party or a cutscene interrupting the fight. Effective HP aims to replace true HP with the amount of damage required to end the battle.
@@ -125,7 +125,7 @@ Clicking the "Reset" button will turn all quest magnus into blank magnus. You ca
 
 ### Temporary boost
 ![](https://i.imgur.com/65ylqfB.png)  
-Some battle magnus increase or decrease a character's offense or defense for two turns. You can change the boost target by clicking any of your party members. Clicking any of the first 8 magnus will then add a bonus to their offense. The top text box displays the offense increase for the current turn, and the bottom text box displays the offense increase for the next turn.
+Some battle magnus increase or decrease a character's offense or defense for two turns. You can change the boost target by clicking any of your party members. Clicking any of the first 8 magnus will then add a bonus to their offense. (Right-click the magnus to undo this action.) The top text box displays the offense increase for the current turn, and the bottom text box displays the offense increase for the next turn.
 
 Clicking "Next turn" will advance the character to the next turn so that the top value is overwritten by the bottom value, which is then reset to 0. Clicking "Reset" will reset both values to 0.  
 You can use the mouse wheel to increase or decrease both boost values by 1.
@@ -135,7 +135,7 @@ Notes:
 - One defense turn is a combo of any length performed on an enemy, regardless of whether or not it's a relay combo.  
 - Enemies also have offense boosts for every element, but only physical offense can affect damage output on enemies. This comes into play when attacking with Firedrake Regalia or Aetherdrake Regalia equipped.
 
-![](https://i.imgur.com/3eDx2t5.png)
+![](https://i.imgur.com/ip8TMgV.png)
 
 ### Dolphin
 ![](https://i.imgur.com/zRxfMiW.png)  
@@ -148,6 +148,7 @@ If the game is running in Dolphin 5.0 or 4.0.2 (stable versions only), clicking 
 - HP
 - Temporary boost
 - Combo
+- Deck class and MP (only if MP window is open)
 
 These are not read from Dolphin:
 - Equipped magnus
@@ -193,11 +194,37 @@ For example, if you use Weak Attack, Strong Attack, Icefan, and Sigil Cry in a r
 
 The checkboxes on the right side allow you to hide or show any of the rows in the output table. You can also hide a row by middle-clicking its title in the main window.
 
-![](https://i.imgur.com/yYYJQSN.png)
+![](https://i.imgur.com/WNsLdZm.png)
 
 ### Combo results
 ![](https://i.imgur.com/DAs7OdF.png)  
 In a similar fashion to the in-game text after a combo, this shows the number of cards and hits as well as the total damage and TP bonus of the current combo.
+
+
+### MP
+
+Clicking this button will open a window that lets you simulate MP during battle. As long as this window is open, the program will operate slightly differently:
+- The current MP value will be displayed at the end of your combo. When MP reaches 500, a burst button will be shown instead.
+- Special attacks can only be selected if you have enough MP.
+- Removing cards from your combo will also revert the MP value to an earlier state. The resulting MP value can only be accurate if MP didn't get auto-capped to its maximum value earlier in the combo.
+- You can't remove cards from your combo using the right mouse button.
+
+![](https://i.imgur.com/0GNs8Im.png)
+
+Interface elements:
+- <i>Deck class:</i> Selecting your deck class changes the MP factor and the max MP. If your deck class is 7 or higher, the maximum MP is 500.
+- <i>MP factor:</i> Most MP mechanics use this factor to increase MP during battle.
+- <i>Wingdash:</i> If your heartwing gauge is yellow or orange, you will gain some MP at the start of the battle.
+- <i>Reset:</i> Click this button to reset MP to 0.
+- MP text box: You can type a new value into this box, or use the mouse wheel to add or subtract the MP gained from a spirit draw or free card.
+- <i>MP burst:</i> When MP is 500, you can activate the MP burst.
+- MP-charging magnus: These five magnus add different amounts of MP when used. Right-click a magnus to undo the MP charge.
+- <i>Include MP from selecting card:</i> The moment you select any of the five MP chargers from your deck (before the character performs the action), the MP factor is added to the current MP.
+- <i>Deviation:</i> A random factor ranging from 0.9 to 1.04 is applied to MP charge and MP drain.
+- Artifacts: Using any of these will add the MP factor and reduce MP by 100 times the roman numeral. Right-click an artifact to undo this action.
+- <i>MP drain:</i> Hitting an enemy with one of these weapons will steal some of their MP. Note that the amount of MP you gain cannot exceed the amount of MP the enemy has left. Also, since enemy MP is stored as an integer, the amount of MP you gain is an integer as well. Right-click a magnus to undo the MP drain.
+- <i>Free card / spirit draw:</i> You can add the MP factor by clicking the plus button. This simulates the effect of selecting a single free card or getting a spirit draw. Click the minus button to undo this action.
+- <i>Lightning knockdown:</i> Knocking down an enemy with lightning (+) yields between 30 and 50 MP, while getting knocked down by the enemy (-) takes away between 30 and 50 MP. The exact amount is randomly determined by the game. In the MP window, you can change the amount using the dropdown menu at the bottom. Note that lightning knockdowns don't change the enemy's MP value.
 
 
 ### Next combo
@@ -229,6 +256,20 @@ You can also remove a single card anywhere in the combo by right-clicking it.
 ## Tips
 
 You can use the mouse wheel to adjust levels, auras, durability, HP, status, boost, and random deviations.
+
+Keyboard shortcuts:
+- T: open target window
+- D: open deck window
+- Q: open quest magnus window
+- B: open temporary boost window
+- E: import data from emulator
+- C: copy output table to clipboard
+- S: open settings window
+- M: open MP window
+- N: next combo
+- R: resize window to fit output table / remove all quest magnus / reset all boost values / reset MP
+- Backspace: remove last card from combo
+- Escape: close window (can't be used in main window)
 
 
 ## Output table
