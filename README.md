@@ -206,8 +206,7 @@ In a similar fashion to the in-game text after a combo, this shows the number of
 Clicking this button will open a window that lets you simulate MP during battle. As long as this window is open, the program will operate slightly differently:
 - The current MP value will be displayed at the end of your combo. When MP reaches 500, a burst button will be shown instead.
 - Special attacks can only be selected if you have enough MP.
-- Removing cards from your combo will also revert the MP value to an earlier state. The resulting MP value can only be accurate if MP didn't get auto-capped to its maximum value earlier in the combo.
-- You can't remove cards from your combo using the right mouse button.
+- Removing cards from your combo with a left-click will also revert the MP value to an earlier state. The resulting MP value can only be accurate if MP didn't get auto-capped to its maximum value earlier in the combo. If you remove a single card from your combo with a right-click, MP will not be adjusted.
 
 ![](https://i.imgur.com/0GNs8Im.png)
 

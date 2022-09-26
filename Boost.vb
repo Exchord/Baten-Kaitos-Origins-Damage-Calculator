@@ -481,7 +481,7 @@
             Case ChrW(Keys.Back), ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)                'allow backspace and Ctrl+A/C/V/X/Z
                 Return
         End Select
-        e.Handled = True
+        e.Handled = True                                                                        'block everything else
     End Sub
 
     Public Sub ChangePartyOrder()
@@ -504,6 +504,7 @@
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
         Select Case e.KeyCode
             Case Keys.R
+                label(0).Focus()
                 ResetAll()
             Case Keys.Escape
                 Close()

@@ -119,6 +119,7 @@
                 .Cursor = Cursors.Hand
                 .Tag = x
                 AddHandler .Click, AddressOf Add
+                AddHandler .Click, AddressOf RemoveLastInstance
                 AddHandler .MouseEnter, AddressOf ShowName
                 AddHandler .Click, AddressOf ChangeFocus
             End With
@@ -170,6 +171,9 @@
     End Sub
 
     Private Sub Add(sender As Object, e As MouseEventArgs)
+        If e.Button <> MouseButtons.Left Then
+            Return
+        End If
         Dim id As Integer = sender.Tag
         For x = 0 To 23
             If inventory(x).Tag = 0 Then
@@ -180,6 +184,19 @@
                 If move_slot = x Then
                     move_slot = -1
                 End If
+                Exit For
+            End If
+        Next
+    End Sub
+
+    Private Sub RemoveLastInstance(sender As Object, e As MouseEventArgs)
+        If e.Button <> MouseButtons.Right Then
+            Return
+        End If
+        Dim id As Integer = sender.Tag
+        For x = 23 To 0 Step -1
+            If inventory(x).Tag = id Then
+                Remove(inventory(x), New MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0))
                 Exit For
             End If
         Next

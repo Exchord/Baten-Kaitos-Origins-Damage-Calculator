@@ -2166,12 +2166,12 @@ Public Class Main
         Dim id As Integer
         Dim delta As Double
         Dim value As Double = current_MP
-        If card = cards - 1 Then                                                                'add card
+        If card = cards - 1 Then                                        'add card
             id = combo(cards - 1).Tag
             delta = MP.factor * MP_gain(cards - 1) - 100 * MP_cost(id)
             value = Math.Min(value + delta, MP.max_MP)
         Else
-            For x = card To cards Step -1                                                       'remove card(s)
+            For x = card To cards Step -1                               'remove card(s)
                 id = combo(x).Tag
                 delta = MP.factor * MP_gain(x) - 100 * MP_cost(id)
                 value = Clamp(value - delta, 0, MP.max_MP)
@@ -2729,9 +2729,6 @@ Public Class Main
     End Sub
 
     Private Sub RemoveSingleCard(sender As Object, e As MouseEventArgs)
-        If MP.Visible Then
-            Return
-        End If
         Dim card As Integer = sender.Name
         Dim id As Integer = sender.Tag
 
@@ -2759,6 +2756,9 @@ Public Class Main
         Next
 
         UpdateTurns()
+        If MP.Visible Then
+            DisplayMP(current_MP)
+        End If
         CheckCards()
         Calculate()
     End Sub
@@ -3218,10 +3218,6 @@ Public Class Main
             End Select
         Next
 
-        If crit > 100 Then
-            crit = 100
-        End If
-
         QM_total_bonus(0) = physical
         QM_total_bonus(1) = fire
         QM_total_bonus(2) = ice
@@ -3229,7 +3225,7 @@ Public Class Main
         QM_total_bonus(4) = light
         QM_total_bonus(5) = dark
         QM_total_bonus(6) = extra
-        QM_total_bonus(7) = crit
+        QM_total_bonus(7) = Math.Min(crit, 100)
         QM_total_bonus(8) = level
 
         If QuestMagnus.Visible Then
@@ -3360,15 +3356,17 @@ Public Class Main
             target_data(8).Cursor = Cursors.Default
         End If
 
-        If new_target = old_target Then
-            If go Then
-                Calculate()
-            End If
-            Return
+        If new_target <> old_target Then
+            ChangeArmor()
         End If
+        If go Then
+            Calculate()
+        End If
+    End Sub
 
+    Private Sub ChangeArmor()
         Dim armor_durability As Integer
-        Select Case new_target
+        Select Case combo_target
             Case 26                     'Armored Cancerite
                 armor_defense = 50
                 armor_durability = 8
@@ -3383,31 +3381,26 @@ Public Class Main
                 armor_durability = 5
             Case 117                    'Machina Arma: Razer 3
                 armor_defense = 20
-                target_data(10).Hide()
-                Me.armor_durability.Hide()
-                Me.armor_durability.Items.Clear()
             Case Else
                 armor_defense = 0
-                target_data(10).Hide()
-                Me.armor_durability.Hide()
-                Me.armor_durability.Items.Clear()
         End Select
 
-        If armor_durability > 0 Then
-            With Me.armor_durability
-                .Items.Clear()
-                For i = 0 To armor_durability
-                    .Items.Add(i)
-                Next
-                .SelectedIndex = .Items.Count - 1
-                target_data(10).Show()
-                .Show()
-            End With
+        If armor_durability = 0 Then
+            target_data(10).Hide()
+            Me.armor_durability.Hide()
+            Me.armor_durability.Items.Clear()
+            Return
         End If
 
-        If go Then
-            Calculate()
-        End If
+        With Me.armor_durability
+            .Items.Clear()
+            For i = 0 To armor_durability
+                .Items.Add(i)
+            Next
+            .SelectedIndex = .Items.Count - 1
+            target_data(10).Show()
+            .Show()
+        End With
     End Sub
 
     Private Sub CheckHP()
@@ -3621,7 +3614,7 @@ Public Class Main
             Case ChrW(Keys.Back), ChrW(1), ChrW(3), ChrW(22), ChrW(24), ChrW(26)        'allow backspace and Ctrl+A/C/V/X/Z
                 Return
         End Select
-        e.Handled = True
+        e.Handled = True                                                                'block everything else
     End Sub
 
     Private Sub FixHP()                                         'called when text box loses focus
@@ -3655,6 +3648,7 @@ Public Class Main
         If new_level = "" Then
             box.ForeColor = Color.Red
             ChangeLevel(chr, 1)
+            CheckAura(chr, False)
             Calculate()
             Return
         End If
@@ -4083,9 +4077,9 @@ Public Class Main
         Dim window As Form = form(index)
         If window Is sender Then
             window.Close()
-            Return
+        Else
+            OpenWindow(window)
         End If
-        OpenWindow(window)
     End Sub
 
     Public Sub UpdateRows()
@@ -4301,15 +4295,15 @@ Public Class Main
         Clipboard.SetText(output)
     End Sub
 
-    Private Function NumberToColumn(input As Integer) As String
+    Private Function NumberToColumn(n As Integer) As String
         Dim output As String = ""
         Do
             If output.Length > 0 Then
-                input -= 1
+                n -= 1
             End If
-            output = Convert.ToChar(input Mod 26 + 65) & output
-            input = Math.Floor(input / 26)
-        Loop Until input = 0
+            output = Convert.ToChar(n Mod 26 + 65) & output
+            n = Math.Floor(n / 26)
+        Loop Until n = 0
         Return output
     End Function
 
