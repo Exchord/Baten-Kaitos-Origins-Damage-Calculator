@@ -3293,12 +3293,15 @@ Public Class Main
         End If
     End Sub
 
-    Public Sub ChangeTarget(new_target As Integer, enemy_HP As Integer, go As Boolean)
+    Public Sub ChangeTarget(new_target As Integer, new_HP As Integer, go As Boolean)
         Dim old_target As Integer = combo_target
         combo_target = new_target
         target_image.Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(110, 132))
-        target_data(0).Text = enemy_name(new_target)
+        If Boost.Visible Then
+            Boost.character(3).Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(70, 84))
+        End If
 
+        target_data(0).Text = enemy_name(new_target)
         If knockdown(new_target) > 0 Then
             target_data(1).Text = "Knockdown"
             target_data(2).Text = knockdown(new_target)
@@ -3312,20 +3315,6 @@ Public Class Main
         Else
             target_data(3).Text = ""
             target_data(4).Text = ""
-        End If
-
-        true_max_HP = HP(new_target)
-        target_data(8).Text = true_max_HP
-        If enemy_HP < 0 Or enemy_HP > true_max_HP Then
-            Me.enemy_HP.Text = true_max_HP
-            true_HP = true_max_HP
-        Else
-            Me.enemy_HP.Text = enemy_HP
-            true_HP = enemy_HP
-        End If
-
-        If Boost.Visible Then
-            Boost.character(3).Image = New Bitmap(My.Resources.ResourceManager.GetObject("target_" & new_target), New Size(70, 84))
         End If
 
         If multi_phase_enemies.Contains(new_target) Then
@@ -3344,17 +3333,14 @@ Public Class Main
             target_data(12).Show()
         End If
 
-        Me.enemy_HP.ForeColor = Color.Black
-        true_HP = Me.enemy_HP.Text
-        ChangeHP()
-
-        If Me.enemy_HP.Text <> true_max_HP Then
-            target_data(8).BackColor = Color.LightYellow
-            target_data(8).Cursor = Cursors.Hand
+        true_max_HP = HP(new_target)
+        target_data(8).Text = true_max_HP
+        If new_HP < 0 Or new_HP > true_max_HP Then
+            ChangeHP(true_max_HP, True)
         Else
-            target_data(8).BackColor = default_color
-            target_data(8).Cursor = Cursors.Default
+            ChangeHP(new_HP, True)
         End If
+        enemy_HP.ForeColor = Color.Black
 
         If new_target <> old_target Then
             ChangeArmor()
@@ -3407,8 +3393,7 @@ Public Class Main
         Dim new_HP As String = enemy_HP.Text
         If new_HP = "" Then
             enemy_HP.ForeColor = Color.Red
-            true_HP = 0
-            ChangeHP()
+            ChangeHP(0, False)
             Calculate()
             Return
         End If
@@ -3418,16 +3403,19 @@ Public Class Main
         End If
         If new_HP > true_max_HP Then
             enemy_HP.ForeColor = Color.Red
-            true_HP = true_max_HP
+            ChangeHP(true_max_HP, False)
         Else
             enemy_HP.ForeColor = Color.Black
-            true_HP = enemy_HP.Text
+            ChangeHP(enemy_HP.Text, False)
         End If
-        ChangeHP()
         Calculate()
     End Sub
 
-    Private Sub ChangeHP()
+    Private Sub ChangeHP(new_HP As Integer, change_text As Boolean)
+        true_HP = new_HP
+        If change_text Then
+            enemy_HP.Text = new_HP
+        End If
         If Not (final_phase.Visible And final_phase.Checked) And HP_limit(combo_target) > 0 Then
             effective_max_HP = Math.Floor(true_max_HP * (1 - HP_limit(combo_target))) + 1
             effective_HP = Math.Max(0, true_HP + effective_max_HP - true_max_HP)
@@ -3505,9 +3493,7 @@ Public Class Main
                 End If
             End If
         End If
-        enemy_HP.ForeColor = Color.Black
-        true_HP = enemy_HP.Text
-        ChangeHP()
+        ChangeHP(true_HP, False)
         Calculate()
     End Sub
 
