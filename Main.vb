@@ -179,6 +179,43 @@ Public Class Main
         MinimumSize = New Size(864, 524)
         LoadWindowData()
 
+        With My.Settings
+            .SagiLevel = Clamp(.SagiLevel, 1, 100)
+            .MillyLevel = Clamp(.MillyLevel, 1, 100)
+            .GuilloLevel = Clamp(.GuilloLevel, 1, 100)
+            .DeckClass = Clamp(.DeckClass, 1, 30)
+            .Character = Clamp(.Character, 0, 2)
+            .Target = Clamp(.Target, 1, 145)
+
+            If .PartyOrder.Length <> 3 Then
+                .PartyOrder = "012"
+            Else
+                For x = 0 To 2
+                    Dim i As Char = x.ToString
+                    If .PartyOrder.Count(Function(c As Char) c = i) <> 1 Then
+                        .PartyOrder = "012"
+                        Exit For
+                    End If
+                Next
+            End If
+
+            If .Auras.Length <> 6 OrElse Not IsHexadecimal(.Auras) Then
+                .Auras = "000000"
+            End If
+            If .QuestMagnus.Length <> 48 OrElse Not IsHexadecimal(.QuestMagnus) Then
+                .QuestMagnus = "000000000000000000000000000000000000000000000000"
+            End If
+            If .ResultsRow.Length <> 32 OrElse Not IsBinary(.ResultsRow) Then
+                .ResultsRow = "11111111111111111111111111111111"
+            End If
+            If .Heavenlapse.Length <> 9 OrElse Not IsBinary(.Heavenlapse) Then
+                .Heavenlapse = "100100101"
+            End If
+            If .AphelionDustwake.Length <> 13 OrElse Not IsBinary(.AphelionDustwake) Then
+                .AphelionDustwake = "1001010101010"
+            End If
+        End With
+
 
         ' PARTY
 
@@ -732,7 +769,7 @@ Public Class Main
 
         UpdateRows()
         With My.Settings
-            If .MagnusActive Is Nothing Then
+            If .MagnusActive Is Nothing OrElse .MagnusActive.Count <> 456 Then
                 .MagnusActive = New Specialized.StringCollection
                 .MagnusActive.Clear()
                 deck_magnus(0) = "0"
@@ -759,12 +796,20 @@ Public Class Main
             level_selector(0).Text = .SagiLevel
             level_selector(1).Text = .MillyLevel
             level_selector(2).Text = .GuilloLevel
+            Dim type, level As Integer
             For x = 0 To 2
-                aura_type(x).SelectedIndex = CInt("&H" & .Auras.ElementAt(x * 2))
-                aura_level(x).SelectedIndex = CInt("&H" & .Auras.ElementAt(x * 2 + 1))
+                type = "&H" & .Auras.ElementAt(x * 2)
+                type = Clamp(type, 0, 11)
+                aura_type(x).SelectedIndex = type
+                level = "&H" & .Auras.ElementAt(x * 2 + 1)
+                level = Clamp(level, 0, 2)
+                aura_level(x).SelectedIndex = level
             Next
+            Dim qm As Integer
             For x = 0 To 23
-                QM_inventory(x) = CInt("&H" & .QuestMagnus.Substring(x * 2, 2))
+                qm = "&H" & .QuestMagnus.Substring(x * 2, 2)
+                qm = Clamp(qm, 0, 180)
+                QM_inventory(x) = qm
             Next
             CheckQuestMagnus()
             Show()
@@ -887,9 +932,11 @@ Public Class Main
         Dim type, level As Integer
         For x = 0 To 2
             type = Read(aura_address + x * 244, 4)
+            type = Clamp(type, 0, 11)
             aura_type(x).SelectedIndex = type
-            If type <> 0 Then
+            If type > 0 Then
                 level = Read(aura_address + 4 + x * 244, 4)
+                level = Clamp(level, 1, 3)
                 aura_level(x).SelectedIndex = level - 1
             End If
         Next
@@ -898,15 +945,22 @@ Public Class Main
         Dim id As Integer
         For x = 0 To 23
             id = Read(quest_magnus_address + x * 152, 4)
-            If id < 500 Or id > 699 Then
-                id = 0
-            ElseIf id < 593 Then
-                id -= 500
-            ElseIf id < 670 Then
-                id -= 517
-            Else
-                id -= 519
-            End If
+            Select Case id
+                Case < 500
+                    id = 0      'not a quest magnus
+                Case < 593
+                    id -= 500
+                Case < 610
+                    id = 0      'placeholder magnus
+                Case < 670
+                    id -= 517
+                Case < 672
+                    id = 0      'unused magnus
+                Case < 700
+                    id -= 519
+                Case Else
+                    id = 0
+            End Select
             QM_inventory(x) = id
         Next
         If QuestMagnus.Visible Then
@@ -1235,9 +1289,10 @@ Public Class Main
         If final_target = 6 Then    'Machinanguis B
             final_target = 2
         End If
-        final_target = Clamp(final_target, 0, 4)
+        final_target = Clamp(final_target, 0, enemy_party_size - 1)
+        Dim enemy As Integer = Clamp(enemy_party(final_target), 1, 145)
 
-        ChangeTarget(enemy_party(final_target), enemy_HP(final_target) + combo_damage, False)
+        ChangeTarget(enemy, enemy_HP(final_target) + combo_damage, False)
 
         If final_phase_battles.Contains(battle_id) Then
             final_phase.Checked = True
@@ -2242,7 +2297,7 @@ Public Class Main
         Return Math.Round(Math.Round(input, 12), 3, MidpointRounding.AwayFromZero)      'floating-point error mitigation while rounding to 3 decimals
     End Function
 
-    Public Function Clamp(input As Double, min As Double, max As Double)                'limit input number to a range
+    Public Function Clamp(input As Double, min As Double, max As Double) As Double      'limit input number to a range
         Return Math.Max(min, Math.Min(input, max))
     End Function
 
@@ -2600,7 +2655,7 @@ Public Class Main
 
     Private Function Decimals(value As Double) As String
         Dim pre_decimal_length As Integer = value.ToString.IndexOf(".")
-        If pre_decimal_length <= 0 Then
+        If pre_decimal_length = -1 Then
             pre_decimal_length = value.ToString.Length
         End If
         Dim decimal_places As Integer = Clamp(6 - pre_decimal_length, 0, 2)
@@ -3675,14 +3730,36 @@ Public Class Main
         End With
     End Sub
 
-    Public Function IsNonNegativeInteger(input As String) As Boolean
+    Public Function IsNonNegativeInteger(text As String) As Boolean
         Dim number As Integer
-        If Integer.TryParse(input, number) Then
+        If Integer.TryParse(text, number) Then
             If number >= 0 Then
                 Return True
             End If
         End If
         Return False
+    End Function
+
+    Public Function IsHexadecimal(text As String) As Boolean
+        Dim chars() As Char = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"}
+        For x = 0 To text.Length - 1
+            Dim c As Char = text.ElementAt(x)
+            If Not chars.Contains(c) Then
+                Return False
+            End If
+        Next
+        Return True
+    End Function
+
+    Public Function IsBinary(text As String) As Boolean
+        Dim chars() As Char = {"0", "1"}
+        For x = 0 To text.Length - 1
+            Dim c As Char = text.ElementAt(x)
+            If Not chars.Contains(c) Then
+                Return False
+            End If
+        Next
+        Return True
     End Function
 
     Private Sub ToggleDown()
