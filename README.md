@@ -10,31 +10,69 @@ Information on magnus, enemies, and combos: [BKO Documentation](https://docs.goo
 
 The above screenshot is a simulation of [this combo](https://youtu.be/n9rcfXrhIZE?t=2503).
 
-## User interface
+## Table of contents <a name="contents"></a>
+- **Party**
+    - [Character icons](#Character_icons)
+    - [Levels](#Levels)
+    - [Auras](#Auras)
+    - [Equipped magnus](#Equipped_magnus)
+- **Enemy**
+    - [Target](#Target)
+    - [Knockdown and knockout](#Knockdown_and_knockout)
+    - [Final phase](#Final_phase)
+    - [Shield](#Shield)
+    - [Secondary target](#Secondary_target)
+    - [HP and effective HP](#HP_and_effective_HP)
+    - [Down](#Down)
+    - [Status](#Status)
+    - [Armor durability](#Armor_durability)
+- **Buttons**
+    - [Deck](#Deck)
+    - [Quest magnus](#Quest_magnus)
+    - [Temporary boost](#Temporary_boost)
+    - [Dolphin](#Dolphin)
+    - [Spreadsheet](#Spreadsheet)
+    - [Settings](#Settings)
+    - [Combo results](#Combo_results)
+    - [MP](#MP)
+    - [Next combo](#Next_combo)
+- **Cards**
+    - [Hand](#Hand)
+    - [Combo](#Combo)
+- [**Tips**](#Tips)
+- [**Output table**](#Output_table)
+- [**Advanced mechanics**](#Advanced_mechanics)
+    - [Regalia hits](#Regalia_hits)
+    - [Knockdown hits](#Knockdown_hits)
 
-### Character icons
+
+## Party
+
+### Character icons <a name="Character_icons"></a>
 ![](https://i.imgur.com/ScIh0tO.png)  
 Click any of the character icons to switch characters. The hand will then update to show only cards that the current character can use.
 
 
-### Levels
+### Levels <a name="Levels"></a>
 ![](https://i.imgur.com/o8kFhQ0.png)  
 You can change a character's level by typing on the keyboard, using the mouse wheel, or clicking the dropdown arrow.  
 If your quest magnus inventory causes your level to increase, the actual level will be displayed in green below the text box. If it decreases, it will be displayed in red.
 
 
-### Auras
+### Auras <a name="Auras"></a>
 ![](https://i.imgur.com/F6iwEv6.png)  
 Auras purchased in the Endmost Bethel can be selected via these dropdown menus.  
 Note that the strength of an aura may change depending on the character's level.
 
 
-### Equipped magnus
+### Equipped magnus <a name="Equipped_magnus"></a>
 ![](https://i.imgur.com/za5gX3z.png)  
 Sometimes you may already have a magnus equipped at the start of a combo. Right-click any equipment magnus in your hand, transparent or not, and it will appear next to the character's aura. You can then adjust the durability using the nearby combo box, or click the equipped magnus to remove it.
 
 
-### Target
+## Enemy
+
+### Target <a name="Target"></a>
 ![](https://i.imgur.com/M8repeT.png)  
 Click the target image to open the target selection window. When you select a new target, the main window will update with some of the enemy's data:
 - Name
@@ -47,12 +85,12 @@ Click the target image to open the target selection window. When you select a ne
 
 ![](https://i.imgur.com/EVosQWd.png)
 
-### Knockdown and knockout
+### Knockdown and knockout <a name="Knockdown_and_knockout"></a>
 
 The enemy gets knocked down/out when their crush status reaches the knockdown/knockout threshold displayed here. Enemies that don't have a knockdown/knockout threshold cannot be knocked down/out.
 
 
-### Final phase
+### Final phase <a name="Final_phase"></a>
 
 Some bosses have multiple fights, the last of which is always different in at least one of the following aspects:
 - Effective HP
@@ -62,7 +100,7 @@ Some bosses have multiple fights, the last of which is always different in at le
 - The Godling's Rapture critical hits
 
 
-### Shield
+### Shield <a name="Shield"></a>
 
 Some bosses have a shield that visibly and audibly breaks when their effective HP drops below 50%. When this happens, the following stats are permanently multiplied by 0.8:
 - All defenses
@@ -73,33 +111,33 @@ Some bosses have a shield that visibly and audibly breaks when their effective H
 The checkbox will toggle itself on or off depending on the value in the HP text box. If an enemy with a broken shield heals beyond the 50% threshold, the shield will not come back. In that situation, you can manually toggle the shield off.
 
 
-### Secondary target
+### Secondary target <a name="Secondary_target"></a>
 
 If this is checked, only hits from multi-target attacks will register.
 
 Note that this program does not simulate multiple targets. If you use multi-target attacks, you may need to pre-equip your weapon and decrease its durability to compensate for hits on other targets.
 
 
-### HP and effective HP
+### HP and effective HP <a name="HP_and_effective_HP"></a>
 ![](https://i.imgur.com/f6lmZUm.png)  
 In the HP text box, you can enter a new value for the enemy's current HP, or use the mouse wheel to fine-tune the value. Next to the text box is the enemy's max HP, which you can click to reset the enemy's HP to the maximum.
 
 Below HP, you may find something called "effective HP". This refers to boss battles that end with the enemy striking down the party or a cutscene interrupting the fight. Effective HP aims to replace true HP with the amount of damage required to end the battle.
 
 
-### Down
+### Down <a name="Down"></a>
 
 If the enemy is knocked down, knocked out, or asleep, the next hit will be a critical hit.
 
 
-### Status
+### Status <a name="Status"></a>
 
 You can select one of four status effects for the target: flames, frozen, shock, and blind. Attacking a burning enemy with ice, a frozen enemy with fire, or a blind enemy with light will cause a critical hit. Attacking a shocked enemy with any element will knock them down.
 
 Note that these four status effects cannot be combined. However, sleep and poison can be combined with each other and with any of the other four effects.
 
 
-### Armor durability
+### Armor durability <a name="Armor_durability"></a>
 
 The following enemies have armor equipped at the start of a battle:  
 Armored Cancerite, Armored Balloona, Armored Mite, Phoelix, Machina Arma: Razer 3 (final phase only)
@@ -108,14 +146,16 @@ After a certain number of hits, the armor will break. You can select how many hi
 Note that Machina Arma: Razer 3's armor breaks along with its shield. Therefore, it doesn't have durability points.
 
 
-### Deck
+## Buttons
+
+### Deck <a name="Deck"></a>
 ![](https://i.imgur.com/dQmxp1I.png)  
 Click the Weak Attack magnus to open a deck editor. Here, you can select which cards will show up in each character's hand.  
 Each row of magnus forms a group which you can enable or disable using the plus or minus button next to it. You can also remove a magnus from your deck by middle-clicking it in the main window.
 
 ![](https://i.imgur.com/RK4B8ku.png)
 
-### Quest magnus
+### Quest magnus <a name="Quest_magnus"></a>
 ![](https://i.imgur.com/CdmQDLP.png)  
 Click the blank magnus to open the quest magnus window. Here, you can add or remove any quest magnus to change your inventory. Some quest magnus add extra damage, allow for critical hits, or change all characters' levels. Magnus with no relevant effects are transparent.
 
@@ -123,7 +163,7 @@ Clicking the "Reset" button will turn all quest magnus into blank magnus. You ca
 
 ![](https://i.imgur.com/o3lwDWu.png)
 
-### Temporary boost
+### Temporary boost <a name="Temporary_boost"></a>
 ![](https://i.imgur.com/65ylqfB.png)  
 Some battle magnus increase or decrease a character's offense or defense for two turns. You can change the boost target by clicking any of your party members. Clicking any of the first 8 magnus will then add a bonus to their offense. (Right-click the magnus to undo this action.) The top text box displays the offense increase for the current turn, and the bottom text box displays the offense increase for the next turn.
 
@@ -137,7 +177,7 @@ Notes:
 
 ![](https://i.imgur.com/ip8TMgV.png)
 
-### Dolphin
+### Dolphin <a name="Dolphin"></a>
 ![](https://i.imgur.com/zRxfMiW.png)  
 If the game is running in Dolphin 5.0 or 4.0.2 (stable versions only), clicking this icon will import the following data from the emulator:
 - Game version
@@ -157,14 +197,14 @@ These are not read from Dolphin:
 - Armor durability
 
 
-### Spreadsheet
+### Spreadsheet <a name="Spreadsheet"></a>
 ![](https://i.imgur.com/YcdbLcT.png)  
 Clicking this button will copy the entire output table to the clipboard. You can then paste it into the spreadsheet software of your choice. Note that the copied data is in plain text and contains cell references which only work if pasted at A1. After pasting it, you can move the table anywhere you want.
 
 This feature allows you to experiment beyond the limitations of the calculator and simulate very specific scenarios, such as blindness misses and auras or quest magnus expiring mid-combo. This is also the only way to simulate hacked conditions or unexplored effects.
 
 
-### Settings
+### Settings <a name="Settings"></a>
 ![](https://i.imgur.com/bXoduDy.png)  
 - <i>Auto-close target window:</i> When you choose a target, the target window closes automatically.
 
@@ -196,29 +236,29 @@ The checkboxes on the right side allow you to hide or show any of the rows in th
 
 ![](https://i.imgur.com/WNsLdZm.png)
 
-### Combo results
+### Combo results <a name="Combo_results"></a>
 ![](https://i.imgur.com/DAs7OdF.png)  
 In a similar fashion to the in-game text after a combo, this shows the number of cards and hits as well as the total damage and TP bonus of the current combo.
 
 
-### MP
+### MP <a name="MP"></a>
 
 Clicking this button will open a window that lets you simulate MP during battle. As long as this window is open, the program will operate slightly differently:
 - The current MP value will be displayed at the end of your combo. When MP reaches 500, a burst button will be shown instead.
 - Special attacks can only be selected if you have enough MP.
-- Removing cards from your combo with a left-click will also revert the MP value to an earlier state. The resulting MP value can only be accurate if MP didn't get auto-capped to its maximum value earlier in the combo. If you remove a single card from your combo with a right-click, MP will not be adjusted.
+- Removing cards from your combo with a left-click will revert the MP value to an earlier state. The resulting MP value can only be accurate if MP didn't get auto-capped to its maximum value earlier in the combo. If you remove a card from your combo with a right-click, MP will not be adjusted.
 
 ![](https://i.imgur.com/0GNs8Im.png)
 
 Interface elements:
-- <i>Deck class:</i> Selecting your deck class changes the MP factor and the max MP. If your deck class is 7 or higher, the maximum MP is 500.
+- <i>Deck class:</i> Selecting your deck class changes the MP factor and the max MP. If your deck class is 7 or higher, the max MP is 500.
 - <i>MP factor:</i> Most MP mechanics use this factor to increase MP during battle.
 - <i>Wingdash:</i> If your heartwing gauge is yellow or orange, you will gain some MP at the start of the battle.
 - <i>Reset:</i> Click this button to reset MP to 0.
 - MP text box: You can type a new value into this box, or use the mouse wheel to add or subtract the MP gained from a spirit draw or free card.
 - <i>MP burst:</i> When MP is 500, you can activate the MP burst.
 - MP-charging magnus: These five magnus add different amounts of MP when used. Right-click a magnus to undo the MP charge.
-- <i>Include MP from selecting card:</i> The moment you select any of the five MP chargers from your deck (before the character performs the action), the MP factor is added to the current MP.
+- <i>Include MP from selecting card:</i> The moment you select any of the five MP chargers from your deck (before the character begins their turn), the MP factor is added to the current MP.
 - <i>Deviation:</i> A random factor ranging from 0.9 to 1.04 is applied to MP charge and MP drain.
 - Artifacts: Using any of these will add the MP factor and reduce MP by 100 times the roman numeral. Right-click an artifact to undo this action.
 - <i>MP drain:</i> Hitting an enemy with one of these weapons will steal some of their MP. Note that the amount of MP you gain cannot exceed the amount of MP the enemy has left. Also, since enemy MP is stored as an integer, the amount of MP you gain is an integer as well. Right-click a magnus to undo the MP drain.
@@ -226,7 +266,7 @@ Interface elements:
 - <i>Lightning knockdown:</i> Knocking down an enemy with lightning (+) yields between 30 and 50 MP, while getting knocked down by the enemy (-) takes away between 30 and 50 MP. The exact amount is randomly determined by the game. In the MP window, you can change the amount using the dropdown menu at the bottom. Note that lightning knockdowns don't change the enemy's MP value.
 
 
-### Next combo
+### Next combo <a name="Next_combo"></a>
 
 Clicking this button changes the status of your party and the target to what it will be after the current combo. This also clears the combo. You can then move on with the next combo without having to manually adjust the following input data:
 - Equipment and durability
@@ -237,7 +277,7 @@ Clicking this button changes the status of your party and the target to what it 
 - Temporary boost
 
 
-### Hand
+### Hand <a name="Hand"></a>
 ![](https://i.imgur.com/spssPNP.png)  
 Here, you can see all the magnus from your deck which can be used by the currently selected character. Click any of these cards to add it to the combo. Cards will become transparent and unusable depending on their spirit number and that of the last card in your combo.
 
@@ -245,14 +285,14 @@ Right-click any equipment magnus in your hand, transparent or not, to have it eq
 Middle-click any magnus to remove it from your deck.
 
 
-### Combo
+### Combo <a name="Combo"></a>
 ![](https://i.imgur.com/RbZO6EU.png)  
 This is the string of cards that makes up your current combo. Click any card to remove it and all subsequent cards from the combo. Press Backspace to remove the last card from your combo.
 
 You can also remove a single card anywhere in the combo by right-clicking it.
 
 
-## Tips
+## Tips <a name="Tips"></a>
 
 You can use the mouse wheel to adjust levels, auras, durability, HP, status, boost, and random deviations.
 
@@ -271,7 +311,7 @@ Keyboard shortcuts:
 - Escape: close window (can't be used in main window)
 
 
-## Output table
+## Output table <a name="Output_table"></a>
 
 
 <i>Base offense:</i> An offense value based on the party member's level.
@@ -291,7 +331,7 @@ Keyboard shortcuts:
 <i>Weapon offense:</i> Additional offense from equipped weapon.  
 Click any cell in this row to enable a mid-combo status effect for specific weapons. Click the row title to remove all mid-combo status effects.
 
-<i>Weapon defense:</i> Additional crush from equipped weapon.  
+<i>Weapon crush:</i> Additional crush from equipped weapon.  
 Click any cell in this row to enable a mid-combo defense/offense reduction for specific weapons. Click the row title to remove all mid-combo defense/offense reductions.
 
 <i>Element compatibility:</i> Depending on the elements of the attack and equipped weapon, only a portion of the weapon bonus may take effect.
@@ -368,10 +408,10 @@ Crush output cannot be negative.
 
 
 
-## Advanced mechanics
+## Advanced mechanics <a name="Advanced_mechanics"></a>
 
 
-### Regalia hits
+### Regalia hits <a name="Regalia_hits"></a>
 
 If Milly has Firedrake Regalia or Aetherdrake Regalia equipped, an extra hit will be added to the end of her turn. The element of this extra hit is always physical.
 
@@ -380,7 +420,7 @@ total_offense = enemy_offense * 50 * enemy_physical_attack_boost_factor * random
 Crush output is 0. The rest of the damage formula is the same as regular hits.
 
 
-### Knockdown hits
+### Knockdown hits <a name="Knockdown_hits"></a>
 
 If an enemy gets knocked down with fire (no flames immunity) or darkness at the end of a turn, an extra hit will be added to the combo.
 

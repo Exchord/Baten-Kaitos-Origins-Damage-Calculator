@@ -581,7 +581,7 @@
     End Sub
 
     Private Sub ViewDocumentation()
-        Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator#readme")
+        Process.Start("https://github.com/Exchord/Baten-Kaitos-Origins-Damage-Calculator#contents")
     End Sub
 
     Private Sub ShowDescription(sender As Object, e As EventArgs)
