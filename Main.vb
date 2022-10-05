@@ -693,7 +693,7 @@ Public Class Main
                     .Tag = x
                     .Name = y
                     .DropDownStyle = ComboBoxStyle.DropDownList
-                    For i = 4 To 1 Step -1
+                    For i = 3 To 1 Step -1
                         .Items.Add("+" & i & "%")
                     Next
                     For i = 0 To -4 Step -1
@@ -2273,6 +2273,7 @@ Public Class Main
         Else
             MP.burst.Checked = True
         End If
+        card_panel(1).Focus()
     End Sub
 
     Public Sub ScrollToEnd()
@@ -2315,9 +2316,9 @@ Public Class Main
             With hit_modifier(hit, i)
                 .Top = row_pos(hit_modifier_row(i)) + output_panel.AutoScrollPosition.Y
                 If Not output_panel.Contains(hit_modifier(hit, i)) Then
-                    .Left = 104 + 52 * (hit) + output_panel.AutoScrollPosition.X
+                    .Left = 104 + 52 * hit + output_panel.AutoScrollPosition.X
                     output_panel.Controls.Add(hit_modifier(hit, i))
-                    .SelectedIndex = 4
+                    .SelectedIndex = 3
                 End If
                 .Show()
             End With
@@ -2341,11 +2342,11 @@ Public Class Main
             Next
             offense.SelectedIndex = 12
             defense.SelectedIndex = 12
-            crush.SelectedIndex = 4
+            crush.SelectedIndex = 3
         ElseIf Not knockdown_hit(hit) And offense.Items.Count >= 25 Then
             offense.Items.Clear()
             defense.Items.Clear()
-            For i = 4 To 1 Step -1
+            For i = 3 To 1 Step -1
                 offense.Items.Add("+" & i & "%")
                 defense.Items.Add("+" & i & "%")
             Next
@@ -2353,9 +2354,9 @@ Public Class Main
                 offense.Items.Add(i & "%")
                 defense.Items.Add(i & "%")
             Next
-            offense.SelectedIndex = 4
-            defense.SelectedIndex = 4
-            crush.SelectedIndex = 4
+            offense.SelectedIndex = 3
+            defense.SelectedIndex = 3
+            crush.SelectedIndex = 3
         End If
     End Sub
 
@@ -3303,16 +3304,16 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub CheckAura(check_char As Integer, go As Boolean)
+    Private Sub CheckAura(chr As Integer, go As Boolean)
         'aura properties based on type and aura level
         Dim attack, crush, element, bonus, start_level, end_level As Integer
-        attack = aura_data(aura(check_char, 0), aura(check_char, 1), 0)
-        crush = aura_data(aura(check_char, 0), aura(check_char, 1), 1)
-        element = aura_data(aura(check_char, 0), aura(check_char, 1), 2)
-        bonus = aura_data(aura(check_char, 0), aura(check_char, 1), 3)
+        attack = aura_data(aura(chr, 0), aura(chr, 1), 0)
+        crush = aura_data(aura(chr, 0), aura(chr, 1), 1)
+        element = aura_data(aura(chr, 0), aura(chr, 1), 2)
+        bonus = aura_data(aura(chr, 0), aura(chr, 1), 3)
 
         'select character's level range based on aura level
-        Select Case aura(check_char, 1)
+        Select Case aura(chr, 1)
             Case 0
                 start_level = 1
                 end_level = 15
@@ -3325,9 +3326,9 @@ Public Class Main
         End Select
 
         'additional bonus based on character's level
-        If level(check_char) < start_level Then
-        ElseIf level(check_char) <= end_level Then
-            bonus += Math.Round(bonus * 0.25 * (level(check_char) - start_level) / (end_level - start_level), 0, MidpointRounding.AwayFromZero)
+        If level(chr) < start_level Then
+        ElseIf level(chr) <= end_level Then
+            bonus += Math.Round(bonus * 0.25 * (level(chr) - start_level) / (end_level - start_level), 0, MidpointRounding.AwayFromZero)
         Else
             bonus = Math.Round(bonus * 1.25, 0, MidpointRounding.AwayFromZero)
         End If
@@ -3335,11 +3336,11 @@ Public Class Main
         'put each element's bonus into an array
         For x = 0 To 5
             If x = element Or element = 6 Then
-                aura_offense(check_char, x) = attack * bonus
-                aura_crush(check_char, x) = crush * bonus
+                aura_offense(chr, x) = attack * bonus
+                aura_crush(chr, x) = crush * bonus
             Else
-                aura_offense(check_char, x) = 0
-                aura_crush(check_char, x) = 0
+                aura_offense(chr, x) = 0
+                aura_crush(chr, x) = 0
             End If
         Next
 
@@ -3689,7 +3690,6 @@ Public Class Main
         If new_level = "" Then
             box.ForeColor = Color.Red
             ChangeLevel(chr, 1)
-            CheckAura(chr, False)
             Calculate()
             Return
         End If
@@ -3704,7 +3704,6 @@ Public Class Main
         End If
 
         ChangeLevel(chr, new_level)
-        CheckAura(chr, False)
         Calculate()
     End Sub
 
@@ -3728,6 +3727,8 @@ Public Class Main
                 .Hide()
             End If
         End With
+
+        CheckAura(chr, False)
     End Sub
 
     Public Function IsNonNegativeInteger(text As String) As Boolean
@@ -3799,7 +3800,7 @@ Public Class Main
             Next
             For y = 0 To 2
                 hit_modifier(x, y).Hide()
-                hit_modifier(x, y).SelectedIndex = Math.Floor(hit_modifier(x, y).Items.Count * 0.5)
+                hit_modifier(x, y).SelectedIndex = Math.Floor((hit_modifier(x, y).Items.Count - 1) * 0.5)
             Next
             weapon_effect(x) = False
             weapon_boost(x) = False
@@ -3812,13 +3813,15 @@ Public Class Main
 
         Dim highlight(8) As Boolean
         For x = 1 To hits
-            If hit_modifier(x, 0).SelectedIndex <> Math.Floor(hit_modifier(x, 0).Items.Count * 0.5) Then
+            If hit_modifier(x, 0).SelectedIndex <> Math.Floor((hit_modifier(x, 0).Items.Count - 1) * 0.5) Then
                 highlight(0) = True
+                Exit For
             End If
         Next
         For x = 1 To hits
-            If hit_modifier(x, 1).SelectedIndex <> Math.Floor(hit_modifier(x, 1).Items.Count * 0.5) Then
+            If hit_modifier(x, 1).SelectedIndex <> 3 Then
                 highlight(1) = True
+                Exit For
             End If
         Next
         If Array.IndexOf(weapon_effect, True, 1, hits) >= 0 Then
@@ -3834,8 +3837,9 @@ Public Class Main
             highlight(5) = True
         End If
         For x = 1 To hits
-            If hit_modifier(x, 2).SelectedIndex <> Math.Floor(hit_modifier(x, 2).Items.Count * 0.5) Then
+            If hit_modifier(x, 2).SelectedIndex <> Math.Floor((hit_modifier(x, 2).Items.Count - 1) * 0.5) Then
                 highlight(6) = True
+                Exit For
             End If
         Next
         If Array.IndexOf(min_one, True, 1, hits) >= 0 Then
@@ -3875,11 +3879,11 @@ Public Class Main
         Select Case row
             Case 4                  'reset offense deviation
                 For x = 1 To hits
-                    hit_modifier(x, 0).SelectedIndex = Math.Floor(hit_modifier(x, 0).Items.Count * 0.5)
+                    hit_modifier(x, 0).SelectedIndex = Math.Floor((hit_modifier(x, 0).Items.Count - 1) * 0.5)
                 Next
             Case 5                  'reset crush deviation
                 For x = 1 To hits
-                    hit_modifier(x, 1).SelectedIndex = 4
+                    hit_modifier(x, 1).SelectedIndex = 3
                 Next
             Case 7                  'remove all weapon effects
                 For x = 1 To hits
@@ -3899,7 +3903,7 @@ Public Class Main
                 Next
             Case 21                 'reset defense deviation
                 For x = 1 To hits
-                    hit_modifier(x, 2).SelectedIndex = Math.Floor(hit_modifier(x, 2).Items.Count * 0.5)
+                    hit_modifier(x, 2).SelectedIndex = Math.Floor((hit_modifier(x, 2).Items.Count - 1) * 0.5)
                 Next
             Case 27                 'remove all "minimum 1" hits
                 For x = 1 To hits
@@ -4154,6 +4158,7 @@ Public Class Main
             End If
         Next
         For y = 0 To rows - 1
+            Dim title As Label = table(0, y)
             If Not hit_modifier_row.Contains(y) Then
                 If My.Settings.ResultsRow.ElementAt(y) = "0" Then
                     For x = 0 To hits
@@ -4161,10 +4166,10 @@ Public Class Main
                     Next
                     Continue For
                 End If
-                If table(0, y).Visible And table(0, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y Then
+                If title.Visible And title.Top = row_pos(y) + output_panel.AutoScrollPosition.Y Then
                     Continue For
                 End If
-                For x = 0 To 999
+                For x = 0 To hits
                     table(x, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
                 Next
                 For x = 0 To hits
@@ -4183,32 +4188,33 @@ Public Class Main
 
             Dim i As Integer = Array.IndexOf(hit_modifier_row, y)
             If My.Settings.ResultsRow.ElementAt(y) = "0" Then
-                table(0, y).Hide()
+                title.Hide()
                 For x = 1 To hits
                     hit_modifier(x, i).Hide()
                 Next
                 Continue For
             End If
-            If table(0, y).Visible And table(0, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y Then
+            If title.Visible And title.Top = row_pos(y) + output_panel.AutoScrollPosition.Y Then
                 Continue For
             End If
-            table(0, y).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
-            table(0, y).Left = 5 + output_panel.AutoScrollPosition.X
-            table(0, y).Show()
-            For x = 1 To 999
+            title.Top = row_pos(y) + output_panel.AutoScrollPosition.Y
+            title.Left = 5 + output_panel.AutoScrollPosition.X
+            title.Show()
+            For x = 1 To hits
                 hit_modifier(x, i).Top = row_pos(y) + output_panel.AutoScrollPosition.Y
             Next
             For x = 1 To hits
-                If Not output_panel.Contains(hit_modifier(x, i)) Then
-                    hit_modifier(x, i).Left = 104 + 52 * x + output_panel.AutoScrollPosition.X
-                    output_panel.Controls.Add(hit_modifier(x, i))
+                Dim box As ComboBox = hit_modifier(x, i)
+                If Not output_panel.Contains(box) Then
+                    box.Left = 104 + 52 * x + output_panel.AutoScrollPosition.X
+                    output_panel.Controls.Add(box)
                     If Not knockdown_hit(x) Then
-                        RemoveHandler hit_modifier(x, i).SelectedIndexChanged, AddressOf ChangeDeviation
-                        hit_modifier(x, i).SelectedIndex = 4
-                        AddHandler hit_modifier(x, i).SelectedIndexChanged, AddressOf ChangeDeviation
+                        RemoveHandler box.SelectedIndexChanged, AddressOf ChangeDeviation
+                        box.SelectedIndex = 3
+                        AddHandler box.SelectedIndexChanged, AddressOf ChangeDeviation
                     End If
                 End If
-                hit_modifier(x, i).Show()
+                box.Show()
             Next
         Next
         Clear(0)
@@ -4371,20 +4377,31 @@ Public Class Main
     End Function
 
     Private Function DeviationToText(x As Integer, y As Integer) As String
+        Dim default_index As Integer
+        If hit_modifier(x, y).Items.Count = 8 Then
+            default_index = 3
+        Else
+            default_index = 4
+        End If
         Select Case hit_modifier(x, y).SelectedIndex
-            Case -1, 4
+            Case -1, default_index
                 Return ""
             Case Else
-                Return 4 - hit_modifier(x, y).SelectedIndex
+                Return default_index - hit_modifier(x, y).SelectedIndex
         End Select
     End Function
 
     Private Function DeviationToNumber(x As Integer, y As Integer) As Integer
-        Select Case hit_modifier(x, y).SelectedIndex
-            Case -1
-                Return 0
-            Case Else
-                Return 4 - hit_modifier(x, y).SelectedIndex
-        End Select
+        Dim default_index As Integer
+        If hit_modifier(x, y).Items.Count = 8 Then
+            default_index = 3
+        Else
+            default_index = 4
+        End If
+        If hit_modifier(x, y).SelectedIndex = -1 Then
+            Return 0
+        Else
+            Return default_index - hit_modifier(x, y).SelectedIndex
+        End If
     End Function
 End Class

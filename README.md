@@ -322,9 +322,9 @@ Keyboard shortcuts:
 
 <i>Attack boost factor:</i> Some magnus grant a 2-turn offense and crush bonus. This factor equals 1 + boost.
 
-<i>Offense deviation:</i> A random offense deviation ranging from -4% to +4%. Click the row title to reset the offense deviation on all hits.
+<i>Offense deviation:</i> A random offense deviation ranging from -4% to +3%. Click the row title to reset the offense deviation on all hits.
 
-<i>Crush deviation:</i> A random crush deviation ranging from -4% to +4%. Click the row title to reset the crush deviation on all hits.
+<i>Crush deviation:</i> A random crush deviation ranging from -4% to +3%. Click the row title to reset the crush deviation on all hits.
 
 <i>Electric Helm factor:</i> Bonus factor (1.2) from Electric Helm or Blitz Helm when using lightning attacks.
 
@@ -362,7 +362,7 @@ When the combo ends, the crush status gets reset to 0 so that the full defense w
 
 <i>Defense boost factor:</i> Some items or enemy moves can change the enemy's defense for two turns. This factor equals 1 + boost.
 
-<i>Defense deviation:</i> A random defense deviation ranging from -4% to +4%. Click the row title to reset the defense deviation on all hits.
+<i>Defense deviation:</i> A random defense deviation ranging from -4% to +3%. Click the row title to reset the defense deviation on all hits.
 
 <i>Total offense:</i> total_offense = (base_offense * attack_offense * attack_boost_factor * random_offense_factor * electric_helm_factor + weapon_offense * element_compatibility * weapon_factor + quest_magnus_bonus + aura_offense) * ex_combo_offense_factor * critical_hit_factor
 
