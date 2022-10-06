@@ -32,7 +32,7 @@ Public Class Main
     Dim hit_card(1000), hit_element(1000), shield_break_hit As Integer
     Dim weapon_effect(1000), weapon_boost(1000), qm_crit(1000), weapon_crit(1000), knockdown_hit(1000), min_one(1000) As Boolean
 
-    Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense, turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
+    Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense(6), turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
     Public cards, combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
     Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Double
     Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2), current_MP As Double
@@ -1811,17 +1811,9 @@ Public Class Main
                 End If
 
                 If armor_durability > 0 Then
-                    armor_defense = Me.armor_defense
-                    'Armored Mite has 150 physical and lightning defense, all other defenses are 100
-                    If combo_target = 85 And (attack_element = 0 Or attack_element = 3) Then
-                        armor_defense = 150
-                    End If
-                ElseIf combo_target = 117 Then       'Razer 3 (final phase) has armor equipped until its shield breaks. The Godling's Rapture bypasses the armor
-                    If final_phase.Checked And shield.Checked And true_HP >= shield_limit And attack <> 15 Then
-                        armor_defense = 20
-                    Else
-                        armor_defense = 0
-                    End If
+                    armor_defense = Me.armor_defense(attack_element)
+                ElseIf combo_target = 117 AndAlso (final_phase.Checked And shield.Checked And true_HP >= shield_limit And attack <> 15) Then
+                    armor_defense = Me.armor_defense(attack_element)        'Razer 3 (final phase) has armor equipped until its shield breaks. The Godling's Rapture bypasses the armor
                 Else
                     armor_defense = 0
                 End If
@@ -1941,7 +1933,7 @@ Public Class Main
 
             'extra hit when a turn ends or when using Arabesque on secondary targets
             If Me.member(x + 1) <> member + 1 Or (secondary_target.Checked And id = 24) Then
-                '  ((fire attack           and no flames immunity             ) or darkness attack      ) and ((regular knockdown                          ) or (knockout                                 ) or (shock knockdown                   ) or death       )
+                '  ((fire attack           and no flames immunity             ) or darkness attack      ) and ((regular knockdown                          ) or (knockout                                 ) or (shock knockdown                   ) or death      )
                 If ((hit_element(hits) = 1 And resistance(combo_target, 0) > 0) Or hit_element(hits) = 5) And ((crush_status >= knockdown And knockdown > 0) Or (crush_status >= knockout And knockout > 0) Or (enemy_status = 3 And knockdown > 0) Or true_HP = 0) Then
                     knockdown_hit(hits + 1) = True
                     ShowHitModifiers()
@@ -2033,17 +2025,9 @@ Public Class Main
                     total_defense = base_defense * Math.Max(0, 1 - crush_status / crush_limit) * defense_boost_factor * (1 + defense_deviation * 0.01)
 
                     If armor_durability > 0 Then
-                        armor_defense = Me.armor_defense
-                        'Armored Mite has 150 physical and lightning defense, all other defenses are 100
-                        If combo_target = 85 And (attack_element = 0 Or attack_element = 3) Then
-                            armor_defense = 150
-                        End If
-                    ElseIf combo_target = 117 Then       'Razer 3 (final phase) has armor equipped until its shield breaks
-                        If final_phase.Checked And shield.Checked And true_HP >= shield_limit Then
-                            armor_defense = 20
-                        Else
-                            armor_defense = 0
-                        End If
+                        armor_defense = Me.armor_defense(attack_element)
+                    ElseIf combo_target = 117 AndAlso (final_phase.Checked And shield.Checked And true_HP >= shield_limit) Then
+                        armor_defense = Me.armor_defense(attack_element)        'Razer 3 (final phase) has armor equipped until its shield breaks
                     Else
                         armor_defense = 0
                     End If
@@ -3410,21 +3394,21 @@ Public Class Main
         Dim armor_durability As Integer
         Select Case combo_target
             Case 26                     'Armored Cancerite
-                armor_defense = 50
+                armor_defense = {50, 50, 50, 50, 50, 50}
                 armor_durability = 8
             Case 65                     'Armored Balloona
-                armor_defense = 200
+                armor_defense = {200, 200, 200, 200, 200, 200}
                 armor_durability = 3
             Case 85                     'Armored Mite
-                armor_defense = 100
+                armor_defense = {150, 100, 100, 150, 100, 100}
                 armor_durability = 3
             Case 87                     'Phoelix
-                armor_defense = 50
+                armor_defense = {50, 50, 50, 50, 50, 50}
                 armor_durability = 5
             Case 117                    'Machina Arma: Razer 3
-                armor_defense = 20
+                armor_defense = {20, 20, 20, 20, 20, 20}
             Case Else
-                armor_defense = 0
+                armor_defense = {0, 0, 0, 0, 0, 0}
         End Select
 
         If armor_durability = 0 Then
@@ -4377,31 +4361,31 @@ Public Class Main
     End Function
 
     Private Function DeviationToText(x As Integer, y As Integer) As String
-        Dim default_index As Integer
+        Dim zero_index As Integer
         If hit_modifier(x, y).Items.Count = 8 Then
-            default_index = 3
+            zero_index = 3
         Else
-            default_index = 4
+            zero_index = 4
         End If
         Select Case hit_modifier(x, y).SelectedIndex
-            Case -1, default_index
+            Case -1, zero_index
                 Return ""
             Case Else
-                Return default_index - hit_modifier(x, y).SelectedIndex
+                Return zero_index - hit_modifier(x, y).SelectedIndex
         End Select
     End Function
 
     Private Function DeviationToNumber(x As Integer, y As Integer) As Integer
-        Dim default_index As Integer
+        Dim zero_index As Integer
         If hit_modifier(x, y).Items.Count = 8 Then
-            default_index = 3
+            zero_index = 3
         Else
-            default_index = 4
+            zero_index = 4
         End If
         If hit_modifier(x, y).SelectedIndex = -1 Then
             Return 0
         Else
-            Return default_index - hit_modifier(x, y).SelectedIndex
+            Return zero_index - hit_modifier(x, y).SelectedIndex
         End If
     End Function
 End Class
