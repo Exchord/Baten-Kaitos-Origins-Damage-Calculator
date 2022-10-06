@@ -176,7 +176,7 @@ Public Class Main
         DoubleBuffered = True
         KeyPreview = True
         BackColor = Color.LightGray
-        MinimumSize = New Size(864, 524)
+        MinimumSize = New Size(857, 531)
         LoadWindowData()
 
         With My.Settings

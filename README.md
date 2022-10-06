@@ -221,7 +221,7 @@ For example, if you use Weak Attack, Strong Attack, Icefan, and Sigil Cry in a r
 
 - <i>Secret Queen after enemy gets up:</i> Secret Queen and Secret Queen II are EX combos that can only be triggered if the enemy is down. If the enemy gets up as Milly runs toward them, the first hit will not be a critical hit.
 
-- <i>Saber Dragon Horn:</i> Using this item raises the durability of equipped magnus to their max durability plus 5. If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points.
+- <i>Saber Dragon Horn:</i> Using this item raises the durability of equipped magnus to their initial durability plus 5. If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points.
 
 - <i>Random hits:</i> Heavenlapse and Aphelion Dustwake are multi-target attacks that randomly hit or miss enemies. Here, you can select which of the 9 or 13 projectiles will hit the target.
 

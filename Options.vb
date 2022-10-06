@@ -59,7 +59,7 @@
         description(4) = "The following EX combos are stronger in the English version of the game: Black Yang, White Yin, Fiery Ice Queen, Blazing Glacial Queen, Frigid Queen's Parade, Frigid Queen's Festival"
         description(5) = "If any of Guillo's standard attacks (except Medium Attack A) directly precedes an EX combo, the projectile will likely hit the target after the EX combo bonus becomes active." & vbCrLf & "This depends on the attack and the distance between Guillo and the enemy." & vbCrLf & "For example, if you use Weak Attack, Strong Attack, Icefan, and Sigil Cry in a row, the strong attack may get the 1.3 factor from Ice Queen."
         description(6) = "Secret Queen and Secret Queen II are EX combos that can only be triggered if the enemy is down. If the enemy gets up as Milly runs toward them, the first hit will not be a critical hit."
-        description(7) = "Using this item raises the durability of equipped magnus to their max durability plus 5." & vbCrLf & "If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points."
+        description(7) = "Using this item raises the durability of equipped magnus to their initial durability plus 5." & vbCrLf & "If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points."
 
         setting(0).Checked = My.Settings.TargetAutoClose
         setting(1).Checked = My.Settings.HighlightHits
