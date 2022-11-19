@@ -3457,7 +3457,7 @@ Public Class Main
             enemy_HP.Text = new_HP
         End If
         If Not (final_phase.Visible And final_phase.Checked) And HP_limit(combo_target) > 0 Then
-            effective_max_HP = Math.Floor(true_max_HP * (1 - HP_limit(combo_target))) + 1
+            effective_max_HP = Math.Floor(true_max_HP * Round(1 - HP_limit(combo_target))) + 1
             effective_HP = Math.Max(0, true_HP + effective_max_HP - true_max_HP)
             target_data(7).Text = effective_HP
             target_data(9).Text = effective_max_HP
