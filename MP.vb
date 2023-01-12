@@ -397,6 +397,9 @@
         End Select
 
         My.Settings.DeckClass = new_class
+        If ActiveControl Is MP
+            FixMP()
+        End if
         UpdateUI(True)
     End Sub
 
