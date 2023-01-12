@@ -374,7 +374,7 @@ Total crush can be negative if attack_boost_factor is negative (offense boost < 
 
 <i>Total defense:</i> total_defense = base_defense * (1 - crush_status / crush_limit) * defense_boost_factor * random_defense_factor
 
-Total defense can be negative defense_boost_factor is negative (defense boost < -1).  
+Total defense can be negative if defense_boost_factor is negative (defense boost < -1).  
 Total defense is 0 if crush_status >= crush_limit.
 
 <i>Armor:</i> Additional defense from the enemy's equipped armor.
