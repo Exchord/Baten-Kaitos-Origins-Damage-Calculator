@@ -3926,8 +3926,17 @@ Public Class Main
             current_MP = 0
         End If
         Dim attack As Boolean
+        If secondary_target.Checked
+            For x = 0 To cards - 1
+                If multi_target_attacks.Contains(combo(x).Tag)
+                    attack = True
+                    Exit For
+                End If
+            Next
+        Else
         If cards > 1 OrElse IsAttack(combo(0).Tag) Then
             attack = True
+        End If
         End If
         RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
         If attack Then
