@@ -3555,15 +3555,37 @@ Public Class Main
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
-        If e.KeyCode = Keys.Back And cards > 0 And ActiveControl IsNot enemy_HP Then
-            For x = 0 To 2
-                If ActiveControl Is level_selector(x) Then
-                    Return
-                End If
-            Next
-            RemoveCard(combo(cards - 1), New MouseEventArgs(0, 0, 0, 0, 0))
-            Return
+        Dim textbox As Boolean
+        If ActiveControl Is enemy_HP Then
+            textbox = True
         End If
+        For x = 0 To 2
+            If ActiveControl Is level_selector(x) Then
+                textbox = True
+            End If
+        Next
+        If Not textbox Then
+            Dim number As Integer
+            Select Case e.KeyCode
+                Case Keys.D1, Keys.NumPad1
+                    number = 1
+                Case Keys.D2, Keys.NumPad2
+                    number = 2
+                Case Keys.D3, Keys.NumPad3
+                    number = 3
+                Case Keys.Back
+                    If cards > 0 Then
+                        RemoveCard(combo(cards - 1), New MouseEventArgs(0, 0, 0, 0, 0))
+                    End If
+                    Return
+            End Select
+            If number > 0 Then
+                Dim character As Integer = My.Settings.PartyOrder.Substring(number - 1, 1)
+                SwitchCharacter(char_image(character), e)
+                Return
+            End If
+        End If
+
         Select Case e.KeyCode
             Case Keys.E
                 Dolphin()
@@ -3934,9 +3956,9 @@ Public Class Main
                 End If
             Next
         Else
-        If cards > 1 OrElse IsAttack(combo(0).Tag) Then
-            attack = True
-        End If
+            If cards > 1 OrElse IsAttack(combo(0).Tag) Then
+                attack = True
+            End If
         End If
         RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
         If attack Then

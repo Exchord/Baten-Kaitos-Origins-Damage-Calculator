@@ -254,7 +254,7 @@
         sender.Focus()
     End Sub
 
-    Private Sub SwitchCharacter(sender As Object, e As MouseEventArgs)
+    Private Sub SwitchCharacter(sender As Object, e As EventArgs)
         Dim new_char As Integer = sender.Tag
         Main.item_target = new_char
         character(new_char).Image = Main.char_icon(new_char)
@@ -501,6 +501,23 @@
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
+        If TypeOf ActiveControl IsNot TextBox Then
+            Dim number As Integer
+            Select Case e.KeyCode
+                Case Keys.D1, Keys.NumPad1
+                    number = 1
+                Case Keys.D2, Keys.NumPad2
+                    number = 2
+                Case Keys.D3, Keys.NumPad3
+                    number = 3
+            End Select
+            If number > 0 Then
+                Dim character As Integer = My.Settings.PartyOrder.Substring(number - 1, 1)
+                SwitchCharacter(Me.character(character), e)
+                Return
+            End If
+        End If
+
         Select Case e.KeyCode
             Case Keys.R
                 label(0).Focus()
