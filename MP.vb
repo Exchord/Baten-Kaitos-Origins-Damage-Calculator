@@ -315,7 +315,6 @@
         End If
         For Each s As Screen In Screen.AllScreens
             If s.Bounds.Contains(pt) Then
-                StartPosition = FormStartPosition.Manual
                 Location = pt
                 Return
             End If
