@@ -14,6 +14,7 @@ Public Class Main
     Dim row_pos(32) As Integer
     Dim description(32), EX_string(102) As String
     Dim highlight As Integer = -1
+    Dim locked As Boolean
 
     'characters
     Public char_icon(3) As Bitmap
@@ -882,6 +883,8 @@ Public Class Main
             Return
         End If
 
+        locked = True
+
         'game version
         My.Settings.EnglishVersion = Not JP
         If Settings.Visible Then
@@ -958,6 +961,8 @@ Public Class Main
         End If
 
         CloseHandle(hProcess)
+        locked = False
+        Calculate()
     End Sub
 
     Private Sub ReadBattleData(battle_address As Int64, emu_battle_address As Int64, battle_id_address As Int64, combo_address As Int64, mp_address As Int64, JP As Boolean)
@@ -1293,8 +1298,6 @@ Public Class Main
             MP.MP.Text = current_MP
             DisplayMP(current_MP)
         End If
-
-        Calculate()
     End Sub
 
     Private Sub ShowCard(id As Integer, member As Integer)
@@ -1371,6 +1374,10 @@ Public Class Main
     End Function
 
     Public Sub Calculate()
+        If locked Then
+            Return
+        End If
+
         Dim eq, attack, attack_element, offense_deviation, crush_deviation, weapon_element, durability, weapon_offense, weapon_crush, effect_element, boost_element, qm_bonus, aura_offense, aura_crush, base_defense, crush_limit, defense_deviation, armor_defense, armor_durability, damage_output, total_damage, true_HP, effective_HP, HP_remaining, knockdown, knockout As Integer
         Dim offense, attack_offense, attack_crush, attack_boost_factor, armor_factor, element_compatibility, weapon_factor, ex_offense_factor, ex_crush_factor, crit_factor, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, multiplier, crush_output, defense_boost(6, 2), enemy_offense_boost(2) As Double
         Dim full_turn_weapon, armor_equipped, reset_status, secondary_target_defeated As Boolean
