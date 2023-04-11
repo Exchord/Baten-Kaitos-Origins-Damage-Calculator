@@ -4293,6 +4293,9 @@ Public Class Main
                     Case 22     'total offense
                         output &= "=(" & C & "1*" & C & "2*" & C & "4*(1+0.01*" & C & "5)*" & C & "7+(" & C & "8*" & C & "10*" & C & "11)+" & C & "12+" & C & "13)*" & C & "15*" & C & "17"
                     Case 23     'total crush
+                        If table(x, 2).Text = "" Then      'Regalia hit
+                            Exit Select
+                        End If
                         output &= "=(" & C & "1*" & C & "3*" & C & "4*(1+0.01*" & C & "6)*" & C & "7+(" & C & "9*" & C & "10*" & C & "11)+" & C & "12+" & C & "14)*" & C & "16*" & C & "17"
                     Case 24     'total defense
                         output &= "=" & C & "18*max(0;(1-" & C & "20/" & C & "19))*" & C & "21*(1+0.01*" & C & "22)"
