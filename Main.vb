@@ -834,16 +834,31 @@ Public Class Main
             MsgBox("Please use only one instance of Dolphin.")
             Return
         End If
-        If emulator(0).MainWindowTitle = "Dolphin 4.0.2" OrElse emulator(0).MainWindowTitle.StartsWith("Dolphin 4.0.2 |") Then
-            dolphin_offset_1 = 0
-            dolphin_offset_2 = 0
-        ElseIf emulator(0).MainWindowTitle = "Dolphin 5.0" OrElse emulator(0).MainWindowTitle.StartsWith("Dolphin 5.0 |") Then
-            dolphin_offset_1 = &H80000000
-            dolphin_offset_2 = &H80000000 + &H100000000
-        Else
-            MsgBox("This version of Dolphin is not supported. Please use Dolphin 5.0 or 4.0.2.")
+        Dim title As String = emulator(0).MainWindowTitle
+        Dim version As Integer
+        Dim dolphin_version() As String = {"Dolphin 4.0", "Dolphin 4.0.1", "Dolphin 4.0.2", "Dolphin 5.0"}
+        For x = 0 To 3
+            If title = dolphin_version(x) OrElse title.StartsWith(dolphin_version(x) & " |") Then
+                version = x + 1
+                Exit For
+            End If
+        Next
+        Select Case version
+            Case 1 To 3
+                dolphin_offset = &H7FFF0000        '4.0, 4.0.1, 4.0.2
+            Case 4
+                dolphin_offset = -&H10000          '5.0
+            Case 0
+                Dim secondary_window() As String = {"TAS Input", "Memory Card Manager", "Cheat Manager", "Cheats Manager", "Dolphin NetPlay Setup", "FIFO Player"}
+                For x = 0 To secondary_window.Length - 1
+                    If title.StartsWith(secondary_window(x)) Then
+                        MsgBox("Please close " & secondary_window(x) & " and try again.")
             Return
         End If
+                Next
+                MsgBox("This version of Dolphin is not supported. Please use Dolphin 5.0 or 4.0.x.")
+                Return
+        End Select
         hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, emulator(0).Id)
         If hProcess = IntPtr.Zero Then
             MsgBox("Failed to open Dolphin.")
