@@ -1359,14 +1359,6 @@ Public Class Main
         ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
         Array.Reverse(bytes)
-        Return BitConverter.ToSingle(bytes, 0)
-    End Function
-
-    Private Function ReadFloat(address As UInteger) As Double
-        Dim buffer As Integer
-        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
-        Dim bytes() As Byte = BitConverter.GetBytes(buffer)
-        Array.Reverse(bytes)
         Return Round(BitConverter.ToSingle(bytes, 0))
     End Function
 
@@ -2467,7 +2459,7 @@ Public Class Main
         Next
     End Sub
 
-    Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As UInteger, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
+    Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Integer, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
         NewHit()
 
         table(hits, 0).Text = offense
