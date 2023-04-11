@@ -10,6 +10,17 @@
     Dim auto As Boolean
 
     ReadOnly magnus() As Integer = {389, 390, 391, 392, 393, 398, 399, 414, 417, 418}
+    Public ReadOnly boost_data(,) As Integer = {
+              {100, 0, 0, 0, 0, 0, 0} _             'Brawn-Brewed Tea
+            , {0, 100, 0, 0, 0, 0, 0} _             'Fire-Brewed Tea
+            , {0, 0, 100, 0, 0, 0, 0} _             'Ice-Brewed Tea
+            , {0, 0, 0, 100, 0, 0, 0} _             'Lightning-Brewed Tea
+            , {100, 100, 100, 100, 100, 100, 0} _   'Elbow Grease Tea
+            , {-50, -50, -50, -50, -50, -50, 0} _   'Rainbow Fruit
+            , {150, 150, 150, 150, 150, 150, 0} _   'Berserker Drink
+            , {30, 30, 30, 30, 30, 30, 0} _         'Hero's Crest
+            , {20, 20, 20, 20, 20, 20, 1} _         'The Beast's Collar
+            , {20, 20, 20, 20, 20, 20, 2}}          'The Beast's Shackles
 
     Private Sub Open() Handles MyBase.Load
         Hide()
@@ -153,6 +164,7 @@
                 .Image = New Bitmap(My.Resources.ResourceManager.GetObject("_" & magnus(x)), .Size)
                 .Cursor = Cursors.Hand
                 .Tag = x
+                .Name = magnus(x)
                 AddHandler .Click, AddressOf Add
                 AddHandler .MouseEnter, AddressOf ShowName
                 AddHandler .Click, AddressOf ChangeFocus
@@ -281,7 +293,7 @@
             Dim x As Integer = Main.item_target
             For y = 0 To 5                          'party offense
                 For z = 0 To 1
-                    result = Main.offense_boost(x, y, z) + sign * Main.boost_data(magnus, y) * 0.01
+                    result = Main.offense_boost(x, y, z) + sign * boost_data(magnus, y) * 0.01
                     result = LimitBoost(result)
                     result = Main.Round(result)
                     Main.offense_boost(x, y, z) = result
@@ -291,7 +303,7 @@
         ElseIf magnus = 8 Then                      'enemy defense
             For y = 0 To 5
                 For z = 0 To 1
-                    result = Main.defense_boost(y, z) - sign * Main.boost_data(magnus, y) * 0.01
+                    result = Main.defense_boost(y, z) - sign * boost_data(magnus, y) * 0.01
                     result = LimitBoost(result)
                     result = Main.Round(result)
                     Main.defense_boost(y, z) = result
@@ -300,7 +312,7 @@
             Next
         ElseIf magnus = 9 Then                      'enemy offense
             For z = 0 To 1
-                result = Main.enemy_offense_boost(z) - sign * Main.boost_data(magnus, z) * 0.01
+                result = Main.enemy_offense_boost(z) - sign * boost_data(magnus, z) * 0.01
                 result = LimitBoost(result)
                 result = Main.Round(result)
                 Main.enemy_offense_boost(z) = result
@@ -497,7 +509,7 @@
     End Sub
 
     Private Sub ShowName(sender As Object, e As EventArgs)
-        hover.SetToolTip(sender, Main.boost_magnus(sender.Tag))
+        hover.SetToolTip(sender, Main.magnus_name(sender.Name))
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
