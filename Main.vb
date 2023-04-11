@@ -1482,7 +1482,6 @@ Public Class Main
                 End If
                 first_hit(x + 1) = hits + 1                     'save ID of first hit for the next card
 
-                CheckCombo(x)                                   'check for EX combos in the current turn
                 Continue For
             End If
 
@@ -2923,8 +2922,11 @@ Public Class Main
 
     Private Sub CheckCombo(card As Integer)
         Dim check_turn As Integer = Array.IndexOf(turn, card, 0, turns)
-        If check_turn < 0 Then
-            Return                  'only check for EX combos if this is the first card of the current turn
+        If check_turn = -1 Then                                         'card is not start of turn
+            If card = 0 OrElse IsAttack(combo(card - 1).Tag) Then
+                Return                                                  'card is not first attack of turn
+            End If
+            check_turn = Array.IndexOf(turn, card - 1, 0, turns)        'card is first attack of turn
         End If
 
         Dim combo_string As String = ""
