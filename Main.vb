@@ -865,7 +865,7 @@ Public Class Main
             Return
         End If
 
-        Dim game, level_address, aura_address, quest_magnus_address, deck_class_address, pointer_address, battle_id_address, combo_address, mp_address, offset As Int64
+        Dim game, level_address, aura_address, quest_magnus_address, deck_class_address, pointer_address, battle_id_address, combo_address, mp_address, offset As UInteger
         game = Read32U(&H80000000L)
         If game = &H474B344A Then               'GK4J (Japanese version)
             My.Settings.EnglishVersion = False
@@ -968,7 +968,7 @@ Public Class Main
             MP.class_selector.SelectedIndex = deck_class - 1
         End If
 
-        Dim pointer As Int64 = Read32U(pointer_address)
+        Dim pointer As UInteger = Read32U(pointer_address)
         If pointer <> 0 AndAlso Read16(pointer + 148) = 3 Then
             ReadBattleData(pointer + offset, battle_id_address, combo_address, mp_address)
         End If
@@ -978,7 +978,7 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub ReadBattleData(battle_address As Int64, battle_id_address As Int64, combo_address As Int64, mp_address As Int64)
+    Private Sub ReadBattleData(battle_address As UInteger, battle_id_address As UInteger, combo_address As UInteger, mp_address As UInteger)
         secondary_target.Checked = False
 
         Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn_type(3), active_turn_type(3), enemy_party_size, enemy_party(5), offset As Integer
@@ -1254,11 +1254,9 @@ Public Class Main
                 character = member(cards - 1)
                 ShowDeck()
                 ScrollToStart()
-                With card_panel(1)
-                    If .HorizontalScroll.Visible Then
-                        .PerformLayout()
-                    End If
-                End With
+                If card_panel(1).HorizontalScroll.Visible Then
+                    card_panel(1).PerformLayout()
+                End If
                 Dim final_member As Integer = Array.IndexOf(party, character)
                 If targeted(final_member) > 0 Then
                     final_target = targeted(final_member) - 1
@@ -1364,7 +1362,7 @@ Public Class Main
         Return BitConverter.ToSingle(bytes, 0)
     End Function
 
-    Private Function ReadFloat(address As Int64) As Double
+    Private Function ReadFloat(address As UInteger) As Double
         Dim buffer As Integer
         ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
@@ -2469,7 +2467,7 @@ Public Class Main
         Next
     End Sub
 
-    Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Int64, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
+    Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As UInteger, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
         NewHit()
 
         table(hits, 0).Text = offense
