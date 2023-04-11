@@ -14,6 +14,7 @@ Public Class Main
     Dim row_pos(32) As Integer
     Dim description(32), EX_string(102) As String
     Dim highlight As Integer = -1
+    Dim dolphin_offset As Integer
     Dim locked As Boolean
 
     'characters
@@ -824,7 +825,6 @@ Public Class Main
     End Sub
 
     Private Sub Dolphin()
-        Dim dolphin_offset_1, dolphin_offset_2, game, level_address, aura_address, quest_magnus_address, deck_class_address, pointer_address, battle_id_address, combo_address, mp_address, offset As Int64
         Dim emulator As Process() = Process.GetProcessesByName("Dolphin")
         If emulator.Length = 0 Then
             MsgBox("Dolphin isn't open.")
@@ -853,8 +853,8 @@ Public Class Main
                 For x = 0 To secondary_window.Length - 1
                     If title.StartsWith(secondary_window(x)) Then
                         MsgBox("Please close " & secondary_window(x) & " and try again.")
-            Return
-        End If
+                        Return
+                    End If
                 Next
                 MsgBox("This version of Dolphin is not supported. Please use Dolphin 5.0 or 4.0.x.")
                 Return
@@ -865,28 +865,29 @@ Public Class Main
             Return
         End If
 
-        Dim JP As Boolean
-        game = Read(4294901760 + dolphin_offset_1, 4)
-        If game = &H474B344A Then                               'GK4J (Japanese version)
-            JP = True
-            level_address = &H1002CD15E + dolphin_offset_1
-            aura_address = &H1002CD1E8 + dolphin_offset_1
-            quest_magnus_address = &H1002D24F2 + dolphin_offset_1
-            deck_class_address = &H1002CD3DF + dolphin_offset_1
-            pointer_address = &H10085C064 + dolphin_offset_1
-            battle_id_address = &H1002CDB26 + dolphin_offset_1
-            combo_address = &H1002D6D86 + dolphin_offset_1
-            mp_address = &H1002FB550 + dolphin_offset_1
+        Dim game, level_address, aura_address, quest_magnus_address, deck_class_address, pointer_address, battle_id_address, combo_address, mp_address, offset As Int64
+        game = Read32U(&H80000000L)
+        If game = &H474B344A Then               'GK4J (Japanese version)
+            My.Settings.EnglishVersion = False
+            level_address = &H802DD15EL
+            aura_address = &H802DD1E8L
+            quest_magnus_address = &H802E24F2L
+            deck_class_address = &H802DD3DFL
+            pointer_address = &H8086C064L
+            battle_id_address = &H802DDB26L
+            combo_address = &H802E6D86L
+            mp_address = &H8030B550L
             offset = &H1118C
-        ElseIf game = &H474B3445 Then                           'GK4E (English version)
-            level_address = &H1002C5466 + dolphin_offset_1
-            aura_address = &H1002C54F0 + dolphin_offset_1
-            quest_magnus_address = &H1002CAA9A + dolphin_offset_1
-            deck_class_address = &H1002C56E7 + dolphin_offset_1
-            pointer_address = &H100847B84 + dolphin_offset_1
-            battle_id_address = &H1002C5E2E + dolphin_offset_1
-            combo_address = &H1002D3F4E + dolphin_offset_1
-            mp_address = &H1002FBC38 + dolphin_offset_1
+        ElseIf game = &H474B3445 Then           'GK4E (English version)
+            My.Settings.EnglishVersion = True
+            level_address = &H802D5466L
+            aura_address = &H802D54F0L
+            quest_magnus_address = &H802DAA9AL
+            deck_class_address = &H802D56E7L
+            pointer_address = &H80857B84L
+            battle_id_address = &H802D5E2EL
+            combo_address = &H802E3F4EL
+            mp_address = &H8030BC38L
             offset = &H183A4
         Else
             CloseHandle(hProcess)
@@ -901,18 +902,17 @@ Public Class Main
         locked = True
 
         'game version
-        My.Settings.EnglishVersion = Not JP
         If Settings.Visible Then
             With Settings.setting(4)
                 RemoveHandler .CheckedChanged, AddressOf Settings.ChangeSetting
-                .Checked = Not JP
+                .Checked = My.Settings.EnglishVersion
                 AddHandler .CheckedChanged, AddressOf Settings.ChangeSetting
             End With
         End If
 
         'levels
         For x = 0 To 2
-            Me.level(x) = Read(level_address + x * 244, 2)
+            Me.level(x) = Read16(level_address + x * 244)
             Me.level(x) = Clamp(Me.level(x), 1, 100)
             level_selector(x).SelectedIndex = Me.level(x) - 1
         Next
@@ -920,11 +920,11 @@ Public Class Main
         'auras
         Dim type, level As Integer
         For x = 0 To 2
-            type = Read(aura_address + x * 244, 4)
+            type = Read32(aura_address + x * 244)
             type = Clamp(type, 0, 11)
             aura_type(x).SelectedIndex = type
             If type > 0 Then
-                level = Read(aura_address + 4 + x * 244, 4)
+                level = Read32(aura_address + 4 + x * 244)
                 level = Clamp(level, 1, 3)
                 aura_level(x).SelectedIndex = level - 1
             End If
@@ -933,7 +933,7 @@ Public Class Main
         'quest magnus
         Dim id As Integer
         For x = 0 To 23
-            id = Read(quest_magnus_address + x * 152, 4)
+            id = Read32(quest_magnus_address + x * 152)
             Select Case id
                 Case < 500
                     id = 0      'not a quest magnus
@@ -963,16 +963,14 @@ Public Class Main
 
         'deck class
         If MP.Visible Then
-            Dim deck_class As Integer = Read(deck_class_address, 1)
+            Dim deck_class As Integer = Read8(deck_class_address)
             deck_class = Clamp(deck_class, 1, 30)
             MP.class_selector.SelectedIndex = deck_class - 1
         End If
 
-        Dim pointer As Int64 = Read(pointer_address, 4)
-        If pointer <> 0 AndAlso Read(pointer + &H17FFF0000 - dolphin_offset_2 + 148, 2) = 3 Then
-            'battle address in process memory (PC address):                   pointer + offset + &H17FFF0000 - dolphin_offset_2
-            'emulated battle address:                                         pointer + offset
-            ReadBattleData(pointer + offset + &H17FFF0000 - dolphin_offset_2, pointer + offset, battle_id_address, combo_address, mp_address, JP)
+        Dim pointer As Int64 = Read32U(pointer_address)
+        If pointer <> 0 AndAlso Read16(pointer + 148) = 3 Then
+            ReadBattleData(pointer + offset, battle_id_address, combo_address, mp_address)
         End If
 
         CloseHandle(hProcess)
@@ -980,30 +978,28 @@ Public Class Main
         Calculate()
     End Sub
 
-    Private Sub ReadBattleData(battle_address As Int64, emu_battle_address As Int64, battle_id_address As Int64, combo_address As Int64, mp_address As Int64, JP As Boolean)
+    Private Sub ReadBattleData(battle_address As Int64, battle_id_address As Int64, combo_address As Int64, mp_address As Int64)
         secondary_target.Checked = False
 
-        Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn(3), active_turn(3), prepared_turn_type(3), active_turn_type(3), first_card(3), next_card(3), enemy_party_size, enemy_party(5), targeted(3), current_target As Integer
+        Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn_type(3), active_turn_type(3), enemy_party_size, enemy_party(5), offset As Integer
+        Dim prepared_turn(3), active_turn(3), first_card(3), next_card(3), targeted(3), current_target As UInteger
         Dim defense_boost(5, 6, 2), enemy_offense_boost(5, 2) As Double
 
-        battle_id = Read(battle_id_address, 2)
+        battle_id = Read16(battle_id_address)
 
-        If JP Then
-            current_target = Read(battle_address + &HC90, 4)
-            If current_target <> 0 Then
-                current_target = (current_target - emu_battle_address) / &H1494 + 9
-            End If
-        Else
-            current_target = Read(battle_address + &H3298, 4)
-            If current_target <> 0 Then
-                current_target = (current_target - emu_battle_address - &H1678) / &H1494 + 10
-            End If
+        If My.Settings.EnglishVersion Then
+            offset = -&H1E4
+        End If
+
+        current_target = Read32U(battle_address + &HC90)
+        If current_target <> 0 Then
+            current_target = (current_target - battle_address + offset) / &H1494 + 9
         End If
 
         Dim value_1, value_2 As Double
-        party_size = Read(battle_address - &HE346, 2)
+        party_size = Read16(battle_address - &HE346)
         For x = 0 To party_size - 1
-            party(x) = Read(battle_address - &HD02E + x * &H1578, 2)
+            party(x) = Read16(battle_address - &HD02E + x * &H1578)
             For y = 0 To 5
                 value_1 = ReadFloat(battle_address - &HD15C + x * &H1578 + y * 4)
                 value_2 = ReadFloat(battle_address - &HD10C + x * &H1578 + y * 4)
@@ -1017,10 +1013,10 @@ Public Class Main
             Next
         Next
 
-        enemy_party_size = Read(battle_address - &HA2DA, 2)
+        enemy_party_size = Read16(battle_address - &HA2DA)
         For x = 0 To enemy_party_size - 1
-            enemy_party(x) = Read(battle_address - &H8F26 + x * &H1494, 2)
-            enemy_HP(x) = Read(battle_address - &HA21A + x * &H1494, 2)
+            enemy_party(x) = Read16(battle_address - &H8F26 + x * &H1494)
+            enemy_HP(x) = Read16(battle_address - &HA21A + x * &H1494)
             For y = 0 To 5
                 defense_boost(x, y, 0) = ReadFloat(battle_address - &H90D4 + x * &H1494 + y * 4)
                 defense_boost(x, y, 1) = ReadFloat(battle_address - &H9084 + x * &H1494 + y * 4)
@@ -1031,7 +1027,7 @@ Public Class Main
 
         'get rid of expired auras
         For x = 0 To party_size - 1
-            If aura(party(x) - 1, 0) > 0 AndAlso Read(battle_address - &HD08C + x * &H1578, 4) = 0 Then
+            If aura(party(x) - 1, 0) > 0 AndAlso Read32U(battle_address - &HD08C + x * &H1578) = 0 Then
                 aura_type(party(x) - 1).SelectedIndex = 0
                 aura_level(party(x) - 1).SelectedIndex = 0
             End If
@@ -1046,42 +1042,37 @@ Public Class Main
             End If
 
             For x = 0 To party_size - 1
-                targeted(x) = Read(battle_address - &HE27C + x * &H1578, 4)
+                targeted(x) = Read32U(battle_address - &HE27C + x * &H1578)
                 If targeted(x) <> 0 Then
-                    If JP Then
-                        targeted(x) = (targeted(x) - emu_battle_address) / &H1494 + 9
-                    Else
-                        targeted(x) = (targeted(x) - emu_battle_address - &H1678) / &H1494 + 10
-                    End If
+                    targeted(x) = (targeted(x) - battle_address + offset) / &H1494 + 9
                 End If
-                first_card(x) = Read(battle_address - &HCE08 + x * &H1578, 4)
-                next_card(x) = Read(battle_address - &HCF48 + x * &H1578, 4)
-                prepared_turn_type(x) = Read(battle_address - &HCDFE + x * &H1578, 2)
-                active_turn_type(x) = Read(battle_address - &HE28E + x * &H1578, 2)
+                first_card(x) = Read32U(battle_address - &HCE08 + x * &H1578)
+                next_card(x) = Read32U(battle_address - &HCF48 + x * &H1578)
+                prepared_turn_type(x) = Read16(battle_address - &HCDFE + x * &H1578)
+                active_turn_type(x) = Read16(battle_address - &HE28E + x * &H1578)
             Next
 
-            active_turns = Read(battle_address + &H896, 2)
-            prepared_turns = Read(battle_address + &H916, 2)
-            Dim current_turn As Integer = Read(battle_address + &H8C4, 4)
+            active_turns = Read16(battle_address + &H896)
+            prepared_turns = Read16(battle_address + &H916)
+
+            offset = 0
+            If My.Settings.EnglishVersion Then
+                offset = -&H978
+            End If
+
+            Dim current_turn As UInteger = Read32U(battle_address + &H8C4)
             If current_turn <> 0 Then
-                If JP Then
-                    current_turn = (current_turn - emu_battle_address) / &H1578 + 12
-                Else
-                    current_turn = (current_turn - emu_battle_address - &H978) / &H1578 + 12
-                End If
+                current_turn = (current_turn - battle_address + offset) / &H1578 + 12
             End If
 
             Dim enemy_turns As Integer
             For x = 0 To prepared_turns - 1
-                prepared_turn(x - enemy_turns) = Read(battle_address + &H918 + x * 4, 4)
-                If prepared_turn(x - enemy_turns) <> 0 Then
-                    If JP Then
-                        prepared_turn(x - enemy_turns) = (prepared_turn(x - enemy_turns) - emu_battle_address) / &H1578 + 12
-                    Else
-                        prepared_turn(x - enemy_turns) = (prepared_turn(x - enemy_turns) - emu_battle_address - &H978) / &H1578 + 12
-                    End If
+                Dim y As Integer = x - enemy_turns
+                prepared_turn(y) = Read32U(battle_address + &H918 + x * 4)
+                If prepared_turn(y) <> 0 Then
+                    prepared_turn(y) = (prepared_turn(y) - battle_address + offset) / &H1578 + 12
                 End If
-                If prepared_turn(x - enemy_turns) = 0 Or prepared_turn(x - enemy_turns) > 3 Then
+                If prepared_turn(y) = 0 Or prepared_turn(y) > 3 Then
                     enemy_turns += 1
                 End If
             Next
@@ -1089,27 +1080,24 @@ Public Class Main
 
             enemy_turns = 0
             For x = 0 To active_turns - 1
-                active_turn(x - enemy_turns) = Read(battle_address + &H898 + x * 4, 4)
-                If active_turn(x - enemy_turns) <> 0 Then
-                    If JP Then
-                        active_turn(x - enemy_turns) = (active_turn(x - enemy_turns) - emu_battle_address) / &H1578 + 12
-                    Else
-                        active_turn(x - enemy_turns) = (active_turn(x - enemy_turns) - emu_battle_address - &H978) / &H1578 + 12
-                    End If
+                Dim y As Integer = x - enemy_turns
+                active_turn(y) = Read32U(battle_address + &H898 + x * 4)
+                If active_turn(y) <> 0 Then
+                    active_turn(y) = (active_turn(y) - battle_address + offset) / &H1578 + 12
                 End If
-                If active_turn(x - enemy_turns) = 0 Or active_turn(x - enemy_turns) > 3 Then
+                If active_turn(y) = 0 Or active_turn(y) > 3 Then
                     enemy_turns += 1
                 End If
             Next
             active_turns -= enemy_turns
 
-            Dim combo_length As Integer = Read(combo_address - 20, 2)
+            Dim combo_length As Integer = Read16(combo_address - 20)
             If combo_length > 0 Then
-                combo_damage = Read(combo_address - 14, 4)
+                combo_damage = Read32(combo_address - 14)
             End If
             Dim combo_card(17) As Integer
             For x = 0 To combo_length - 1
-                combo_card(x) = Read(combo_address + x * 4, 2)
+                combo_card(x) = Read16(combo_address + x * 4)
                 member(x) = 0
             Next
             For x = 0 To combo_length - 1
@@ -1122,17 +1110,18 @@ Public Class Main
             Next
 
             'cards and order
-            Dim card_id(60), next_(60), slot As Integer
+            Dim card_id(60), slot As Integer
+            Dim next_(60) As UInteger
             For x = 0 To 59
-                card_id(x) = Read(battle_address + 6 + x * 36, 2)
+                card_id(x) = Read16(battle_address + 6 + x * 36)
                 If card_id(x) = 0 Then
                     Exit For
                 End If
-                next_(x) = Read(battle_address + x * 36, 4)
+                next_(x) = Read32U(battle_address + x * 36)
                 If next_(x) <> 0 Then
-                    next_(x) = (next_(x) - emu_battle_address) / 36
+                    next_(x) = (next_(x) - battle_address) / 36
                 Else
-                    next_(x) = -1
+                    next_(x) = UInteger.MaxValue
                 End If
             Next
 
@@ -1162,10 +1151,10 @@ Public Class Main
                         end_of_combo = True
                         Exit For
                     End If
-                    slot = (next_card(active_turn(x) - 1) - emu_battle_address) / 36
+                    slot = (next_card(active_turn(x) - 1) - battle_address) / 36
                     For y = cards To cards + 8
                         ShowCard(card_id(slot), party(active_turn(x) - 1))
-                        If next_(slot) < 0 Then
+                        If next_(slot) = UInteger.MaxValue Then
                             Exit For
                         End If
                         slot = next_(slot)
@@ -1185,10 +1174,10 @@ Public Class Main
                         end_of_combo = True
                         Exit For
                     End If
-                    slot = (next_card(prepared_turn(x) - 1) - emu_battle_address) / 36
+                    slot = (next_card(prepared_turn(x) - 1) - battle_address) / 36
                     For y = cards To cards + 8
                         ShowCard(card_id(slot), party(prepared_turn(x) - 1))
-                        If next_(slot) < 0 Then
+                        If next_(slot) = UInteger.MaxValue Then
                             Exit For
                         End If
                         slot = next_(slot)
@@ -1206,10 +1195,10 @@ Public Class Main
                 'read the turn that is being prepared
                 For x = 0 To party_size - 1
                     If first_card(x) <> 0 And Not (active_turns > 0 AndAlso prepared_turn_type(x) <> 4) Then
-                        slot = (first_card(x) - emu_battle_address) / 36
+                        slot = (first_card(x) - battle_address) / 36
                         For y = cards To cards + 8
                             ShowCard(card_id(slot), party(x))
-                            If next_(slot) < 0 Then
+                            If next_(slot) = UInteger.MaxValue Then
                                 Exit For
                             End If
                             slot = next_(slot)
@@ -1250,10 +1239,10 @@ Public Class Main
 
                 'if there is one more prepared turn, read it now
                 If last_turn >= 0 AndAlso (prepared_turn_type(last_turn) = 4 And next_card(last_turn) <> 0) Then
-                    slot = (next_card(last_turn) - emu_battle_address) / 36
+                    slot = (next_card(last_turn) - battle_address) / 36
                     For x = cards To cards + 8
                         ShowCard(card_id(slot), party(last_turn))
-                        If next_(slot) < 0 Then
+                        If next_(slot) = UInteger.MaxValue Then
                             Exit For
                         End If
                         slot = next_(slot)
@@ -1265,9 +1254,9 @@ Public Class Main
                 character = member(cards - 1)
                 ShowDeck()
                 ScrollToStart()
-                With card_panel(1).HorizontalScroll
-                    If .Visible Then
-                        card_panel(1).PerformLayout()
+                With card_panel(1)
+                    If .HorizontalScroll.Visible Then
+                        .PerformLayout()
                     End If
                 End With
                 Dim final_member As Integer = Array.IndexOf(party, character)
@@ -1337,26 +1326,47 @@ Public Class Main
         UpdateTurns()
     End Sub
 
-    Private Function Read(address As Int64, size As Integer) As Integer
+    Private Function Read8(address As UInteger) As Integer
         Dim buffer As Integer
-        ReadProcessMemory(hProcess, address, buffer, size, 0)
+        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 1, 0)
+        Return buffer
+    End Function
+
+    Public Function Read16(address As UInteger) As Integer
+        Dim buffer As Integer
+        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 2, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
-        Select Case size
-            Case 1
-                Return bytes(0)
-            Case 2
-                Return bytes(0) * 256 + bytes(1)
-            Case 4
-                Array.Reverse(bytes)
-                Return BitConverter.ToInt32(bytes, 0)
-            Case Else
-                Return 0
-        End Select
+        Array.Reverse(bytes)
+        Return BitConverter.ToInt16(bytes, 2)
+    End Function
+
+    Public Function Read32(address As UInteger) As Integer
+        Dim buffer As Integer
+        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
+        Dim bytes() As Byte = BitConverter.GetBytes(buffer)
+        Array.Reverse(bytes)
+        Return BitConverter.ToInt32(bytes, 0)
+    End Function
+
+    Public Function Read32U(address As UInteger) As UInteger
+        Dim buffer As Integer
+        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
+        Dim bytes() As Byte = BitConverter.GetBytes(buffer)
+        Array.Reverse(bytes)
+        Return BitConverter.ToUInt32(bytes, 0)
+    End Function
+
+    Public Function ReadFloat(address As UInteger) As Double
+        Dim buffer As Integer
+        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
+        Dim bytes() As Byte = BitConverter.GetBytes(buffer)
+        Array.Reverse(bytes)
+        Return BitConverter.ToSingle(bytes, 0)
     End Function
 
     Private Function ReadFloat(address As Int64) As Double
         Dim buffer As Integer
-        ReadProcessMemory(hProcess, address, buffer, 4, 0)
+        ReadProcessMemory(hProcess, address + dolphin_offset, buffer, 4, 0)
         Dim bytes() As Byte = BitConverter.GetBytes(buffer)
         Array.Reverse(bytes)
         Return Round(BitConverter.ToSingle(bytes, 0))
@@ -3944,9 +3954,9 @@ Public Class Main
             current_MP = 0
         End If
         Dim attack As Boolean
-        If secondary_target.Checked
+        If secondary_target.Checked Then
             For x = 0 To cards - 1
-                If multi_target_attacks.Contains(combo(x).Tag)
+                If multi_target_attacks.Contains(combo(x).Tag) Then
                     attack = True
                     Exit For
                 End If
