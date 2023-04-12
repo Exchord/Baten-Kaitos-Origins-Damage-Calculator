@@ -988,13 +988,9 @@ Public Class Main
 
         battle_id = Read16(battle_id_address)
 
-        If My.Settings.EnglishVersion Then
-            offset = -&H1E4
-        End If
-
         current_target = Read32U(battle_address + &HC90)
         If current_target <> 0 Then
-            current_target = (current_target - battle_address + offset) / &H1494 + 9
+            current_target = (current_target - battle_address - &H1E4) / &H1494 + 9
         End If
 
         Dim value_1, value_2 As Double
@@ -1045,7 +1041,7 @@ Public Class Main
             For x = 0 To party_size - 1
                 targeted(x) = Read32U(battle_address - &HE27C + x * &H1578)
                 If targeted(x) <> 0 Then
-                    targeted(x) = (targeted(x) - battle_address + offset) / &H1494 + 9
+                    targeted(x) = (targeted(x) - battle_address - &H1E4) / &H1494 + 9
                 End If
                 first_card(x) = Read32U(battle_address - &HCE08 + x * &H1578)
                 next_card(x) = Read32U(battle_address - &HCF48 + x * &H1578)
@@ -1056,14 +1052,9 @@ Public Class Main
             active_turns = Read16(battle_address + &H896)
             prepared_turns = Read16(battle_address + &H916)
 
-            offset = 0
-            If My.Settings.EnglishVersion Then
-                offset = -&H978
-            End If
-
             Dim current_turn As Int64 = Read32U(battle_address + &H8C4)
             If current_turn <> 0 Then
-                current_turn = (current_turn - battle_address + offset) / &H1578 + 12
+                current_turn = (current_turn - battle_address - &H978) / &H1578 + 12
             End If
 
             Dim enemy_turns As Integer
@@ -1071,7 +1062,7 @@ Public Class Main
                 Dim y As Integer = x - enemy_turns
                 prepared_turn(y) = Read32U(battle_address + &H918 + x * 4)
                 If prepared_turn(y) <> 0 Then
-                    prepared_turn(y) = (prepared_turn(y) - battle_address + offset) / &H1578 + 12
+                    prepared_turn(y) = (prepared_turn(y) - battle_address - &H978) / &H1578 + 12
                 End If
                 If prepared_turn(y) = 0 Or prepared_turn(y) > 3 Then
                     enemy_turns += 1
@@ -1084,7 +1075,7 @@ Public Class Main
                 Dim y As Integer = x - enemy_turns
                 active_turn(y) = Read32U(battle_address + &H898 + x * 4)
                 If active_turn(y) <> 0 Then
-                    active_turn(y) = (active_turn(y) - battle_address + offset) / &H1578 + 12
+                    active_turn(y) = (active_turn(y) - battle_address - &H978) / &H1578 + 12
                 End If
                 If active_turn(y) = 0 Or active_turn(y) > 3 Then
                     enemy_turns += 1
