@@ -981,7 +981,7 @@ Public Class Main
     Private Sub ReadBattleData(battle_address As UInteger, battle_id_address As UInteger, combo_address As UInteger, mp_address As UInteger)
         secondary_target.Checked = False
 
-        Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn_type(3), active_turn_type(3), enemy_party_size, enemy_party(5), offset As Integer
+        Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn_type(3), active_turn_type(3), enemy_party_size, enemy_party(5) As Integer
         Dim prepared_turn(3), active_turn(3), targeted(3), current_target As Int64
         Dim first_card(3), next_card(3) As UInteger
         Dim defense_boost(5, 6, 2), enemy_offense_boost(5, 2) As Double
