@@ -982,7 +982,8 @@ Public Class Main
         secondary_target.Checked = False
 
         Dim battle_id, enemy_HP(5), party(3), party_size, prepared_turns, active_turns, prepared_turn_type(3), active_turn_type(3), enemy_party_size, enemy_party(5), offset As Integer
-        Dim prepared_turn(3), active_turn(3), first_card(3), next_card(3), targeted(3), current_target As UInteger
+        Dim prepared_turn(3), active_turn(3), targeted(3), current_target As Int64
+        Dim first_card(3), next_card(3) As UInteger
         Dim defense_boost(5, 6, 2), enemy_offense_boost(5, 2) As Double
 
         battle_id = Read16(battle_id_address)
@@ -1060,7 +1061,7 @@ Public Class Main
                 offset = -&H978
             End If
 
-            Dim current_turn As UInteger = Read32U(battle_address + &H8C4)
+            Dim current_turn As Int64 = Read32U(battle_address + &H8C4)
             If current_turn <> 0 Then
                 current_turn = (current_turn - battle_address + offset) / &H1578 + 12
             End If
