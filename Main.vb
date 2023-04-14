@@ -1238,8 +1238,7 @@ Public Class Main
                 End If
 
                 'if there is one more prepared turn, read it now
-                Dim type As Integer = prepared_turn_type(last_turn)
-                If last_turn >= 0 AndAlso (type = 4 Or (type = 3 And cards = 0)) Then
+                If last_turn >= 0 AndAlso (prepared_turn_type(last_turn) = 4 Or (prepared_turn_type(last_turn) = 3 And cards = 0)) Then
                     slot = (next_card(last_turn) - battle_address) / 36
                     For x = cards To cards + 8
                         ShowCard(card_id(slot), party(last_turn))
