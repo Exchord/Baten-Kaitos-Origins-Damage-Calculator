@@ -1117,6 +1117,7 @@ Public Class Main
                 End If
             Next
 
+            Dim char_has_turn(3) As Boolean
             Dim end_of_combo As Boolean
             Dim next_turn As Integer
             'if the game has already stored part of the combo, start with that
@@ -1127,6 +1128,8 @@ Public Class Main
                         end_of_combo = True
                     End If
                     ShowCard(combo_card(x), member(x))
+                    Dim chr As Integer = Array.IndexOf(party, member(x))
+                    char_has_turn(chr) = True
                 Next
                 next_turn = 1
             End If
@@ -1136,21 +1139,27 @@ Public Class Main
                 end_of_combo = True
             End If
 
-            'check (subsequent) turns in the action bar
+            'check turns in the action bar
             If Not end_of_combo Then
                 For x = next_turn To active_turns - 1
-                    If (turns > 0 AndAlso active_turn_type(active_turn(x) - 1) <> 4) Or next_card(active_turn(x) - 1) = 0 Then
+                    Dim chr As Integer = active_turn(x) - 1
+                    If turns > 0 AndAlso active_turn_type(chr) <> 4 Then    'type 4: relay
                         end_of_combo = True
                         Exit For
                     End If
-                    slot = (next_card(active_turn(x) - 1) - battle_address) / 36
+                    If next_card(chr) = 0 Then
+                        end_of_combo = True
+                        Exit For
+                    End If
+                    slot = (next_card(chr) - battle_address) / 36
                     For y = cards To cards + 8
-                        ShowCard(card_id(slot), party(active_turn(x) - 1))
+                        ShowCard(card_id(slot), party(chr))
                         If next_(slot) = UInteger.MaxValue Then
                             Exit For
                         End If
                         slot = next_(slot)
                     Next
+                    char_has_turn(chr) = True
                 Next
             End If
 
@@ -1162,18 +1171,24 @@ Public Class Main
             'read turns that are fully prepared, but not in the action bar yet
             If Not end_of_combo Then
                 For x = 0 To prepared_turns - 1
-                    If (turns > 0 AndAlso prepared_turn_type(prepared_turn(x) - 1) <> 4) Or next_card(prepared_turn(x) - 1) = 0 Then
+                    Dim chr As Integer = prepared_turn(x) - 1
+                    If turns > 0 AndAlso prepared_turn_type(chr) <> 4 Then
                         end_of_combo = True
                         Exit For
                     End If
-                    slot = (next_card(prepared_turn(x) - 1) - battle_address) / 36
+                    If next_card(chr) = 0 Then
+                        end_of_combo = True
+                        Exit For
+                    End If
+                    slot = (next_card(chr) - battle_address) / 36
                     For y = cards To cards + 8
-                        ShowCard(card_id(slot), party(prepared_turn(x) - 1))
+                        ShowCard(card_id(slot), party(chr))
                         If next_(slot) = UInteger.MaxValue Then
                             Exit For
                         End If
                         slot = next_(slot)
                     Next
+                    char_has_turn(chr) = True
                 Next
             End If
 
@@ -1182,55 +1197,49 @@ Public Class Main
                 end_of_combo = True
             End If
 
-            Dim last_turn As Integer = -1
+            Dim last_turn As Integer = -2
             If Not end_of_combo Then
                 'read the turn that is being prepared
                 For x = 0 To party_size - 1
-                    If first_card(x) <> 0 And Not (active_turns > 0 AndAlso prepared_turn_type(x) <> 4) Then
-                        slot = (first_card(x) - battle_address) / 36
-                        For y = cards To cards + 8
-                            ShowCard(card_id(slot), party(x))
-                            If next_(slot) = UInteger.MaxValue Then
-                                Exit For
-                            End If
-                            slot = next_(slot)
-                        Next
-                        Exit For
+                    If first_card(x) = 0 Then
+                        Continue For
                     End If
-                    If x = party_size - 1 Then
-                        last_turn = -2
+                    If active_turns > 0 And prepared_turn_type(x) <> 4 Then
+                        Continue For
                     End If
+                    slot = (first_card(x) - battle_address) / 36
+                    For y = cards To cards + 8
+                        ShowCard(card_id(slot), party(x))
+                        If next_(slot) = UInteger.MaxValue Then
+                            Exit For
+                        End If
+                        slot = next_(slot)
+                    Next
+                    char_has_turn(x) = True
+                    last_turn = -1
+                    Exit For
                 Next
 
                 'if no turn is being prepared, check if there is another prepared turn at the end of the queue
                 If last_turn = -2 Then
                     For x = 0 To party_size - 1
-                        If next_card(x) <> 0 Then
-                            For y = 0 To prepared_turns - 1
-                                If x = prepared_turn(y) - 1 Then
-                                    Exit For
-                                End If
-                                If y = prepared_turns - 1 Then
-                                    last_turn = x
-                                End If
-                            Next
-                            For y = 0 To active_turns - 1
-                                If x = active_turn(y) - 1 Then
-                                    Exit For
-                                End If
-                                If y = active_turns - 1 Then
-                                    last_turn = x
-                                End If
-                            Next
+                        If char_has_turn(x) Or next_card(x) = 0 Then
+                            Continue For
                         End If
-                        If last_turn >= 0 Then
+                        If prepared_turns = 0 OrElse x = prepared_turn(prepared_turns - 1) - 1 Then
+                            last_turn = x
+                            Exit For
+                        End If
+                        If active_turns = 0 OrElse x = active_turn(active_turns - 1) - 1 Then
+                            last_turn = x
                             Exit For
                         End If
                     Next
                 End If
 
                 'if there is one more prepared turn, read it now
-                If last_turn >= 0 AndAlso (prepared_turn_type(last_turn) = 4 And next_card(last_turn) <> 0) Then
+                Dim type As Integer = prepared_turn_type(last_turn)
+                If last_turn >= 0 AndAlso (type = 4 Or (type = 3 And cards = 0)) Then
                     slot = (next_card(last_turn) - battle_address) / 36
                     For x = cards To cards + 8
                         ShowCard(card_id(slot), party(last_turn))
