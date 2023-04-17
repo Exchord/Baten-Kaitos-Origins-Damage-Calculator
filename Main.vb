@@ -1087,7 +1087,7 @@ Public Class Main
             If combo_length > 0 Then
                 combo_damage = Read32(combo_address - 14)
             End If
-            Dim combo_card(17) As Integer
+            Dim combo_card(125) As Integer
             For x = 0 To combo_length - 1
                 combo_card(x) = Read16(combo_address + x * 4)
                 member(x) = 0
@@ -1274,7 +1274,7 @@ Public Class Main
 
         If final_phase_battles.Contains(battle_id) Then
             final_phase.Checked = True
-        Else
+        ElseIf final_phase.visible Then
             final_phase.Checked = False
         End If
 
