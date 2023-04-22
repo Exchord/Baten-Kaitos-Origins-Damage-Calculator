@@ -34,7 +34,7 @@ Public Class Main
     Dim hit_card(1000), hit_element(1000), shield_break_hit As Integer
     Dim weapon_effect(1000), weapon_boost(1000), qm_crit(1000), weapon_crit(1000), knockdown_hit(1000), min_one(1000) As Boolean
 
-    Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense(6), turn(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
+    Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense(6), first_card(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
     Public cards, combo_target, item_target, QM_inventory(24), QM_total_bonus(9) As Integer
     Public offense_boost(3, 6, 2), defense_boost(6, 2), enemy_offense_boost(2) As Double
     Dim post_combo_offense_boost(3, 6, 2), post_combo_defense_boost(6, 2), post_combo_enemy_offense_boost(2), current_MP As Double
@@ -1274,7 +1274,7 @@ Public Class Main
 
         If final_phase_battles.Contains(battle_id) Then
             final_phase.Checked = True
-        ElseIf final_phase.visible Then
+        ElseIf final_phase.Visible Then
             final_phase.Checked = False
         End If
 
@@ -1578,9 +1578,18 @@ Public Class Main
             ElseIf x > 0 Then
                 equip(x) = equip(x - 1)
             End If
-
             eq = equip(x)
-            CheckCombo(x)                   'check for EX combos in the current turn
+
+            'check for EX combos in the current turn
+            Dim turn As Integer = -1
+            If x = 0 OrElse member <> Me.member(x - 1) - 1 Then
+                turn = Array.IndexOf(first_card, x, 0, turns)
+            ElseIf Not IsAttack(combo(x - 1).Tag) Then
+                turn = Array.IndexOf(first_card, x - 1, 0, turns)
+            End If
+            If turn <> -1 Then
+                CheckCombo(turn)
+            End If
 
             offense = LevelToOffense(level(member))
             attack = GetAttack(x)
@@ -2765,7 +2774,7 @@ Public Class Main
         Dim id As Integer = sender.Tag
 
         'can't remove mid-combo relay weak attack
-        If spirit_number(id) = 2 And card < cards - 1 And turns > 1 And card >= turn(1) Then
+        If spirit_number(id) = 2 And card < cards - 1 And turns > 1 And card >= first_card(1) Then
             Return
         End If
 
@@ -2799,10 +2808,10 @@ Public Class Main
         turns = 0
         For x = 0 To cards - 1
             If x = 0 OrElse member(x) <> member(x - 1) Then
-                turn(turns) = x
+                first_card(turns) = x
                 turns += 1
             End If
-            MP_gain(x) = x + 1 - turn(turns - 1)
+            MP_gain(x) = x + 1 - first_card(turns - 1)
         Next
         If cards > 0 AndAlso character <> member(cards - 1) Then                'enable relay combo
             relay = True
@@ -2942,31 +2951,23 @@ Public Class Main
         End If
     End Function
 
-    Private Sub CheckCombo(card As Integer)
-        Dim check_turn As Integer = Array.IndexOf(turn, card, 0, turns)
-        If check_turn = -1 Then                                         'card is not start of turn
-            If card = 0 OrElse IsAttack(combo(card - 1).Tag) Then
-                Return                                                  'card is not first attack of turn
-            End If
-            check_turn = Array.IndexOf(turn, card - 1, 0, turns)        'card is first attack of turn
-        End If
-
+    Private Sub CheckCombo(turn As Integer)
         Dim combo_string As String = ""
         Dim first_card, last_card, total_length, final_combo, combo_start, combo_length As Integer
         Dim second_pass As Boolean
-        first_card = turn(check_turn)
+        first_card = Me.first_card(turn)
         If Not IsAttack(combo(first_card).Tag) Then
             first_card += 1
         End If
-        If turns > check_turn + 1 Then
-            last_card = turn(check_turn + 1) - 1
+        If turns > turn + 1 Then
+            last_card = Me.first_card(turn + 1) - 1
         Else
             last_card = cards - 1
         End If
 
         'create a text string out of all the cards making up the turn, excluding equipment
         For x = first_card To last_card
-            If check_turn + 1 > turns And x = turn(check_turn + 1) Then
+            If turn + 1 > turns And x = Me.first_card(turn + 1) Then
                 Exit For
             End If
             combo_string &= Convert.ToChar(combo(x).Tag + 34)
@@ -2997,7 +2998,7 @@ Public Class Main
         combo_length = temp(2)
         Dim final_card As Integer = first_card + combo_start + combo_length - 1
 
-        SaveEXCombo(check_turn, first_card, last_card, final_combo, combo_start, combo_length)
+        SaveEXCombo(turn, first_card, last_card, final_combo, combo_start, combo_length)
 
         'check if there is room left for another EX combo in the same turn; trim string
         If final_combo > 0 Then
@@ -3037,7 +3038,7 @@ Public Class Main
             combo_length = temp(2)
 
             If final_combo > 0 Then
-                SaveEXCombo(check_turn, first_card, last_card, final_combo, combo_start, combo_length)
+                SaveEXCombo(turn, first_card, last_card, final_combo, combo_start, combo_length)
             End If
             Return
         End If
@@ -3098,9 +3099,9 @@ Public Class Main
         Return {final_combo, combo_start, final_length}
     End Function
 
-    Private Sub SaveEXCombo(check_turn As Integer, first_card As Integer, last_card As Integer, final_combo As Integer, combo_start As Integer, combo_length As Integer)
+    Private Sub SaveEXCombo(turn As Integer, first_card As Integer, last_card As Integer, final_combo As Integer, combo_start As Integer, combo_length As Integer)
         For x = first_card To last_card
-            If check_turn + 1 > turns And x = turn(check_turn + 1) Then
+            If turn + 1 > turns And x = Me.first_card(turn + 1) Then
                 Exit For
             End If
             If x < first_card + combo_start Then
@@ -3185,7 +3186,7 @@ Public Class Main
             End If
 
             'only for X relays (infinite combo): same character can only attack again after two more turns
-            If turns > 1 AndAlso character = member(turn(turns - 2)) Then
+            If turns > 1 AndAlso character = member(first_card(turns - 2)) Then
                 transparent = True
             End If
 
