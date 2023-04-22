@@ -1,4 +1,4 @@
-﻿Public Class DoubleBufferPanel
+﻿Public Class CustomPanel
     Inherits Panel
     Public Sub New()
         DoubleBuffered = True

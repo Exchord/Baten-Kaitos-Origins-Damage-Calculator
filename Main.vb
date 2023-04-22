@@ -8,7 +8,7 @@ Public Class Main
     Dim enemy_status, armor_durability As ComboBox
     Dim target_image, button(7), hand(300) As PictureBox
     Dim MP_button, next_combo, burst As Button
-    Dim card_panel(2), output_panel As DoubleBufferPanel
+    Dim card_panel(2), output_panel As CustomPanel
     Dim magnus_image(455) As Bitmap
     Public hover As ToolTip
     Dim row_pos(32) As Integer
@@ -535,7 +535,7 @@ Public Class Main
         ' CARDS
 
         For x = 0 To 1
-            card_panel(x) = New DoubleBufferPanel()
+            card_panel(x) = New CustomPanel()
             With card_panel(x)
                 .AutoScroll = True
                 .Size = New Size(1163, 100)
@@ -607,7 +607,7 @@ Public Class Main
 
         ' OUTPUT TABLE
 
-        output_panel = New DoubleBufferPanel()
+        output_panel = New CustomPanel()
         With output_panel
             .AutoScroll = True
             .Size = New Size(Width - 16, Height - 490)

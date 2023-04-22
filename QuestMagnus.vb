@@ -6,7 +6,7 @@
     Public magnus(181) As Bitmap
     Public move_slot As Integer = -1
     Public result(18) As Label
-    Dim panel As DoubleBufferPanel
+    Dim panel As CustomPanel
     Dim clear As Button
     Public hover As ToolTip
 
@@ -96,7 +96,7 @@
             End If
         Next
 
-        panel = New DoubleBufferPanel
+        panel = New CustomPanel
         With panel
             .AutoScroll = True
             .Location = New Point(0, 300)
