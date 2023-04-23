@@ -78,11 +78,12 @@ Public Class Main
     ReadOnly element_compatibility(,) As Double = {{1, 0.9, 0.9, 0.9, 0.9, 0.9, 1}, {0.9, 1, 0.5, 0.75, 0.75, 0.75, 1}, {0.9, 0.5, 1, 0.75, 0.75, 0.75, 1}, {0.9, 0.75, 0.75, 1, 0.75, 0.75, 1}, {0.9, 0.75, 0.75, 0.75, 1, 0.5, 1}, {0.9, 0.75, 0.75, 0.75, 0.5, 1, 1}}
 
     ReadOnly status_name = {"Normal", "Flames", "Frozen", "Shock", "Blind"}
-    ReadOnly status_crit(,) As Boolean = {{False, False, False, False, False, False} _      'normal
-            , {False, False, True, False, False, False} _                                   'flames
-            , {False, True, False, False, False, False} _                                   'frozen
-            , {False, False, False, False, False, False} _                                  'shock
-            , {False, False, False, False, True, False}}                                    'blind
+    ReadOnly status_crit(,) As Boolean = {
+              {0, 0, 0, 0, 0, 0} _      'Normal
+            , {0, 0, 1, 0, 0, 0} _      'Flames
+            , {0, 1, 0, 0, 0, 0} _      'Frozen
+            , {0, 0, 0, 0, 0, 0} _      'Shock
+            , {0, 0, 0, 0, 1, 0}}       'Blind
 
     ReadOnly EX_combo_name() As String = {"", "Scension Flurry", "Anti-Scension Flurry", "Scension Blitz", "True Scension Blitz", "Anti-Scension Blitz", "Scension Onslaught", "True Scension Onslaught", "Anti-Scension Onslaught", "Fire-Forged Transcension", "Heaven-Forged Transcension", "True Transcension", "Fire-Forged Ascension", "Heaven-Forged Ascension", "True Ascension", "Blessed Ascension", "Sunderbolt", "Heavenflame's Tongue", "Crimson Skies", "True Crimson Skies", "Crimson Sky Tooth", "True Crimson Sky Tooth", "Flame Ice Flurry", "True Flame Ice Flurry", "Heavenly Bloom", "True Heavenly Bloom", "Heaven's Glacier", "True Heaven's Glacier", "True Smoldering Pike", "Smoldering Pike", "Icy Hellpike", "True Icy Hellpike", "Icegleam Shield", "Icegleam Assault", "Rime Flower", "Rime Flower Guardian", "True Rime Flower", "Rime Gleam Armor", "Godspeed the Ice", "Healing Wings", "The Apotheosis", "Reverse Knight", "Reverse Tail", "Trail Rush", "Horse Prance", "Capricorn Header", "Moon Crash", "Paralysis Bell", "Empyreal Thunder", "Dancing Doll", "Dancing Drop", "Dancing Condor", "Arabesque Dance", "Arabesque Doll", "Arabesque Thunder", "Secret Queen", "Secret Queen II", "Swallow's Flight", "Stardust", "Emerald Guard", "Starbreaker", "Thunder Seriatim", "Thunder Seriatim II", "Lightning Turkey", "Lightning Turkey II", "Double Frost", "Double Frost II", "Burning Frost", "Burning Frost II", "Raging Firewheel", "Wheel of Fire and Ice", "Circuit of Fire and Ice", "Goddrake's Thunderclap", "Goddrake's Thunderblast", "Cursedealer's Revels", "Cursedealer's Bacchanal", "Divine Ward", "Spirit Ward", "Spirit Enchantment", "Fellstar Quiver", "Fellstar Trebuchet", "Yin and Yang", "Yin Yang Integration", "Black Yang", "Blackest Yang", "White Yin", "Whitest Yin", "Iceblast", "Ice Queen", "Glacial Queen", "Subzero Parade", "Subzero Festival", "Fiery Ice Queen", "Blazing Glacial Queen", "Frigid Queen's Parade", "Frigid Queen's Festival", "Levingod's Quiver I", "Levingod's Quiver II", "Two-Palmed Defense", "Two Palmed Attack", "Celestial Catastrophe", "Guardian Comet"}
     ReadOnly EX_combo_data(,) As Integer = {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {4, 4, 2, 3, 11, 0, 0, 0, 10, 0, 0}, {4, 1, 2, 6, 11, 0, 0, 0, 10, 0, 0}, {2, 11, 14, 0, 0, 0, 0, 0, 30, 0, 0}, {5, 4, 2, 3, 11, 14, 0, 0, 50, 0, 0}, {5, 1, 2, 6, 11, 14, 0, 0, 50, 0, 0}, {3, 11, 14, 17, 0, 0, 0, 0, 70, 0, 0}, {6, 4, 2, 3, 11, 14, 17, 0, 100, 0, 0}, {6, 1, 2, 6, 11, 14, 17, 0, 100, 0, 0}, {4, 4, 2, 6, 17, 0, 0, 0, 40, 20, 1}, {4, 4, 2, 6, 17, 0, 0, 0, 20, 0, 4}, {4, 4, 2, 6, 17, 0, 0, 0, 30, 0, 0}, {4, 1, 5, 6, 14, 0, 0, 0, 30, 20, 1}, {4, 1, 5, 6, 14, 0, 0, 0, 10, 0, 4}, {4, 1, 5, 6, 14, 0, 0, 0, 20, 0, 0}, {2, 1, 14, 0, 0, 0, 0, 0, 10, 0, 4}, {4, 4, 5, 3, 13, 0, 0, 0, 5, 15, 3}, {4, 1, 2, 6, 12, 0, 0, 0, 15, 0, 1}, {2, 12, 15, 0, 0, 0, 0, 0, 40, 0, 0}, {5, 1, 2, 6, 12, 15, 0, 0, 60, 0, 0}, {3, 12, 15, 18, 0, 0, 0, 0, 100, 0, 0}, {6, 1, 2, 6, 12, 15, 18, 0, 120, 0, 0}, {3, 12, 15, 19, 0, 0, 0, 0, 90, 20, 0}, {6, 1, 2, 6, 12, 15, 19, 0, 110, 20, 0}, {2, 12, 16, 0, 0, 0, 0, 0, 35, 0, 0}, {5, 1, 2, 6, 12, 16, 0, 0, 55, 10, 0}, {3, 12, 16, 19, 0, 0, 0, 0, 80, 30, 0}, {6, 1, 2, 6, 12, 16, 19, 0, 100, 40, 0}, {4, 4, 5, 6, 15, 0, 0, 0, 40, 0, 1}, {4, 4, 5, 6, 15, 0, 0, 0, 35, 0, 0}, {2, 15, 19, 0, 0, 0, 0, 0, 50, 20, 0}, {5, 4, 5, 6, 15, 19, 0, 0, 60, 30, 0}, {3, 4, 3, 16, 0, 0, 0, 0, 10, 0, 0}, {4, 4, 5, 3, 16, 0, 0, 0, 35, 10, 5}, {2, 16, 19, 0, 0, 0, 0, 0, 40, 0, 0}, {4, 4, 3, 16, 19, 0, 0, 0, 20, 0, 0}, {5, 4, 5, 3, 16, 19, 0, 0, 50, 0, 0}, {3, 4, 6, 19, 0, 0, 0, 0, 10, 0, 2}, {4, 4, 5, 6, 19, 0, 0, 0, 40, 10, 5}, {4, 1, 2, 6, 20, 0, 0, 0, 40, 0, 4}, {7, 1, 2, 3, 11, 14, 17, 20, 150, 50, 0}, {2, 4, 2, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 4, 2, 21, 0, 0, 0, 0, 10, 0, 0}, {2, 8, 5, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 1, 8, 5, 0, 0, 0, 0, 0, 0, 0}, {3, 7, 2, 3, 0, 0, 0, 0, 0, 0, 0}, {4, 1, 7, 2, 3, 0, 0, 0, 0, 0, 0}, {5, 1, 7, 2, 3, 28, 0, 0, 40, 0, 0}, {7, 1, 7, 2, 3, 23, 26, 28, 80, 100, 0}, {4, 1, 8, 5, 10, 0, 0, 0, 0, 0, 0}, {5, 1, 8, 5, 10, 25, 0, 0, 20, 0, 0}, {5, 1, 8, 5, 10, 26, 0, 0, 15, 30, 0}, {5, 1, 8, 5, 10, 24, 0, 0, 20, 0, 0}, {5, 1, 8, 5, 10, 24, 0, 0, 30, 0, 1}, {5, 1, 8, 5, 10, 24, 0, 0, 15, 25, 3}, {1, 10, 0, 0, 0, 0, 0, 0, 10, 0, 7}, {2, 10, 21, 0, 0, 0, 0, 0, 10, 0, 7}, {4, 4, 2, 6, 21, 0, 0, 0, 5, 0, 0}, {4, 4, 2, 6, 23, 0, 0, 0, 5, 40, 0}, {4, 1, 2, 6, 22, 0, 0, 0, 10, 0, 2}, {4, 1, 2, 3, 23, 0, 0, 0, 10, 20, 3}, {2, 23, 26, 0, 0, 0, 0, 0, 20, 40, 0}, {5, 4, 2, 6, 23, 26, 0, 0, 20, 50, 0}, {3, 23, 26, 28, 0, 0, 0, 0, 70, 70, 0}, {6, 4, 2, 6, 23, 26, 28, 0, 80, 80, 0}, {2, 22, 25, 0, 0, 0, 0, 0, 20, 0, 0}, {5, 1, 2, 6, 22, 25, 0, 0, 40, 0, 0}, {3, 22, 25, 27, 0, 0, 0, 0, 80, 40, 0}, {6, 1, 2, 6, 22, 25, 27, 0, 100, 40, 0}, {4, 1, 2, 6, 29, 0, 0, 0, 15, 0, 1}, {2, 29, 34, 0, 0, 0, 0, 0, 35, 0, 0}, {5, 1, 2, 6, 29, 34, 0, 0, 55, 10, 0}, {2, 35, 41, 0, 0, 0, 0, 0, 30, 40, 0}, {5, 1, 5, 3, 35, 41, 0, 0, 40, 40, 0}, {2, 37, 43, 0, 0, 0, 0, 0, 25, 0, 0}, {5, 4, 2, 3, 37, 43, 0, 0, 35, 0, 0}, {4, 1, 2, 6, 32, 0, 0, 0, 10, 0, 6}, {2, 32, 36, 0, 0, 0, 0, 0, 20, 0, 0}, {5, 1, 5, 3, 32, 36, 0, 0, 30, 0, 0}, {3, 32, 36, 42, 0, 0, 0, 0, 60, 0, 0}, {6, 1, 5, 3, 32, 36, 42, 0, 70, 0, 0}, {2, 32, 37, 0, 0, 0, 0, 0, 35, 0, 0}, {5, 4, 2, 3, 32, 37, 0, 0, 55, 0, 0}, {3, 32, 37, 43, 0, 0, 0, 0, 65, 30, 0}, {6, 4, 2, 3, 32, 37, 43, 0, 100, 40, 0}, {3, 32, 36, 43, 0, 0, 0, 0, 70, 30, 0}, {6, 1, 5, 3, 32, 36, 43, 0, 100, 40, 0}, {4, 4, 5, 6, 30, 0, 0, 0, 10, 0, 2}, {2, 30, 33, 0, 0, 0, 0, 0, 30, 0, 0}, {5, 4, 5, 6, 30, 33, 0, 0, 40, 0, 0}, {3, 30, 33, 40, 0, 0, 0, 0, 60, 0, 0}, {6, 4, 5, 6, 30, 33, 40, 0, 90, 0, 0}, {3, 30, 33, 39, 0, 0, 0, 0, 50, 20, 0}, {6, 4, 5, 6, 30, 33, 39, 0, 100, 20, 0}, {4, 30, 33, 40, 44, 0, 0, 0, 55, 30, 0}, {7, 4, 5, 6, 30, 33, 40, 44, 110, 40, 0}, {4, 1, 5, 3, 31, 0, 0, 0, 10, 15, 3}, {4, 1, 5, 3, 31, 0, 0, 0, 20, 0, 5}, {4, 1, 5, 3, 34, 0, 0, 0, 10, 0, 2}, {4, 1, 5, 3, 34, 0, 0, 0, 30, 0, 5}, {4, 1, 5, 3, 38, 0, 0, 0, 30, 20, 0}, {4, 1, 2, 3, 44, 0, 0, 0, 40, 0, 6}}
@@ -94,18 +95,19 @@ Public Class Main
     Public ReadOnly QM_bonus() As Integer = {0, 3, 2, 1, 5, 2, 1, 3, 3, 2, 1, 5, 1, -5, 1, 5, 3, 5, 10, 5, -5, 3, 5, 8, 3, 1, 3, 3, 1, 5, 10, 5, 0, -3, 10, 3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 8, 0, 0, 100, 5, 3, 0, 0, 5, 3, 0, 0, 0, 3, 7, -5, 5, 0, 5, 10, 20, -10, 8, 0, 3, -20, 100, -15, -3, -5, 0, 10, 10, 5, 0, 5, 0, 10, 30, 50, 100, 10, 30, 50, 1, 10, 5, -20, 10, -30, 5, 5, 8, 10, 3, 5, 5, -5, 3, 10, -10, 3, 0, 3, 0, 0, 3, 5, 5, 5, 5, 5, 0, 3, -10, 20, 5, 3, 5, 2, 2, 0, 0, 5, 0, 3, 5, 10, 1, 3, 0, 10, 1, 5, 0, 0, 15, 0, 0, 0, 3, 0, 0, 0, -10, 10, -8, -8, -8, 12, 12, 12, 0, 5, 3, 5, 3, 20, -20, -1, 5, 8, 3, 5, 10, 8, 5, 3, 8, 3, 3, 0, 10, 0}
 
     ReadOnly aura_name() As String = {"No aura", "Attack", "Crush", "Guard", "Life", "Speed", "Earth", "Fire", "Ice", "Thunder", "Dark", "Light"}
-    ReadOnly aura_data(,,) As Integer = {{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _
-            , {{1, 0, 6, 8}, {1, 0, 6, 20}, {1, 0, 6, 40}} _
-            , {{0, 1, 6, 12}, {0, 1, 6, 24}, {0, 1, 6, 60}} _
-            , {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _
-            , {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _
-            , {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _
-            , {{1, 1, 0, 12}, {1, 1, 0, 24}, {1, 1, 0, 60}} _
-            , {{1, 1, 1, 12}, {1, 1, 1, 24}, {1, 1, 1, 60}} _
-            , {{1, 1, 2, 12}, {1, 1, 2, 24}, {1, 1, 2, 60}} _
-            , {{1, 1, 3, 12}, {1, 1, 3, 24}, {1, 1, 3, 60}} _
-            , {{1, 1, 5, 12}, {1, 1, 5, 24}, {1, 1, 5, 60}} _
-            , {{1, 1, 4, 12}, {1, 1, 4, 24}, {1, 1, 4, 60}}}
+    ReadOnly aura_data(,,) As Integer = {
+              {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _          'No aura
+            , {{1, 0, 6, 8}, {1, 0, 6, 20}, {1, 0, 6, 40}} _        'Attack
+            , {{0, 1, 6, 12}, {0, 1, 6, 24}, {0, 1, 6, 60}} _       'Crush
+            , {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _          'Guard
+            , {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _          'Life
+            , {{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}} _          'Speed
+            , {{1, 1, 0, 12}, {1, 1, 0, 24}, {1, 1, 0, 60}} _       'Earth
+            , {{1, 1, 1, 12}, {1, 1, 1, 24}, {1, 1, 1, 60}} _       'Fire
+            , {{1, 1, 2, 12}, {1, 1, 2, 24}, {1, 1, 2, 60}} _       'Ice
+            , {{1, 1, 3, 12}, {1, 1, 3, 24}, {1, 1, 3, 60}} _       'Thunder
+            , {{1, 1, 5, 12}, {1, 1, 5, 24}, {1, 1, 5, 60}} _       'Dark
+            , {{1, 1, 4, 12}, {1, 1, 4, 24}, {1, 1, 4, 60}}}        'Light
     'aura data: offense, crush, element, bonus
 
     ReadOnly multi_target_attacks() As Integer = {24, 28, 30, 33, 35, 38, 39, 40, 41, 44}
@@ -3286,14 +3288,16 @@ Public Class Main
 
     Private Sub CheckAura(chr As Integer, go As Boolean)
         'aura properties based on type and aura level
-        Dim attack, crush, element, bonus, start_level, end_level As Integer
-        attack = aura_data(aura(chr, 0), aura(chr, 1), 0)
-        crush = aura_data(aura(chr, 0), aura(chr, 1), 1)
-        element = aura_data(aura(chr, 0), aura(chr, 1), 2)
-        bonus = aura_data(aura(chr, 0), aura(chr, 1), 3)
+        Dim type, lv, attack, crush, element, bonus, start_level, end_level As Integer
+        type = aura(chr, 0)
+        lv = aura(chr, 1)
+        attack = aura_data(type, lv, 0)
+        crush = aura_data(type, lv, 1)
+        element = aura_data(type, lv, 2)
+        bonus = aura_data(type, lv, 3)
 
         'select character's level range based on aura level
-        Select Case aura(chr, 1)
+        Select Case lv
             Case 0
                 start_level = 1
                 end_level = 15
@@ -3306,9 +3310,10 @@ Public Class Main
         End Select
 
         'additional bonus based on character's level
-        If level(chr) < start_level Then
-        ElseIf level(chr) <= end_level Then
-            bonus += Math.Round(bonus * 0.25 * (level(chr) - start_level) / (end_level - start_level), 0, MidpointRounding.AwayFromZero)
+        Dim level As Integer = Me.level(chr)
+        If level < start_level Then
+        ElseIf level <= end_level Then
+            bonus += Math.Round(bonus * 0.25 * (level - start_level) / (end_level - start_level), 0, MidpointRounding.AwayFromZero)
         Else
             bonus = Math.Round(bonus * 1.25, 0, MidpointRounding.AwayFromZero)
         End If
