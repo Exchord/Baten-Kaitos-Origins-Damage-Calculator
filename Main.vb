@@ -2211,12 +2211,14 @@ Public Class Main
         If card = cards - 1 Then                                        'add card
             id = combo(cards - 1).Tag
             delta = MP.factor * MP_gain(cards - 1) - 100 * MP_cost(id)
-            value = Math.Min(value + delta, MP.max_MP)
+            value = Round(value + delta)
+            value = Math.Min(value, MP.max_MP)
         Else
             For x = card To cards Step -1                               'remove card(s)
                 id = combo(x).Tag
                 delta = MP.factor * MP_gain(x) - 100 * MP_cost(id)
-                value = Clamp(value - delta, 0, MP.max_MP)
+                value = Round(value - delta)
+                value = Clamp(value, 0, MP.max_MP)
             Next
         End If
 
