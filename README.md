@@ -179,7 +179,7 @@ Notes:
 
 ### Dolphin
 ![](https://i.imgur.com/zRxfMiW.png)  
-If the game is running in Dolphin 5.0 or 4.0.2 (stable versions only), clicking this icon will import the following data from the emulator:
+If the game is running in Dolphin 5.0 or 4.0.x (stable versions only), clicking this icon will import the following data from the emulator:
 - Game version
 - Levels
 - Auras
@@ -297,6 +297,7 @@ You can also remove a single card anywhere in the combo by right-clicking it.
 You can use the mouse wheel to adjust levels, auras, durability, HP, status, boost, and random deviations.
 
 Keyboard shortcuts:
+- 1/2/3: switch characters (main window and Temporary Boost)
 - T: open target window
 - D: open deck window
 - Q: open quest magnus window
@@ -429,7 +430,7 @@ max_damage_output = max_HP * 0.1 * random_factor
 damage_output = min(total_offense, max_damage_output)
 
 Both random factors can range from 0.8 to 1.04. Damage output is truncated. Crush output is 0.  
-knockdown_hit_offense is displayed as "Offense" in the game's menu. It follows these rules:  
+(knockdown_hit_offense + quest_magnus_bonus) is displayed as "Offense" in the game's menu. It follows these rules:  
 - Sagi: knockdown_hit_offense = base_offense * 10  
 - Milly: knockdown_hit_offense = base_offense * 7  
 - Guillo: knockdown_hit_offense = base_offense * 15
