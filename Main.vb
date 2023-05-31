@@ -1365,7 +1365,8 @@ Public Class Main
     End Function
 
     Private Function GetEquipment(eq As Integer) As Integer()
-        Dim armor_equipped, weapon_element, weapon_offense, weapon_crush, weapon_factor As Integer
+        Dim armor_equipped, weapon_element, weapon_offense, weapon_crush As Integer
+        Dim weapon_factor As Double
         If IsArmor(eq) Or IsAccessory(eq) Then
             armor_equipped = True
             weapon_element = 0
@@ -1387,7 +1388,7 @@ Public Class Main
         Else
             weapon_factor = 1
         End If
-        Return {armor_equipped, weapon_element, weapon_offense, weapon_crush, weapon_factor}
+        Return {armor_equipped, weapon_element, weapon_offense, weapon_crush, weapon_factor * 2}
     End Function
 
     Public Sub Calculate()
@@ -1438,7 +1439,7 @@ Public Class Main
             weapon_element = temp(1)
             weapon_offense = temp(2)
             weapon_crush = temp(3)
-            weapon_factor = temp(4)
+            weapon_factor = temp(4) / 2
             If eq_durability(member).Text <> "" Then
                 durability = eq_durability(member).Text
             Else
@@ -1493,7 +1494,7 @@ Public Class Main
                 weapon_element = temp(1)
                 weapon_offense = temp(2)
                 weapon_crush = temp(3)
-                weapon_factor = temp(4)
+                weapon_factor = temp(4) / 2
                 durability = Me.durability(id)
                 If durability = 0 And Not armor_equipped Then
                     full_turn_weapon = True
@@ -1547,7 +1548,7 @@ Public Class Main
                     weapon_element = temp(1)
                     weapon_offense = temp(2)
                     weapon_crush = temp(3)
-                    weapon_factor = temp(4)
+                    weapon_factor = temp(4) / 2
                     If eq_durability(member).Text <> "" Then
                         durability = eq_durability(member).Text
                     Else
@@ -1569,7 +1570,7 @@ Public Class Main
                     weapon_element = temp(1)
                     weapon_offense = temp(2)
                     weapon_crush = temp(3)
-                    weapon_factor = temp(4)
+                    weapon_factor = temp(4) / 2
                     durability = post_combo_equip(member, 1)
                     If durability = 0 And Not armor_equipped Then
                         full_turn_weapon = True
