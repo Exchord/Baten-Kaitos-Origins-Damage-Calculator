@@ -13,7 +13,11 @@
         MaximizeBox = False
         MinimumSize = New Size(783, 669)
         MaximumSize = New Size(783, 1299)
-        Text = "Target"
+        If Not Main.enemy_mode Then
+            Text = "Target"
+        Else
+            Text = "Enemy"
+        End If
         Icon = New Icon(Me.GetType(), "icon.ico")
         LoadWindowData()
 

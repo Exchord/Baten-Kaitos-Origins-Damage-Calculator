@@ -223,7 +223,7 @@
             With artifact(x)
                 .Size = New Size(40, 40)
                 .Location = New Point(35 + 40 * x, magnus_y + 140)
-                .Image = Main.ChangeOpacity(roman(x), 0.5)
+                .Image = Main.MakeTransparent(roman(x))
                 .Cursor = Cursors.Hand
                 .Tag = x + 8
                 AddHandler .Click, AddressOf ChangeMP
@@ -347,7 +347,7 @@
         End If
         For x = 0 To 3
             If current_MP < (x + 1) * 100 Then
-                artifact(x).Image = Main.ChangeOpacity(roman(x), 0.5)
+                artifact(x).Image = Main.MakeTransparent(roman(x))
             Else
                 artifact(x).Image = roman(x)
             End If

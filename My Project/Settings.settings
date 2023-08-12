@@ -137,5 +137,26 @@
     <Setting Name="SettingsTooltips" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
+    <Setting Name="Fusillade" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1010010100110100</Value>
+    </Setting>
+    <Setting Name="CrimsonCatharsis" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0110001001</Value>
+    </Setting>
+    <Setting Name="BerserkTech" Type="System.String" Scope="User">
+      <Value Profile="(Default)">01001</Value>
+    </Setting>
+    <Setting Name="HyperslaughtMode4" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0010001110010110</Value>
+    </Setting>
+    <Setting Name="HyperslaughtMode3" Type="System.String" Scope="User">
+      <Value Profile="(Default)">0100101100</Value>
+    </Setting>
+    <Setting Name="MagnusOfLife" Type="System.String" Scope="User">
+      <Value Profile="(Default)">1100100100</Value>
+    </Setting>
+    <Setting Name="EnemyResultsRow" Type="System.String" Scope="User">
+      <Value Profile="(Default)">111111111111111111111111</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

@@ -5,13 +5,13 @@
     Dim card(181) As PictureBox
     Public magnus(181) As Bitmap
     Public move_slot As Integer = -1
-    Public result(18) As Label
+    Public result(18), E_result(12) As Label
     Dim panel As CustomPanel
     Dim clear As Button
     Public hover As ToolTip
 
-    ReadOnly effects() As Integer = {9, 10, 11, 12, 13, 14, 15, 22, 36, 37, 38, 41, 42, 43, 48}
-
+    ReadOnly offense_effects() As Integer = {9, 10, 11, 12, 13, 14, 15, 22, 36, 37, 38, 41, 42, 43, 48}
+    ReadOnly defense_effects() As Integer = {22, 27, 32, 33, 34, 35, 46, 47}
     Private Sub Open() Handles MyBase.Load
         Hide()
         BackColor = Color.LightGray
@@ -53,28 +53,29 @@
         clear = New Button
         With clear
             .Text = "Reset"
-            .Location = New Point(817, 33)
+            .Location = New Point(837, 33)
             .Size = New Size(88, 29)
             .UseVisualStyleBackColor = True
             AddHandler .Click, AddressOf ClearAll
         End With
         Controls.Add(clear)
 
+        Dim variable() As String = {"Physical offense", "Fire offense", "Ice offense", "Lightning offense", "Light offense", "Darkness offense", "Extra hit offense", "Critical hit chance", "Level", "Physical defense", "Knockdown defense", "Knockout defense", "Sagi max HP", "Milly max HP", "Guillo max HP"}
+
         For x = 0 To 17
             result(x) = New Label()
             With result(x)
                 If x < 9 Then
-                    .Width = 109
+                    .Size = New Size(109, 24)
                     .Location = New Point(600, 34 + x * 25)
                     .TextAlign = ContentAlignment.MiddleLeft
+                    .Text = variable(x)
                 Else
-                    .Width = 49
+                    .Size = New Size(49, 24)
                     .Location = New Point(710, 34 + (x - 9) * 25)
                     .TextAlign = ContentAlignment.MiddleCenter
                 End If
-                .Height = 24
                 If x < 6 Then
-                    .Text = Main.element_name(x) & " offense"
                     .BackColor = Main.element_color(x)
                 Else
                     .BackColor = Main.default_color
@@ -83,17 +84,24 @@
             End With
             Controls.Add(result(x))
         Next
-        result(6).Text = "Extra hit offense"
-        result(7).Text = "Critical hit chance"
-        result(8).Text = "Level"
-        For x = 0 To 8
-            If x = 7 Then
-                result(x + 9).Text = Main.QM_total_bonus(x) & "%"
-            ElseIf Main.QM_total_bonus(x) > 0 Then
-                result(x + 9).Text = "+" & Main.QM_total_bonus(x)
-            Else
-                result(x + 9).Text = Main.QM_total_bonus(x)
-            End If
+
+        For x = 0 To 11
+            E_result(x) = New Label()
+            With E_result(x)
+                If x < 6 Then
+                    .Size = New Size(129, 24)
+                    .Location = New Point(800, 109 + x * 25)
+                    .TextAlign = ContentAlignment.MiddleLeft
+                    .Text = variable(x + 9)
+                Else
+                    .Size = New Size(49, 24)
+                    .Location = New Point(930, 109 + (x - 6) * 25)
+                    .TextAlign = ContentAlignment.MiddleCenter
+                End If
+                .BackColor = Main.default_color
+                AddHandler .Click, AddressOf ChangeFocus
+            End With
+            Controls.Add(E_result(x))
         Next
 
         panel = New CustomPanel
@@ -111,11 +119,6 @@
                 Dim y As Integer = x - 1
                 .Size = New Size(50, 80)
                 .Location = New Point(10 + 50 * (y Mod 20), 90 * Math.Floor(y / 20))
-                If effects.Contains(Main.QM_effect(x)) Then
-                    .Image = magnus(x)
-                Else
-                    .Image = Main.ChangeOpacity(magnus(x), 0.5)
-                End If
                 .Cursor = Cursors.Hand
                 .Tag = x
                 AddHandler .Click, AddressOf Add
@@ -135,6 +138,7 @@
         End With
 
         Show()
+        SwitchMode()
         AddHandler Resize, AddressOf ResizePanel
         AddHandler Resize, AddressOf SaveWindowData
         AddHandler Move, AddressOf SaveWindowData
@@ -167,6 +171,23 @@
             My.Settings.QMWindowScroll = panel.VerticalScroll.Value
             My.Settings.QMWindowLocation = Location
         End If
+    End Sub
+
+    Public Sub SwitchMode()
+        Dim effects() As Integer
+        If Not Main.enemy_mode Then
+            effects = offense_effects
+        Else
+            effects = defense_effects
+        End If
+        For x = 1 To 180
+            If effects.Contains(Main.QM_effect(x)) Then
+                card(x).Image = magnus(x)
+            Else
+                card(x).Image = Main.MakeTransparent(magnus(x))
+            End If
+        Next
+        Main.CheckQuestMagnus()
     End Sub
 
     Private Sub Add(sender As Object, e As MouseEventArgs)
@@ -221,7 +242,7 @@
         End If
         If move_slot = -1 Then
             move_slot = sender.Name
-            sender.Image = Main.ChangeOpacity(magnus(sender.Tag), 0.5)
+            sender.Image = Main.MakeTransparent(magnus(sender.Tag))
             Return
         End If
         Dim magnus_1 As Integer = inventory(move_slot).Tag

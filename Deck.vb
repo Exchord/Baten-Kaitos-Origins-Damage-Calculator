@@ -46,7 +46,7 @@
                     .Image = magnus(x)
                     active(x) = True
                 Else
-                    .Image = Main.ChangeOpacity(magnus(x), 0.5)
+                    .Image = Main.MakeTransparent(magnus(x))
                     active(x) = False
                 End If
                 AddHandler .Click, AddressOf ToggleCard
@@ -127,7 +127,7 @@
     Public Sub ToggleCard(sender As Object, e As EventArgs)
         Dim id As Integer = sender.Tag
         If active(id) Then
-            card(id).Image = Main.ChangeOpacity(magnus(id), 0.5)
+            card(id).Image = Main.MakeTransparent(magnus(id))
             active(id) = False
             Main.deck_magnus(id) = "0"
         Else

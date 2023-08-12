@@ -15,7 +15,7 @@ Option Explicit On
 Namespace My
     
     <Global.System.Runtime.CompilerServices.CompilerGeneratedAttribute(),  _
-     Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "16.10.0.0"),  _
+     Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "17.6.0.0"),  _
      Global.System.ComponentModel.EditorBrowsableAttribute(Global.System.ComponentModel.EditorBrowsableState.Advanced)>  _
     Partial Friend NotInheritable Class MySettings
         Inherits Global.System.Configuration.ApplicationSettingsBase
@@ -590,6 +590,90 @@ Namespace My
             End Get
             Set
                 Me("SettingsTooltips") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("1010010100110100")>  _
+        Public Property Fusillade() As String
+            Get
+                Return CType(Me("Fusillade"),String)
+            End Get
+            Set
+                Me("Fusillade") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("0110001001")>  _
+        Public Property CrimsonCatharsis() As String
+            Get
+                Return CType(Me("CrimsonCatharsis"),String)
+            End Get
+            Set
+                Me("CrimsonCatharsis") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("01001")>  _
+        Public Property BerserkTech() As String
+            Get
+                Return CType(Me("BerserkTech"),String)
+            End Get
+            Set
+                Me("BerserkTech") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("0010001110010110")>  _
+        Public Property HyperslaughtMode4() As String
+            Get
+                Return CType(Me("HyperslaughtMode4"),String)
+            End Get
+            Set
+                Me("HyperslaughtMode4") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("0100101100")>  _
+        Public Property HyperslaughtMode3() As String
+            Get
+                Return CType(Me("HyperslaughtMode3"),String)
+            End Get
+            Set
+                Me("HyperslaughtMode3") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("1100100100")>  _
+        Public Property MagnusOfLife() As String
+            Get
+                Return CType(Me("MagnusOfLife"),String)
+            End Get
+            Set
+                Me("MagnusOfLife") = value
+            End Set
+        End Property
+        
+        <Global.System.Configuration.UserScopedSettingAttribute(),  _
+         Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
+         Global.System.Configuration.DefaultSettingValueAttribute("111111111111111111111111")>  _
+        Public Property EnemyResultsRow() As String
+            Get
+                Return CType(Me("EnemyResultsRow"),String)
+            End Get
+            Set
+                Me("EnemyResultsRow") = value
             End Set
         End Property
     End Class

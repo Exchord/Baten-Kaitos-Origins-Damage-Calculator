@@ -1,11 +1,11 @@
 ﻿Public Class Settings
     Inherits Form
 
-    Public row(31), setting(8) As CheckBox
-    Dim tooltips(7), heavenlapse(9), aphelion_dustwake(13) As CheckBox
-    Dim random_hits(20), tooltips_label, party_label(2), empty, version As Label
+    Public row(31), enemy_row(24), setting(8) As CheckBox
+    Dim random_hit(9, 17), tooltips(7) As CheckBox
+    Dim random_hit_label(9, 16), tooltips_label, party_label(2), empty, version As Label
     Dim show_all, hide_all, documentation As Button
-    Dim panel, party_panel(2) As Panel
+    Dim row_panel, enemy_row_panel, party_panel(2) As Panel
     Dim member(5) As RadioButton
     Dim party(3) As Integer
     Dim description(8) As String
@@ -22,8 +22,8 @@
         MaximizeBox = False
         Text = "Settings"
         Icon = New Icon(Me.GetType(), "icon.ico")
-        MinimumSize = New Size(700, 598)
-        MaximumSize = New Size(700, 856)
+        MinimumSize = New Size(775, 748)
+        MaximumSize = New Size(775, 856)
         LoadWindowData()
         AddHandler Click, AddressOf ChangeFocus
 
@@ -77,76 +77,65 @@
 
         ' RANDOM HITS
 
+        Dim attack_name() As String = {"Random hits", "Heavenlapse", "Aphelion Dustwake", "Fusillade", "Crimson Catharsis", "Berserk Tech", "Hyperslaught Mode 4", "Hyperslaught Mode 3", "Magnus of Life"}
+        Dim attack_config() As String = {"", My.Settings.Heavenlapse, My.Settings.AphelionDustwake, My.Settings.Fusillade, My.Settings.CrimsonCatharsis, My.Settings.BerserkTech, My.Settings.HyperslaughtMode4, My.Settings.HyperslaughtMode3, My.Settings.MagnusOfLife}
+        Dim hits() As Integer = {0, 9, 13, 16, 10, 5, 16, 10, 10}
         Dim random_hits_ypos As Integer = 244
-        For x = 0 To 19
-            random_hits(x) = New Label()
-            With random_hits(x)
-                If x < 13 Then
-                    .Size = New Size(24, 24)
-                    .Location = New Point(135 + x * 25, random_hits_ypos)
-                    .Text = x + 1
-                    .TextAlign = ContentAlignment.MiddleCenter
-                ElseIf x < 17 Then
-                    .Size = New Size(24, 24)
-                    .Location = New Point(35 + x * 25, random_hits_ypos + 25)
-                Else
-                    .Size = New Size(124, 24)
-                    .Location = New Point(10, random_hits_ypos + 25 * (x - 17))
-                    .TextAlign = ContentAlignment.MiddleLeft
-                End If
-                .BackColor = Main.default_color
-                AddHandler random_hits(x).Click, AddressOf ChangeFocus
-            End With
-            Controls.Add(random_hits(x))
-        Next
-        random_hits(17).BackColor = Color.Transparent
-        random_hits(17).Font = New Font("Segoe UI", 9, FontStyle.Bold)
-        random_hits(17).Text = "Random hits"
-        random_hits(18).Text = "Heavenlapse"
-        random_hits(19).Text = "Aphelion Dustwake"
 
-        For x = 0 To 8
-            heavenlapse(x) = New CheckBox()
-            With heavenlapse(x)
-                .Size = New Size(24, 24)
-                .Location = New Point(135 + x * 25, random_hits_ypos + 25)
+        For y = 0 To 8
+            random_hit_label(y, 0) = New Label()
+            With random_hit_label(y, 0)
+                .Size = New Size(124, 24)
+                .Location = New Point(10, random_hits_ypos + 25 * y)
+                .Text = attack_name(y)
+                .TextAlign = ContentAlignment.MiddleLeft
                 .BackColor = Main.default_color
-                .Padding = New Padding(5, 0, 0, 0)
-                .Tag = x
-                If My.Settings.Heavenlapse.ElementAt(x) = "1" Then
-                    .Checked = True
-                    .BackColor = Color.LightGreen
-                Else
-                    .BackColor = Main.default_color
-                End If
-                AddHandler .CheckedChanged, AddressOf ChangeHeavenlapse
+                AddHandler .Click, AddressOf ChangeFocus
             End With
-            Controls.Add(heavenlapse(x))
-        Next
+            Controls.Add(random_hit_label(y, 0))
 
-        For x = 0 To 12
-            aphelion_dustwake(x) = New CheckBox()
-            With aphelion_dustwake(x)
-                .Size = New Size(24, 24)
-                .Location = New Point(135 + x * 25, random_hits_ypos + 50)
-                .BackColor = Main.default_color
-                .Padding = New Padding(5, 0, 0, 0)
-                .Tag = x
-                If My.Settings.AphelionDustwake.ElementAt(x) = "1" Then
-                    .Checked = True
-                    .BackColor = Color.LightGreen
-                Else
+            Dim config As String = attack_config(y)
+            For x = 1 To hits(y)
+                random_hit(y, x) = New CheckBox()
+                With random_hit(y, x)
+                    .Size = New Size(24, 24)
+                    .Location = New Point(110 + x * 25, random_hits_ypos + y * 25)
+                    .Padding = New Padding(5, 0, 0, 0)
+                    .Tag = x
+                    .Name = y
+                    If config.ElementAt(x - 1) = "1" Then
+                        .Checked = True
+                        .BackColor = Color.LightBlue
+                    Else
+                        .BackColor = Main.default_color
+                    End If
+                    AddHandler .CheckedChanged, AddressOf ChangeRandomHit
+                End With
+                Controls.Add(random_hit(y, x))
+            Next
+
+            For x = hits(y) + 1 To 16
+                random_hit_label(y, x) = New Label()
+                With random_hit_label(y, x)
+                    .Size = New Size(24, 24)
+                    .Location = New Point(110 + x * 25, random_hits_ypos + 25 * y)
+                    If y = 0 Then
+                        .Text = x
+                        .TextAlign = ContentAlignment.MiddleCenter
+                    End If
                     .BackColor = Main.default_color
-                End If
-                AddHandler .CheckedChanged, AddressOf ChangeAphelionDustwake
-            End With
-            Controls.Add(aphelion_dustwake(x))
+                    AddHandler .Click, AddressOf ChangeFocus
+                End With
+                Controls.Add(random_hit_label(y, x))
+            Next
         Next
+        random_hit_label(0, 0).BackColor = Color.Transparent
+        random_hit_label(0, 0).Font = New Font("Segoe UI", 9, FontStyle.Bold)
 
 
         ' TOOLTIPS
 
-        Dim tooltips_ypos As Integer = 353
+        Dim tooltips_ypos As Integer = 353 + 150
 
         tooltips_label = New Label()
         With tooltips_label
@@ -286,7 +275,7 @@
         show_all = New Button()
         With show_all
             .Size = New Size(90, 30)
-            .Location = New Point(385, 10)
+            .Location = New Point(460, 10)
             .Text = "Show all"
             .UseVisualStyleBackColor = True
             AddHandler .Click, AddressOf ShowAll
@@ -296,21 +285,31 @@
         hide_all = New Button()
         With hide_all
             .Size = New Size(90, 30)
-            .Location = New Point(385, 45)
+            .Location = New Point(460, 45)
             .Text = "Hide all"
             .UseVisualStyleBackColor = True
             AddHandler .Click, AddressOf HideAll
         End With
         Controls.Add(hide_all)
 
-        panel = New Panel
-        With panel
+        row_panel = New Panel
+        With row_panel
             .AutoScroll = True
-            .Location = New Point(487, 10)
+            .Location = New Point(562, 10)
             .Size = New Size(197, Height - 49)
             AddHandler .Click, AddressOf ChangeFocus
         End With
-        Controls.Add(panel)
+        Controls.Add(row_panel)
+
+        enemy_row_panel = New Panel
+        With enemy_row_panel
+            .Hide()
+            .AutoScroll = True
+            .Location = New Point(562, 10)
+            .Size = New Size(197, Height - 49)
+            AddHandler .Click, AddressOf ChangeFocus
+        End With
+        Controls.Add(enemy_row_panel)
 
         For x = 0 To 31
             row(x) = New CheckBox()
@@ -321,18 +320,37 @@
                 .Text = Main.variable(x)
                 If My.Settings.ResultsRow.ElementAt(x) = "1" Then
                     .Checked = True
-                    .BackColor = Color.LightGreen
+                    .BackColor = Color.LightBlue
                 Else
                     .BackColor = Main.default_color
                 End If
                 .Tag = x
                 AddHandler .CheckedChanged, AddressOf ToggleRow
             End With
-            panel.Controls.Add(row(x))
+            row_panel.Controls.Add(row(x))
         Next
         If My.Settings.EffectiveHPRemaining Then
             row(31).Text = "Effective HP remaining"
         End If
+
+        For x = 0 To 23
+            enemy_row(x) = New CheckBox()
+            With enemy_row(x)
+                .Size = New Size(175, 24)
+                .Location = New Point(0, x * 25)
+                .Padding = New Padding(5, 0, 0, 0)
+                .Text = Main.E_variable(x)
+                If My.Settings.EnemyResultsRow.ElementAt(x) = "1" Then
+                    .Checked = True
+                    .BackColor = Color.LightBlue
+                Else
+                    .BackColor = Main.default_color
+                End If
+                .Tag = x
+                AddHandler .CheckedChanged, AddressOf E_ToggleRow
+            End With
+            enemy_row_panel.Controls.Add(enemy_row(x))
+        Next
 
         hover = New ToolTip()
         With hover
@@ -346,10 +364,11 @@
         AddHandler Resize, AddressOf ResizePanel
         AddHandler Move, AddressOf SaveWindowData
         AddHandler Resize, AddressOf SaveWindowData
-        AddHandler panel.Scroll, AddressOf SaveWindowData
-        AddHandler panel.MouseWheel, AddressOf SaveWindowData
+        AddHandler row_panel.Scroll, AddressOf SaveWindowData
+        AddHandler row_panel.MouseWheel, AddressOf SaveWindowData
+        SwitchMode()
         Show()
-        panel.VerticalScroll.Value = My.Settings.SettingsWindowScroll
+        row_panel.VerticalScroll.Value = My.Settings.SettingsWindowScroll
     End Sub
 
     Private Sub LoadWindowData()
@@ -371,7 +390,7 @@
     Private Sub SaveWindowData()
         If WindowState = FormWindowState.Normal Then
             My.Settings.SettingsWindowSize = Size
-            My.Settings.SettingsWindowScroll = panel.VerticalScroll.Value
+            My.Settings.SettingsWindowScroll = row_panel.VerticalScroll.Value
             My.Settings.SettingsWindowLocation = Location
         End If
     End Sub
@@ -443,7 +462,7 @@
         temp = temp.Remove(i, 1)
         If row(i).Checked Then
             temp = temp.Insert(i, "1")
-            row(i).BackColor = Color.LightGreen
+            row(i).BackColor = Color.LightBlue
         Else
             temp = temp.Insert(i, "0")
             row(i).BackColor = Main.default_color
@@ -452,11 +471,40 @@
         Main.UpdateRows()
     End Sub
 
+    Public Sub E_ToggleRow(sender As Object, e As EventArgs)
+        Dim i As Integer = sender.Tag
+        Dim temp As String = My.Settings.EnemyResultsRow
+        temp = temp.Remove(i, 1)
+        If enemy_row(i).Checked Then
+            temp = temp.Insert(i, "1")
+            enemy_row(i).BackColor = Color.LightBlue
+        Else
+            temp = temp.Insert(i, "0")
+            enemy_row(i).BackColor = Main.default_color
+        End If
+        My.Settings.EnemyResultsRow = temp
+        Main.E_UpdateRows()
+    End Sub
+
+    Public Sub SwitchMode()
+        If Not Main.enemy_mode Then
+            enemy_row_panel.Hide()
+            row_panel.Show()
+        Else
+            row_panel.Hide()
+            enemy_row_panel.Show()
+        End If
+    End Sub
+
     Private Sub ShowAll()
+        If Main.enemy_mode Then
+            E_ShowAll()
+            Return
+        End If
         For x = 0 To 31
             RemoveHandler row(x).CheckedChanged, AddressOf ToggleRow
             row(x).Checked = True
-            row(x).BackColor = Color.LightGreen
+            row(x).BackColor = Color.LightBlue
             AddHandler row(x).CheckedChanged, AddressOf ToggleRow
         Next
         My.Settings.ResultsRow = "11111111111111111111111111111111"
@@ -464,6 +512,10 @@
     End Sub
 
     Private Sub HideAll()
+        If Main.enemy_mode Then
+            E_HideAll()
+            Return
+        End If
         For x = 0 To 31
             RemoveHandler row(x).CheckedChanged, AddressOf ToggleRow
             row(x).Checked = False
@@ -474,33 +526,59 @@
         Main.UpdateRows()
     End Sub
 
-    Private Sub ChangeHeavenlapse(sender As Object, e As EventArgs)
-        Dim i As Integer = sender.Tag
-        Dim temp As String = My.Settings.Heavenlapse
-        temp = temp.Remove(i, 1)
-        If heavenlapse(i).Checked Then
-            temp = temp.Insert(i, "1")
-            heavenlapse(i).BackColor = Color.LightGreen
-        Else
-            temp = temp.Insert(i, "0")
-            heavenlapse(i).BackColor = Main.default_color
-        End If
-        My.Settings.Heavenlapse = temp
-        Main.Calculate()
+    Private Sub E_ShowAll()
+        For x = 0 To 23
+            RemoveHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
+            enemy_row(x).Checked = True
+            enemy_row(x).BackColor = Color.LightBlue
+            AddHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
+        Next
+        My.Settings.EnemyResultsRow = "111111111111111111111111"
+        Main.E_UpdateRows()
     End Sub
 
-    Private Sub ChangeAphelionDustwake(sender As Object, e As EventArgs)
-        Dim i As Integer = sender.Tag
-        Dim temp As String = My.Settings.AphelionDustwake
-        temp = temp.Remove(i, 1)
-        If aphelion_dustwake(i).Checked Then
-            temp = temp.Insert(i, "1")
-            aphelion_dustwake(i).BackColor = Color.LightGreen
+    Private Sub E_HideAll()
+        For x = 0 To 23
+            RemoveHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
+            enemy_row(x).Checked = False
+            enemy_row(x).BackColor = Main.default_color
+            AddHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
+        Next
+        My.Settings.EnemyResultsRow = "000000000000000000000000"
+        Main.E_UpdateRows()
+    End Sub
+
+    Private Sub ChangeRandomHit(sender As Object, e As EventArgs)
+        Dim attack As Integer = sender.Name
+        Dim hit As Integer = sender.Tag
+        Dim attack_config() As String = {"", My.Settings.Heavenlapse, My.Settings.AphelionDustwake, My.Settings.Fusillade, My.Settings.CrimsonCatharsis, My.Settings.BerserkTech, My.Settings.HyperslaughtMode4, My.Settings.HyperslaughtMode3, My.Settings.MagnusOfLife}
+        Dim config As String = attack_config(attack)
+        config = config.Remove(hit - 1, 1)
+        If random_hit(attack, hit).Checked Then
+            config = config.Insert(hit - 1, "1")
+            random_hit(attack, hit).BackColor = Color.LightBlue
         Else
-            temp = temp.Insert(i, "0")
-            aphelion_dustwake(i).BackColor = Main.default_color
+            config = config.Insert(hit - 1, "0")
+            random_hit(attack, hit).BackColor = Main.default_color
         End If
-        My.Settings.AphelionDustwake = temp
+        Select Case attack
+            Case 1
+                My.Settings.Heavenlapse = config
+            Case 2
+                My.Settings.AphelionDustwake = config
+            Case 3
+                My.Settings.Fusillade = config
+            Case 4
+                My.Settings.CrimsonCatharsis = config
+            Case 5
+                My.Settings.BerserkTech = config
+            Case 6
+                My.Settings.HyperslaughtMode4 = config
+            Case 7
+                My.Settings.HyperslaughtMode3 = config
+            Case 8
+                My.Settings.MagnusOfLife = config
+        End Select
         Main.Calculate()
     End Sub
 
@@ -588,7 +666,7 @@
     End Sub
 
     Private Sub ResizePanel()
-        panel.Height = Height - 49
+        row_panel.Height = Height - 49
     End Sub
 
     Private Sub Keyboard(sender As Object, e As KeyEventArgs) Handles Me.KeyDown
