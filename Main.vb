@@ -2391,7 +2391,7 @@ Public Class Main
 
                 hit_card(hits) = x          'an array that stores which card each hit originates from
 
-                ShowHit(offense, attack_offense, attack_crush, attack_boost_factor, armor_factor, weapon_offense, effect_element, weapon_crush, boost_element, element_compatibility, weapon_factor, qm_bonus, aura_offense, aura_crush, ex_offense_factor, ex_crush_factor, crit_factor, enemy_status, base_defense, crush_limit, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, multiplier, armor_defense, damage_output, crush_output, total_damage, HP_remaining, attack_element, knockdown, knockout)
+                ShowHit(x, offense, attack_offense, attack_crush, attack_boost_factor, armor_factor, weapon_offense, effect_element, weapon_crush, boost_element, element_compatibility, weapon_factor, qm_bonus, aura_offense, aura_crush, ex_offense_factor, ex_crush_factor, crit_factor, enemy_status, base_defense, crush_limit, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, multiplier, armor_defense, damage_output, crush_output, total_damage, HP_remaining, attack_element, knockdown, knockout)
 
                 'status changes
                 If reset_status Then
@@ -2768,6 +2768,7 @@ Public Class Main
         Dim crush, offense, attack_offense, attack_crush, attack_boost_factor, crit_factor, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, crush_output, defense_boost(6, 2) As Double
         Dim reset_status, skip_extra_hit, full_turn_armor As Boolean
 
+        chr = character - 1
         Dim hits_prev As Integer = hits
         For x = 1 To hits_prev
             For y = 0 To 2
@@ -3271,7 +3272,7 @@ Public Class Main
         Next
     End Sub
 
-    Private Sub ShowHit(offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Integer, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
+    Private Sub ShowHit(x As Integer, offense As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, armor_factor As Double, weapon_offense As Integer, effect_element As Integer, weapon_crush As Integer, boost_element As Integer, element_compatibility As Double, weapon_factor As Double, qm_bonus As Integer, aura_offense As Integer, aura_crush As Integer, ex_offense_factor As Double, ex_crush_factor As Double, crit_factor As Double, enemy_status As Integer, base_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, total_offense As Double, total_crush As Double, total_defense As Double, multiplier As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Integer, enemy_hp As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
         NewHit()
 
         table(hits, 0).Text = offense
@@ -4716,10 +4717,6 @@ Public Class Main
         End With
 
         CheckAura(chr, False)
-
-        If enemy_mode Then
-            GetPartyData()
-        End If
     End Sub
 
     Public Function IsNonNegativeInteger(text As String) As Boolean
