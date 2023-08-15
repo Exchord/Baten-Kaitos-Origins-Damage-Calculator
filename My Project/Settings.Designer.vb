@@ -667,7 +667,7 @@ Namespace My
         
         <Global.System.Configuration.UserScopedSettingAttribute(),  _
          Global.System.Diagnostics.DebuggerNonUserCodeAttribute(),  _
-         Global.System.Configuration.DefaultSettingValueAttribute("111111111111111111111111")>  _
+         Global.System.Configuration.DefaultSettingValueAttribute("11111111111111111111111111")>  _
         Public Property EnemyResultsRow() As String
             Get
                 Return CType(Me("EnemyResultsRow"),String)

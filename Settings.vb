@@ -1,7 +1,7 @@
 ﻿Public Class Settings
     Inherits Form
 
-    Public row(31), enemy_row(24), setting(8) As CheckBox
+    Public row(31), enemy_row(26), setting(8) As CheckBox
     Dim random_hit(9, 17), tooltips(7) As CheckBox
     Dim random_hit_label(9, 16), tooltips_label, party_label(2), empty, version As Label
     Dim show_all, hide_all, documentation As Button
@@ -109,7 +109,7 @@
                     Else
                         .BackColor = Main.default_color
                     End If
-                    AddHandler .CheckedChanged, AddressOf ChangeRandomHit
+                    AddHandler .CheckedChanged, AddressOf ToggleRandomHit
                 End With
                 Controls.Add(random_hit(y, x))
             Next
@@ -333,7 +333,7 @@
             row(31).Text = "Effective HP remaining"
         End If
 
-        For x = 0 To 23
+        For x = 0 To 25
             enemy_row(x) = New CheckBox()
             With enemy_row(x)
                 .Size = New Size(175, 24)
@@ -527,28 +527,28 @@
     End Sub
 
     Private Sub E_ShowAll()
-        For x = 0 To 23
+        For x = 0 To 25
             RemoveHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
             enemy_row(x).Checked = True
             enemy_row(x).BackColor = Color.LightBlue
             AddHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
         Next
-        My.Settings.EnemyResultsRow = "111111111111111111111111"
+        My.Settings.EnemyResultsRow = "11111111111111111111111111"
         Main.E_UpdateRows()
     End Sub
 
     Private Sub E_HideAll()
-        For x = 0 To 23
+        For x = 0 To 25
             RemoveHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
             enemy_row(x).Checked = False
             enemy_row(x).BackColor = Main.default_color
             AddHandler enemy_row(x).CheckedChanged, AddressOf E_ToggleRow
         Next
-        My.Settings.EnemyResultsRow = "000000000000000000000000"
+        My.Settings.EnemyResultsRow = "00000000000000000000000000"
         Main.E_UpdateRows()
     End Sub
 
-    Private Sub ChangeRandomHit(sender As Object, e As EventArgs)
+    Private Sub ToggleRandomHit(sender As Object, e As EventArgs)
         Dim attack As Integer = sender.Name
         Dim hit As Integer = sender.Tag
         Dim attack_config() As String = {"", My.Settings.Heavenlapse, My.Settings.AphelionDustwake, My.Settings.Fusillade, My.Settings.CrimsonCatharsis, My.Settings.BerserkTech, My.Settings.HyperslaughtMode4, My.Settings.HyperslaughtMode3, My.Settings.MagnusOfLife}
