@@ -23,7 +23,8 @@ Public Class Main
     Dim level_selector(3), aura_type(3), aura_level(3), eq_durability(3) As ComboBox
     Dim actual_level(3) As Label
     Dim level(3), aura(3, 2), aura_HP(3), aura_crush_limit(3), aura_down(3), aura_offense(3, 6), aura_crush(3, 6), aura_defense(3, 6) As Integer
-    Dim member_max_hp, member_hp, member_defense(6), member_crush_limit, member_knockdown, member_knockout As Integer
+    Dim member_max_hp, member_max_hp_armor, member_hp, member_defense(6), member_crush_limit, member_knockdown, member_knockout As Integer
+    Dim member_knockdown_armor, member_knockout_armor As Double
 
     'combo
     Dim combo(125) As PictureBox
@@ -33,7 +34,7 @@ Public Class Main
     Dim table(1000, 32), E_table(60, 24) As Label
     Dim hit_modifier(1000, 3), E_hit_modifier(60, 3) As ComboBox
     Dim hit_card(1000), hit_element(1000), shield_break_hit As Integer
-    Dim weapon_effect(1000), weapon_boost(1000), qm_crit(1000), weapon_crit(1000), knockdown_hit(1000), min_one(1000) As Boolean
+    Dim weapon_effect(1000), weapon_boost(1000), qm_crit(1000), weapon_crit(1000), knockdown_hit(1000), min_one(1000), prevent_crit(60) As Boolean
 
     Dim hits, true_HP, true_max_HP, effective_HP, effective_max_HP, character, armor_defense(6), first_card(64), turns, post_combo_HP, post_combo_armor, post_combo_status, post_combo_equip(3, 2), turns_per_member(3) As Integer
     Public cards, combo_target, item_target, QM_inventory(24), QM_total_bonus(15) As Integer
@@ -55,6 +56,7 @@ Public Class Main
     ReadOnly weapon_offense() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 28, 33, 50, 83, 93, 20, 25, 40, 62, 68, 95, 110, 7, 15, 30, 38, 56, 76, 10, 18, 47, 85, 51, 25, 53, 80, 99, 75, 20, 22, 33, 50, 90, 15, 28, 20, 30, 25, 35, 40, 53, 62, 68, 77, 93, 95, 100, 7, 28, 33, 23, 45, 38, 70, 56, 93, 87, 33, 18, 18, 18, 47, 47, 83, 85, 92, 93, 80, 25, 65, 83, 53, 93, 80, 99, 99, 93, 75, 17, 53, 25, 45, 75, 20, 43, 78, 28, 40, 74, 25, 43, 90, 100, 42, 45, 25, 45, 30, 20, 53, 60, 87, 20, 32, 40, 82, 74, 20, 36, 65, 43, 75, 95, 85, 42, 45, 10, 45, 23, 73, 12, 50, 91, 18, 47, 36, 55, 35, 60, 15, 58, 50, 80, 15, 27, 69, 30, 68, 43, 70, 35, 77, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 7, 4, 7, 7, 15, 13, 10, 13, 13, 0, 0}
     ReadOnly weapon_crush() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 10, 14, 16, 25, 41, 46, 10, 15, 20, 31, 36, 47, 55, 3, 7, 15, 18, 28, 43, 10, 25, 23, 42, 25, 12, 26, 40, 0, 37, 5, 10, 16, 25, 41, 15, 14, 20, 10, 20, 15, 20, 20, 31, 36, 36, 46, 47, 47, 3, 14, 20, 7, 15, 18, 28, 28, 46, 43, 20, 25, 25, 25, 23, 23, 41, 55, 42, 46, 25, 12, 12, 41, 26, 46, 40, 0, 0, 46, 37, 15, 40, 20, 40, 78, 15, 36, 63, 20, 33, 67, 20, 38, 82, 92, 35, 37, 20, 40, 17, 15, 40, 36, 80, 15, 20, 33, 67, 67, 20, 20, 40, 38, 87, 82, 78, 35, 60, 5, 20, 12, 30, 5, 25, 40, 10, 21, 15, 28, 14, 30, 5, 12, 10, 30, 5, 5, 25, 10, 21, 15, 28, 14, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 7, 13, 7, 7, 10, 13, 20, 13, 13, 0, 0}
     ReadOnly magnus_defense(,) As Integer = {{0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {12, 11, 6, 6, 6, 6}, {22, 15, 8, 8, 8, 8}, {36, 20, 10, 10, 10, 10}, {61, 35, 19, 19, 19, 19}, {80, 50, 25, 25, 25, 25}, {133, 80, 50, 50, 50, 50}, {168, 100, 55, 55, 55, 55}, {9, 20, 6, 6, 6, 6}, {50, 130, 30, 30, 30, 30}, {83, 52, 140, 52, 52, 52}, {40, 30, 30, 77, 30, 30}, {70, 40, 40, 101, 40, 40}, {95, 45, 45, 45, 160, 45}, {80, 55, 27, 27, 27, 96}, {12, 11, 6, 6, 6, 6}, {28, 11, 6, 6, 6, 6}, {22, 15, 8, 8, 8, 8}, {50, 30, 15, 15, 15, 15}, {74, 35, 19, 19, 19, 19}, {61, 35, 19, 19, 19, 19}, {133, 80, 50, 50, 50, 50}, {133, 80, 50, 50, 50, 50}, {146, 80, 50, 50, 50, 50}, {168, 100, 55, 55, 55, 55}, {205, 100, 55, 55, 55, 55}, {40, 66, 33, 33, 33, 33}, {20, 30, 15, 15, 15, 15}, {36, 40, 10, 10, 10, 10}, {92, 93, 25, 25, 25, 25}, {50, 130, 30, 30, 30, 30}, {50, 130, 100, 30, 30, 30}, {92, 50, 93, 25, 25, 25}, {100, 52, 140, 52, 52, 52}, {83, 52, 140, 52, 52, 52}, {36, 20, 10, 40, 10, 10}, {100, 40, 40, 101, 40, 40}, {70, 40, 40, 101, 40, 40}, {70, 40, 40, 101, 40, 40}, {70, 40, 40, 101, 40, 40}, {70, 40, 40, 101, 100, 40}, {70, 40, 40, 101, 40, 40}, {70, 40, 40, 101, 40, 40}, {95, 45, 45, 45, 160, 45}, {130, 45, 45, 45, 160, 130}, {95, 45, 45, 45, 188, 45}, {80, 55, 27, 27, 27, 96}, {200, 200, 200, 200, 200, 230}, {59, 30, 30, 30, 30, 30}, {300, 30, 30, 30, 30, 30}, {40, 81, 40, 40, 40, 40}, {0, 52, 0, 0, 0, 0}, {27, 27, 54, 27, 27, 27}, {0, 0, 52, 0, 0, 0}, {10, 10, 10, 20, 10, 10}, {70, 91, 70, 70, 70, 70}, {24, 24, 24, 24, 48, 24}, {68, 68, 68, 68, 68, 136}, {59, 30, 30, 30, 30, 30}, {59, 30, 30, 30, 30, 30}, {300, 30, 30, 30, 30, 30}, {40, 81, 40, 40, 40, 40}, {0, 52, 0, 0, 0, 0}, {27, 27, 54, 27, 27, 27}, {0, 0, 52, 0, 0, 0}, {10, 10, 10, 20, 10, 10}, {70, 91, 70, 70, 70, 70}, {50, 50, 50, 50, 100, 50}, {60, 60, 60, 60, 120, 60}, {0, 0, 0, 0, 0, 350}, {5, 13, 6, 8, 8, 8}, {15, 52, 25, 30, 30, 30}, {25, 128, 64, 80, 80, 80}, {10, 21, 43, 28, 28, 28}, {17, 26, 57, 35, 35, 35}, {50, 72, 145, 72, 72, 72}, {5, 11, 11, 15, 11, 11}, {35, 40, 40, 60, 40, 40}, {0, 0, 0, 0, 150, 120}, {0, 0, 0, 0, 0, 84}, {37, 90, 90, 90, 80, 161}, {20, 40, 20, 35, 35, 35}, {5, 13, 6, 8, 8, 8}, {25, 110, 55, 80, 80, 80}, {15, 52, 25, 30, 30, 30}, {40, 198, 99, 99, 99, 99}, {25, 128, 64, 80, 80, 80}, {10, 21, 56, 28, 28, 28}, {17, 26, 57, 35, 35, 35}, {50, 72, 180, 72, 72, 72}, {50, 72, 145, 72, 72, 72}, {50, 72, 145, 72, 72, 72}, {5, 11, 11, 35, 11, 11}, {80, 100, 100, 230, 100, 100}, {35, 40, 40, 60, 58, 40}, {35, 40, 40, 60, 40, 58}, {0, 120, 0, 0, 150, 120}, {0, 0, 0, 0, 200, 120}, {0, 0, 0, 0, 150, 120}, {0, 50, 0, 0, 0, 84}, {0, 0, 0, 50, 0, 84}, {0, 0, 0, 0, 0, 96}, {90, 90, 90, 90, 80, 161}, {37, 90, 90, 90, 140, 161}, {37, 90, 90, 90, 80, 240}, {38, 19, 19, 19, 19, 19}, {28, 14, 14, 14, 14, 14}, {83, 41, 41, 41, 41, 41}, {15, 30, 15, 15, 15, 15}, {55, 110, 55, 55, 55, 55}, {30, 30, 60, 30, 30, 30}, {23, 23, 45, 23, 23, 23}, {10, 10, 10, 20, 10, 10}, {25, 25, 25, 50, 25, 25}, {56, 56, 56, 56, 111, 56}, {25, 25, 25, 25, 25, 50}, {0, 0, 0, 0, 0, 250}, {38, 19, 19, 19, 19, 19}, {28, 14, 14, 14, 14, 14}, {83, 53, 41, 41, 41, 41}, {83, 41, 41, 41, 53, 41}, {160, 80, 80, 80, 80, 80}, {36, 72, 36, 36, 36, 36}, {55, 110, 55, 55, 55, 55}, {55, 110, 55, 55, 55, 55}, {65, 65, 130, 65, 65, 65}, {23, 23, 45, 23, 23, 23}, {10, 10, 10, 40, 10, 10}, {70, 40, 40, 80, 40, 40}, {25, 25, 25, 50, 25, 25}, {56, 56, 56, 56, 111, 56}, {0, 77, 0, 0, 0, 0}, {0, 98, 0, 0, 0, 0}, {0, 176, 0, 0, 0, 0}, {0, 200, 0, 0, 0, 0}, {0, 0, 180, 0, 0, 0}, {0, 0, 112, 0, 0, 0}, {0, 0, 280, 0, 0, 0}, {0, 0, 86, 0, 0, 0}, {0, 0, 0, 107, 0, 0}, {0, 0, 0, 115, 0, 0}, {0, 0, 0, 220, 0, 0}, {0, 0, 0, 0, 83, 0}, {0, 0, 0, 0, 211, 0}, {0, 0, 0, 0, 0, 140}, {0, 77, 0, 39, 0, 0}, {0, 98, 0, 0, 0, 0}, {0, 200, 0, 0, 0, 0}, {0, 300, 0, 0, 0, 0}, {0, 0, 180, 0, 0, 0}, {0, 0, 112, 0, 0, 0}, {140, 0, 280, 0, 0, 0}, {0, 0, 280, 0, 0, 0}, {0, 0, 0, 151, 0, 0}, {57, 0, 0, 115, 0, 0}, {0, 0, 57, 115, 0, 0}, {0, 0, 0, 253, 0, 0}, {0, 0, 0, 220, 0, 0}, {0, 0, 0, 0, 140, 0}, {0, 0, 0, 0, 260, 0}, {0, 0, 0, 0, 211, 0}, {0, 0, 0, 0, 0, 181}, {0, 0, 0, 0, 0, 220}, {45, 0, 0, 0, 0, 0}, {65, 0, 0, 0, 0, 0}, {143, 0, 0, 0, 0, 0}, {86, 0, 0, 0, 0, 0}, {205, 0, 0, 0, 0, 0}, {106, 107, 0, 0, 0, 0}, {39, 0, 40, 0, 0, 0}, {122, 0, 0, 123, 0, 0}, {209, 0, 0, 0, 0, 210}, {50, 0, 0, 0, 0, 0}, {65, 0, 0, 0, 0, 0}, {143, 0, 0, 0, 0, 142}, {143, 0, 0, 0, 0, 0}, {100, 0, 0, 0, 0, 0}, {205, 0, 0, 0, 0, 0}, {106, 107, 0, 0, 0, 0}, {169, 0, 170, 0, 0, 0}, {39, 0, 40, 0, 0, 0}, {122, 0, 0, 123, 0, 0}, {209, 0, 0, 0, 0, 210}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 30, 0, 0, 0, 0}, {0, 0, 30, 0, 0, 0}, {0, 0, 0, 30, 0, 0}, {0, 0, 0, 0, 0, 30}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0}}
+    ReadOnly armor_crush_limit() As Integer = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 5, 15, 10, 30, 20, 8, 25, 30, 5, 5, 15, 15, 10, 50, 20, 8, 15, 25, -50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
     Public ReadOnly enemy_name() As String = {"", "Sagi", "Milly", "Guillo", "Empire Grunt", "Imperial Elite", "Dark Serviceman", "Imperial Guard", "Elite Imperial Guard", "Dark Service Peon", "Dark Service Officer", "Fallen Serviceman", "Imperial Swordsman", "Elite Swordsman", "Dark Service Swordsman", "Dark Service Swordmaster", "Imperial Swordguard", "Alpha Paramachina", "Beta Paramachina", "Upgraded Paramachina", "Imperial Battle Machina", "Autonomous Battle Machina", "Masterless Battle Machina", "Cancerite", "Cloud Cancerite", "Mad Cancerite", "Armored Cancerite", "Unuk", "Striper", "Magma Beast", "Shawra", "Blood Leaf", "Badwin", "Filler", "Doomer", "Gormer", "Almer", "Zelmer", "Albireo", "Ray-Moo", "Pul-Puk", "Bar-Mool", "Spell Shellfish", "Magic Shellfish", "Skeleton Warrior", "Undead Swordsman", "Ghoulish Skirmisher", "Devil Claws", "Shadow Claws", "Ghost Claws", "Ceratobus", "Foytow", "Rulug", "Mirabilis", "Lanocaulis", "Acheron", "Maw-Maw-Goo", "Caracal", "Lesser Caracal", "Shadow Caracal", "King Caracal", "Orvata", "Vata", "Balloona", "Fogg", "Armored Balloona", "Slave Balloona", "Alraune", "Queen Alraune", "Ballet Dancer", "Dance King", "Devil's Doll", "Machina Ballerina", "Prima Queen", "Larva Golem", "Cicada Golem", "Ogopogo", "Gigim", "Vodnik", "Juggler", "Master Juggler", "Ahriman", "Mite", "Magician Mite", "Wizard Mite", "Armored Mite", "Goat Chimera", "Phoelix", "Nixie Chimera", "Mobile Turret", "High-Mobility Cannon", "Geryon", "Nebulos", "Monoceros", "Lycaon", "Medium", "Shaman", "Saber Dragon", "Hercules Dragon", "Dragon", "Arma Prototype M", "Hideous Beast 1", "Hideous Beast 2", "Umbra", "Malpercio's Afterling 1", "Malpercio's Afterling 2", "Giacomo 1", "Giacomo 2", "Giacomo 3", "Valara 1", "Valara 2", "Heughes 1", "Heughes 2", "Nasca 1", "Nasca 2", "Machina Arma: Razer 1", "Machina Arma: Razer 2", "Machina Arma: Razer 3", "Promachina Heughes 1", "Promachina Heughes 2", "Machina Arma: Marauder 1", "Machina Arma: Marauder 2", "Cannon", "Cockpit", "Guillo", "Seginus", "Sandfeeder", "Hearteater", "Holoholobird", "Mange-Roches", "Holoholo Chick", "Lord of the Lava Caves", "Rudra", "Promachina Shanath", "Black Dragon", "Wiseman", "Baelheit", "Verus", "Machinanguis A", "Machinanguis B", "Verus-Wiseman", "Holoholo Egg", "Malpercio's Afterling 2 (head)", "Mr. Quintain", "nero_parts", "Machina Arma: Razer"}
     ReadOnly enemy_type() As Integer = {0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 5, 5, 5, 5, 2, 2, 2, 4, 4, 4, 5, 4, 4, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 5, 5, 5, 1, 1, 1, 4, 4, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 5, 1, 1, 3, 3, 3, 5, 5, 5, 5, 5, 5, 1, 1, 1, 1, 1, 1, 1, 1, 1, 5, 5, 5, 1, 1, 5, 5, 5, 5, 5, 5, 5, 5, 4, 4, 4, 5, 4, 1, 3, 1, 1, 1, 5, 5, 5, 5, 5, 1, 5, 5}
@@ -281,7 +283,7 @@ Public Class Main
     ReadOnly hit_modifier_row() As Integer = {4, 5, 21}
     ReadOnly clickable_rows() As Integer = {4, 5, 7, 8, 10, 16, 21, 27}
     ReadOnly E_hit_modifier_row() As Integer = {5, 6, 13}
-    ReadOnly E_clickable_rows() As Integer = {5, 6, 13, 19}
+    ReadOnly E_clickable_rows() As Integer = {5, 6, 7, 13, 19}
 
     Public ReadOnly variable() As String = {"Base offense", "Attack offense", "Attack crush", "Attack boost factor", "Offense deviation", "Crush deviation", "Electric Helm factor", "Weapon offense", "Weapon crush", "Element compatibility", "Weapon factor", "Quest magnus bonus", "Aura offense", "Aura crush", "EX combo offense factor", "EX combo crush factor", "Critical hit factor", "Base defense", "Crush limit", "Crush status", "Defense boost factor", "Defense deviation", "Total offense", "Total crush", "Total defense", "Armor", "Multiplier", "Damage output", "Crush output", "Total damage output", "Total crush output", "HP remaining"}
     Public ReadOnly E_variable() As String = {"Base offense", "Base crush", "Attack offense", "Attack crush", "Attack boost factor", "Offense deviation", "Crush deviation", "Critical hit factor", "Base defense", "Quest magnus defense", "Crush limit", "Crush status", "Defense boost factor", "Defense deviation", "Aura defense", "Total offense", "Total crush", "Total defense", "Armor", "Damage output", "Crush output", "Total damage output", "Total crush output", "HP remaining"}
@@ -1001,7 +1003,7 @@ Public Class Main
             End With
             E_output_panel.Controls.Add(E_table(0, y))
         Next
-        For x = 0 To 3
+        For x = 0 To 4
             E_table(0, E_clickable_rows(x)).Cursor = Cursors.Hand
         Next
 
@@ -1091,7 +1093,7 @@ Public Class Main
         E_description(4) = "Some magnus or abilities alter the enemy's offense for two turns."
         E_description(5) = description(4)
         E_description(6) = description(5)
-        E_description(7) = "Critical hits will apply a factor to all the above offense and crush values. Which factor is used depends on the party member's status and the attack element."
+        E_description(7) = "Critical hits will apply a factor to all the above offense and crush values. Which factor is used depends on the party member's status and the attack element." & vbCrLf & "Click any cell in this row to prevent a critical hit with Jiraiya's Robe (80% chance). Click here to remove all random critical hit blocks."
         E_description(8) = "The party member's defense for the element used."
         E_description(9) = "Defense bonus from quest magnus."
         E_description(10) = "The resilience of the party member's defense. When the party member's crush status reaches this value, the total defense will be zero."
@@ -1556,9 +1558,10 @@ Public Class Main
             enemy = Clamp(enemy_party(current_turn), 1, 145)
             ChangeTarget(enemy, enemy_HP(current_turn), False)
 
-            Dim hp As Integer = Read16(battle_address - &HE28A + target * &H1578)
-            If hp < 0 Or hp > member_max_hp Then
-                E_HP_box.Text = member_max_hp
+            combo_damage = Read32(combo_address - 14)
+            Dim hp As Integer = Read16(battle_address - &HE28A + target * &H1578) + combo_damage
+            If hp < 0 Or hp > member_max_hp_armor Then
+                E_HP_box.Text = member_max_hp_armor
             Else
                 E_HP_box.Text = hp
             End If
@@ -1613,7 +1616,7 @@ Public Class Main
             Return
         End If
 
-        If My.Settings.ReadCombo Then
+        If Not enemy_mode And My.Settings.ReadCombo Then
             If cards > 0 Then
                 RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
             End If
@@ -2858,9 +2861,9 @@ Public Class Main
             Return
         End If
 
-        Dim chr, attack_element, bitfield, prev_bitfield, offense_deviation, crush_deviation, qm_defense, aura_defense, base_defense, crush_limit, defense_deviation, armor_defense, armor_durability, damage_output, total_damage, HP_remaining, knockdown, knockout As Integer
-        Dim crush, offense, attack_offense, attack_crush, attack_boost_factor, crit_factor, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, crush_output, defense_boost(6, 2) As Double
-        Dim reset_status, skip_extra_hit, full_turn_armor As Boolean
+        Dim chr, attack_element, bitfield, prev_bitfield, offense_deviation, crush_deviation, qm_defense, aura_defense, base_defense, defense_deviation, armor_defense, armor_durability, damage_output, total_damage, HP_remaining, max_HP As Integer
+        Dim crush, offense, attack_offense, attack_crush, attack_boost_factor, crit_factor, crush_limit, crush_status, defense_boost_factor, total_offense, total_crush, total_defense, crush_output, defense_boost(6, 2), knockdown, knockout As Double
+        Dim reset_status, skip_extra_hit, full_turn_armor, armor_broken As Boolean
 
         chr = character - 1
         Dim hits_prev As Integer = hits
@@ -2871,6 +2874,7 @@ Public Class Main
         Next
         hits = 0
         HP_remaining = member_hp
+        max_HP = member_max_hp_armor
         crush_status = 0
         Dim status As Integer = E_status.SelectedIndex
         For x = 0 To 5
@@ -2900,6 +2904,12 @@ Public Class Main
 
             'step through current attack hit by hit
             For y = 0 To number_of_hits - 1
+                If hits > 0 And eq <> 0 Then
+                    If armor_durability = 0 And Not full_turn_armor Then
+                        armor_broken = True
+                    End If
+                End If
+
                 attack_element = enemy_attack_data(combo_target, id, 2 + y * 4)
                 prev_bitfield = bitfield
                 bitfield = enemy_attack_data(combo_target, id, 3 + y * 4)
@@ -2992,15 +3002,35 @@ Public Class Main
 
                 crit_factor = crit_bonus * 0.01 + 1
 
+                If eq = 243 And armor_durability > 0 And prevent_crit(hits + 1) Then    'Jiraiya's Robe blocks critical hits (80% chance)
+                    crit_factor = 1
+                End If
+
+                If eq = 254 And armor_durability > 0 Then                               'Saizou's Robe blocks all critical hits
+                    crit_factor = 1
+                End If
+
                 base_defense = member_defense(attack_element)
                 If attack_element = 0 Then
                     qm_defense = QM_total_bonus(9)
                 Else
                     qm_defense = 0
                 End If
-                crush_limit = member_crush_limit + aura_crush_limit(chr)
-                knockdown = member_knockdown
-                knockout = member_knockout
+
+                Dim crush_limit_bonus As Integer
+                If armor_durability > 0 Or full_turn_armor Then
+                    crush_limit_bonus = armor_crush_limit(eq)
+                    knockdown = member_knockdown_armor
+                    knockout = member_knockout_armor
+                    armor_defense = magnus_defense(eq, attack_element)
+                Else
+                    crush_limit_bonus = 0
+                    knockdown = member_knockdown
+                    knockout = member_knockout
+                    armor_defense = 0
+                End If
+
+                crush_limit = member_crush_limit * (1 + 0.01 * crush_limit_bonus) + aura_crush_limit(chr)
                 defense_boost_factor = 1 + defense_boost(attack_element, 0)
                 defense_deviation = E_DeviationToNumber(hits + 1, 2)
                 aura_defense = Me.aura_defense(chr, attack_element)
@@ -3010,24 +3040,17 @@ Public Class Main
                 total_crush = offense * attack_crush * attack_boost_factor * (1 + crush_deviation * 0.01) * crit_factor
                 total_defense = (base_defense + qm_defense) * Math.Max(0, 1 - crush_status / crush_limit) * defense_boost_factor * (1 + defense_deviation * 0.01) + aura_defense
 
-                If armor_durability > 0 Or full_turn_armor Then
-                    armor_defense = magnus_defense(eq, attack_element)
-                Else
-                    armor_defense = 0
-                End If
-
                 'damage output
                 If total_offense > total_defense + armor_defense Then
                     damage_output = Math.Floor(Math.Round(total_offense - total_defense * 0.775 - armor_defense, 4, MidpointRounding.AwayFromZero))
                 Else
                     damage_output = Math.Floor(Math.Round((total_offense - total_defense * 0.1 - armor_defense) * 0.25, 4, MidpointRounding.AwayFromZero))
                 End If
-                If min_one(hits + 1) And armor_defense = 0 Then
+                If min_one(hits + 1) Then
                     damage_output = Math.Max(1, damage_output)
                 Else
                     damage_output = Math.Max(0, damage_output)
                 End If
-                total_damage += damage_output
 
                 'crush output
                 If total_crush > total_defense * 0.5 + armor_defense Then
@@ -3036,7 +3059,33 @@ Public Class Main
                     crush_output = Math.Max(0, (total_crush - total_defense * 0.05 - armor_defense) * 0.25)
                 End If
 
+                If armor_durability > 0 Then
+                    If eq = 242 Or eq = 253 Or eq = 430 Then                                'Heavenbolt Wrap, Heavengale Wrap, and Imperial Ward block all hits
+                        damage_output = 0
+                        crush_output = 0
+                    End If
+                    If (eq = 239 Or eq = 250) And attack_element = 1 Then                   'Heat Camouflage and Hazyfire Camouflage blocks fire hits
+                        damage_output = 0
+                        crush_output = 0
+                    End If
+                    If (eq = 241 Or eq = 252) And attack_element = 2 Then                   'Aqua Camouflage and Hazyrain Camouflage blocks ice hits
+                        damage_output = 0
+                        crush_output = 0
+                    End If
+                    If (eq = 267 Or eq = 287 Or eq = 288 Or eq = 289) And hits = 0 Then     'Mephistopheles Cloak and its upgrades block the first hit
+                        damage_output = 0
+                        crush_output = 0
+                    End If
+                End If
+
+                total_damage += damage_output
                 HP_remaining = Math.Max(0, HP_remaining - damage_output)
+
+                If eq = 256 And armor_durability = 0 Then                   'adjust HP after Confessional Clothes break
+                    max_HP = member_max_hp
+                    HP_remaining = Math.Min(HP_remaining, max_HP)
+                End If
+
                 hits += 1
 
                 hit_card(hits) = x          'an array that stores which card each hit originates from
@@ -3072,7 +3121,7 @@ Public Class Main
                     offense_deviation = E_DeviationToNumber(hits + 1, 0)
 
                     'max HP is "defense" since it serves as a limit to the damage output
-                    base_defense = member_max_hp
+                    base_defense = max_HP
                     defense_deviation = E_DeviationToNumber(hits + 1, 2)
 
                     total_offense = offense * (1 + offense_deviation * 0.01)
@@ -3106,6 +3155,21 @@ Public Class Main
                 post_combo_down = False
             End If
 
+            If Not armor_broken Then
+                Select Case eq
+                    Case 246, 427                       'Fighter's Gi and Hermit's Cane prevent knockdown
+                        If crush_status >= knockdown And crush_status < knockout Then
+                            post_combo_down = False
+                        End If
+                    Case 247                            'Warrior's Gi prevents knockout
+                        If crush_status >= knockout Then
+                            post_combo_down = False
+                        End If
+                    Case 428                            'Warrior's Scarf prevents knockdown and knockout
+                        post_combo_down = False
+                End Select
+            End If
+
             'status effect
             post_combo_status = status
 
@@ -3129,9 +3193,9 @@ Public Class Main
 
             'offense boost only lasts two turns
             For x = 0 To 5
-                post_combo_enemy_offense_boost(x, 0) = enemy_offense_boost(x, 1)
-                post_combo_enemy_offense_boost(x, 1) = 0
-            Next
+                    post_combo_enemy_offense_boost(x, 0) = enemy_offense_boost(x, 1)
+                    post_combo_enemy_offense_boost(x, 1) = 0
+                Next
 
             'one combo (relay or not) counts as one defense turn to the enemy
             If hits > 0 Then
@@ -3791,6 +3855,7 @@ Public Class Main
                 .Hide()
             End If
         End With
+        GetPartyData()
         Calculate()
     End Sub
 
@@ -3799,6 +3864,7 @@ Public Class Main
         equipment(chr).Tag = 0
         equipment(chr).Hide()
         eq_durability(chr).Hide()
+        GetPartyData()
         Calculate()
     End Sub
 
@@ -4259,10 +4325,7 @@ Public Class Main
             CheckLevel(level_selector(x), New EventArgs)
         Next
 
-        If enemy_mode Then
-            GetPartyData()
-        End If
-
+        GetPartyData()
         Calculate()
     End Sub
 
@@ -4335,10 +4398,7 @@ Public Class Main
             aura_defense(chr, x) = defense(x)
         Next
 
-        If enemy_mode Then
-            GetPartyData()
-        End If
-
+        GetPartyData()
         If go Then
             Calculate()
         End If
@@ -4497,9 +4557,9 @@ Public Class Main
             E_ResetHP()
             Return
         End If
-        If new_HP > member_max_hp Then
+        If new_HP > member_max_hp_armor Then
             E_HP_box.ForeColor = Color.Red
-            new_HP = member_max_hp
+            new_HP = member_max_hp_armor
         Else
             E_HP_box.ForeColor = Color.Black
         End If
@@ -4509,7 +4569,7 @@ Public Class Main
 
     Private Sub E_ChangeHP(new_HP As Integer)
         member_hp = new_HP
-        If member_hp <> member_max_hp Then
+        If member_hp <> member_max_hp_armor Then
             E_target_data(1).BackColor = Color.LightYellow
             E_target_data(1).Cursor = Cursors.Hand
         Else
@@ -4563,7 +4623,7 @@ Public Class Main
     End Sub
 
     Private Sub E_ResetHP()
-        E_HP_box.Text = member_max_hp
+        E_HP_box.Text = member_max_hp_armor
     End Sub
 
     Private Sub ScrollHP(sender As Object, e As MouseEventArgs)
@@ -4572,7 +4632,7 @@ Public Class Main
         If Not enemy_mode Then
             max = true_max_HP
         Else
-            max = member_max_hp
+            max = member_max_hp_armor
         End If
         If e.Delta > 0 Then
             If sender.Text < max Then
@@ -5573,6 +5633,9 @@ Public Class Main
     End Function
 
     Public Sub GetPartyData()
+        If Not enemy_mode Then
+            Return
+        End If
         Dim chr As Integer = character - 1
         Dim level As Integer = Me.level(chr)
         If level <= 50 Then
@@ -5609,16 +5672,32 @@ Public Class Main
                 member_defense(x) = lv50 + Math.Floor(Math.Round((lv100 - lv50) * factor, 2))
             Next
         End If
-        member_max_hp += Math.Floor(member_max_hp * 0.01 * QM_total_bonus(character + 11)) + aura_HP(chr)
-        member_knockdown += Math.Floor(member_knockdown * 0.01 * QM_total_bonus(10)) + aura_down(chr)
-        member_knockout += Math.Floor(member_knockout * 0.01 * QM_total_bonus(11)) + aura_down(chr)
-        If E_target_data(1).Text <> member_max_hp.ToString Then
-            member_hp = member_max_hp
-            E_HP_box.Text = member_max_hp
-            E_target_data(1).Text = member_max_hp
+        Dim armor_bonus As Integer
+        Dim eq As Integer = equipment(chr).Tag
+        If eq <> 0 Then
+            armor_bonus = armor_crush_limit(eq)
         End If
-        E_target_data(3).Text = member_knockdown
-        E_target_data(5).Text = member_knockout
+
+        member_max_hp += Math.Floor(Math.Round(member_max_hp * 0.01 * QM_total_bonus(character + 11), 2))
+        member_knockdown += Math.Floor(Math.Round(member_knockdown * 0.01 * QM_total_bonus(10), 2))
+        member_knockout += Math.Floor(Math.Round(member_knockout * 0.01 * QM_total_bonus(11), 2))
+        If eq = 256 Then
+            member_max_hp_armor = Math.Floor(Math.Round(member_max_hp * 1.2, 2)) + aura_HP(chr)
+        Else
+            member_max_hp_armor = member_max_hp + aura_HP(chr)
+        End If
+        member_knockdown_armor = member_knockdown * (1 + 0.01 * armor_bonus) + aura_down(chr)
+        member_knockout_armor = member_knockout * (1 + 0.01 * armor_bonus) + aura_down(chr)
+        member_max_hp += aura_HP(chr)
+        member_knockdown += aura_down(chr)
+        member_knockout += aura_down(chr)
+        If E_target_data(1).Text <> member_max_hp_armor.ToString Then
+            member_hp = member_max_hp_armor
+            E_HP_box.Text = member_max_hp_armor
+            E_target_data(1).Text = member_max_hp_armor
+        End If
+        E_target_data(3).Text = Decimals(member_knockdown_armor)
+        E_target_data(5).Text = Decimals(member_knockout_armor)
     End Sub
 
     Private Sub E_SwitchTarget()
@@ -5761,11 +5840,12 @@ Public Class Main
                 E_hit_modifier(x, y).SelectedIndex = Math.Floor((E_hit_modifier(x, y).Items.Count - 1) * 0.5)
             Next
             knockdown_hit(x) = False
+            prevent_crit(x) = False
             min_one(x) = False
             hit_card(x) = -1
         Next
 
-        Dim highlight(4) As Boolean
+        Dim highlight(5) As Boolean
         For x = 1 To hits
             If E_hit_modifier(x, 0).SelectedIndex <> Math.Floor((E_hit_modifier(x, 0).Items.Count - 1) * 0.5) Then
                 highlight(0) = True
@@ -5778,16 +5858,19 @@ Public Class Main
                 Exit For
             End If
         Next
+        If Array.IndexOf(prevent_crit, True, 1, hits) >= 0 Then
+            highlight(2) = True
+        End If
         For x = 1 To hits
             If E_hit_modifier(x, 2).SelectedIndex <> Math.Floor((E_hit_modifier(x, 2).Items.Count - 1) * 0.5) Then
-                highlight(2) = True
+                highlight(3) = True
                 Exit For
             End If
         Next
         If Array.IndexOf(min_one, True, 1, hits) >= 0 Then
-            highlight(3) = True
+            highlight(4) = True
         End If
-        For x = 0 To 3
+        For x = 0 To 4
             If highlight(x) Then
                 E_table(0, E_clickable_rows(x)).BackColor = Color.LightYellow
             Else
@@ -5876,7 +5959,7 @@ Public Class Main
         Next
     End Sub
 
-    Private Sub E_ShowHit(offense As Double, crush As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, crit_factor As Double, status As Integer, base_defense As Integer, qm_defense As Integer, max_crush As Integer, crush_status As Double, defense_boost_factor As Double, aura_defense As Integer, total_offense As Double, total_crush As Double, total_defense As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Integer, HP_remaining As Integer, attack_element As Integer, knock_down As Integer, knock_out As Integer)
+    Private Sub E_ShowHit(offense As Double, crush As Double, attack_offense As Double, attack_crush As Double, attack_boost_factor As Double, crit_factor As Double, status As Integer, base_defense As Integer, qm_defense As Integer, max_crush As Double, crush_status As Double, defense_boost_factor As Double, aura_defense As Integer, total_offense As Double, total_crush As Double, total_defense As Double, armor_defense As Integer, damage_output As Integer, crush_output As Double, total_damage As Integer, HP_remaining As Integer, attack_element As Integer, knock_down As Double, knock_out As Double)
         E_NewHit()
 
         E_table(hits, 0).Text = offense
@@ -5902,7 +5985,7 @@ Public Class Main
         If qm_defense <> 0 Then
             E_table(hits, 9).Text = qm_defense
         End If
-        E_table(hits, 10).Text = max_crush
+        E_table(hits, 10).Text = Decimals(max_crush)
         E_table(hits, 11).Text = Decimals(crush_status)
         If defense_boost_factor <> 1 Then
             E_table(hits, 12).Text = Round(defense_boost_factor)
@@ -5975,9 +6058,12 @@ Public Class Main
 
     Private Sub E_ToggleEffect(sender As Object, e As EventArgs)
         Dim hit As Integer = sender.Tag
-        If sender.Name = 19 Then
-            min_one(hit) = Not min_one(hit)
-        End If
+        Select Case sender.Name
+            Case 7
+                prevent_crit(hit) = Not prevent_crit(hit)
+            Case 19
+                min_one(hit) = Not min_one(hit)
+        End Select
         E_Calculate()
     End Sub
 
@@ -5994,6 +6080,10 @@ Public Class Main
             Case 6                  'reset crush deviation
                 For x = 1 To hits
                     E_hit_modifier(x, 1).SelectedIndex = 3
+                Next
+            Case 7                  'remove all critical hit blocks
+                For x = 1 To hits
+                    prevent_crit(x) = False
                 Next
             Case 13                 'reset defense deviation
                 For x = 1 To hits
@@ -6155,7 +6245,7 @@ Public Class Main
                         If x = 1 Then
                             output &= "0"
                         Else
-                            output &= "=" & prev & "13+" & prev & "21"
+                            output &= "=" & prev & "12+" & prev & "21"
                         End If
                     Case 13     'defense deviation
                         output &= E_DeviationToText(x, 2)
