@@ -2,10 +2,10 @@
 Public Class Main
     Inherits Form
 
-    Dim target_data(13), combo_results, MP_display, dummy, E_target_data(6) As Label
+    Dim target_data(13), combo_results, MP_display, dummy, E_target_data(7) As Label
     Dim enemy_HP, E_HP_box As TextBox
     Dim final_phase, shield, secondary_target, down, E_down, E_secondary_target, E_armor As CheckBox
-    Dim enemy_status, armor_durability, E_status As ComboBox
+    Dim enemy_status, armor_durability, E_status, E_prima_queens As ComboBox
     Dim target_image, E_target, button(7), hand(300), E_hand(10) As PictureBox
     Dim enemy_mode_button, MP_button, next_combo, burst As Button
     Dim card_panel(3), output_panel, E_output_panel As CustomPanel
@@ -222,7 +222,7 @@ Public Class Main
 , {{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}} _
 , {{101, 1, 0, 23, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {102, 1, 0, 23, 15, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {103, 1, 0, 23, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1000, 1, 3, 1048615, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1001, 6, 0, 23, 5, 5, 0, 23, 5, 5, 0, 23, 8, 8, 0, 23, 10, 10, 0, 23, 15, 15, 0, 23, 20, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1000, 1, 3, 23, 50, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}}}
 
-    ReadOnly enemy_attack_name(,) As String = {{"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "Electro Shot", "", "", ""}, {"", "", "Blinder Shot", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "Slumber Shot", "", "", ""}, {"", "", "Slumber Shot", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Shock Bomb", "", ""}, {"", "", "", "Fryercracker", "", ""}, {"", "", "", "Shock Bomb", "", ""}, {"", "", "", "Fryercracker", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Saber Hand", "", ""}, {"", "", "", "Saber Hand", "Rampage Chop", ""}, {"", "", "", "", "", ""}, {"", "", "", "Force Ring Alpha", "", ""}, {"", "", "", "Force Ring Beta", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Collar Lop", "", ""}, {"", "", "", "Headhunter Chop", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Inferno", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Enervating Waves", "", ""}, {"", "", "", "Toxic Waves", "", ""}, {"", "", "", "Snooze Waves", "", ""}, {"", "", "", "", "", ""}, {"", "Flamethrower", "", "", "", ""}, {"Foxfire", "", "", "", "", ""}, {"Foxfire", "Seafire", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Electro Crash", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Dynamite Rush", "", ""}, {"", "", "", "Bloodsucker Blaze", "", ""}, {"", "", "", "Bloodsucker", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Shell Spin", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Uber Cat Kick", "", ""}, {"", "", "", "Uber Cat Kick", "", ""}, {"", "Hover Strike", "", "", "", ""}, {"", "Hover Strike", "Earsplitting Whoop", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Poison Breath", "", ""}, {"", "", "", "Poison Breath", "Beastprodder", "Beastprodder"}, {"", "", "", "", "", ""}, {"", "", "", "Ring-Around-the-Rosy", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Self-Destruct", "", ""}, {"", "", "", "Self-Destruct", "", ""}, {"", "White Breath", "", "", "", ""}, {"", "Beam Barrage", "White Breath", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Armadillo Attack", "", ""}, {"", "", "", "Armadillo Attack", "", ""}, {"", "Pyromancy", "", "", "", ""}, {"", "Cryomancy", "", "", "", ""}, {"", "Knife Parade", "Crystal Cryomancy", "", "", ""}, {"", "", "", "", "", ""}, {"", "Ice Rubble", "", "", "", ""}, {"", "Thunderbolt", "", "", "", ""}, {"", "All-Or-Nothing Thunder", "", "", "", ""}, {"", "Supersonic Voice", "", "", "", ""}, {"", "Incendiary Voice", "", "", "", ""}, {"", "Supersonic Voice", "Chilling Voice", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Fusillade", "", ""}, {"", "", "Evil Thunder", "", "", ""}, {"", "", "", "Devil Thunder", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Electro Horn", "", ""}, {"", "Numinous Wings", "", "", "", ""}, {"", "Numinous Wings", "", "", "", ""}, {"", "", "", "Crimson Hail", "", ""}, {"", "Hercules Laser", "", "", "", ""}, {"", "Conflagrant Breath", "Skywrenching Roar", "", "", ""}, {"", "", "", "Sinistral Chop", "X-Bluster", ""}, {"", "", "", "Mountainmaker", "", ""}, {"", "", "", "Icy Death", "", ""}, {"", "", "", "Mountainmaker", "Hellion Eye", ""}, {"", "", "", "Feral Death", "", ""}, {"", "", "", "Dark Spawn", "Veinroot's Pulse", ""}, {"", "", "", "Thrashingale", "", ""}, {"", "", "", "Thrashingale Redux", "", ""}, {"", "", "", "Thrashingale Redux", "", ""}, {"", "", "", "Machina Formation", "Deathdealer", ""}, {"", "", "", "Machina Formation", "Deathdealer", ""}, {"", "", "", "Machina Fist", "", ""}, {"", "", "", "Machina Fist", "", ""}, {"", "Stun Grenade", "", "", "", ""}, {"", "Stun Grenade", "", "", "", ""}, {"", "", "", "Arma Cannon", "", ""}, {"", "", "", "Arma Cannon", "Hurricane Punch", ""}, {"", "", "", "Arma Cannon", "Hurricane Punch", ""}, {"", "", "", "Burning Harken", "", ""}, {"", "", "", "Burning Harken", "", ""}, {"", "", "", "Plasma Cannon", "", ""}, {"", "", "", "Plasma Cannon", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Heavenlapse", "Fellstar Gleam", ""}, {"", "", "", "Heavenlapse", "Shadowflame Engine", ""}, {"", "", "", "Paralysis Quills", "Lunchtime", ""}, {"", "", "", "Ovulate", "", ""}, {"", "", "", "Wingflail", "", ""}, {"", "", "", "Wingflail", "Trample", ""}, {"", "", "", "", "", ""}, {"", "", "", "Molten Lunge", "", ""}, {"", "", "", "Heathen Melody", "Feral Proof", ""}, {"", "", "", "Machina Sweep", "", ""}, {"", "", "", "Crimson Catharsis", "", ""}, {"", "Illusory Chaos", "Cast Away Your Carnal Robes", "", "", ""}, {"", "", "", "Hellfire", "Seraphim Soul", ""}, {"", "", "", "Death by Stomping", "", ""}, {"", "", "", "Berserk Tech", "", ""}, {"", "", "", "Berserk Tech", "Hyperslaught Mode (4 enemies)", "Hyperslaught Mode (3 enemies)"}, {"", "Magnus of Life", "Cast Away Your Carnal Robes", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Fryercracker", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Arma Cannon", "Hurricane Punch", ""}}
+    ReadOnly enemy_attack_name(,) As String = {{"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "Electro Shot", "", "", ""}, {"", "", "Blinder Shot", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "Slumber Shot", "", "", ""}, {"", "", "Slumber Shot", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Shock Bomb", "", ""}, {"", "", "", "Fryercracker", "", ""}, {"", "", "", "Shock Bomb", "", ""}, {"", "", "", "Fryercracker", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Saber Hand", "", ""}, {"", "", "", "Saber Hand", "Rampage Chop", ""}, {"", "", "", "", "", ""}, {"", "", "", "Force Ring Alpha", "", ""}, {"", "", "", "Force Ring Beta", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Collar Lop", "", ""}, {"", "", "", "Headhunter Chop", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Inferno", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Enervating Waves", "", ""}, {"", "", "", "Toxic Waves", "", ""}, {"", "", "", "Snooze Waves", "", ""}, {"", "", "", "", "", ""}, {"", "Flamethrower", "", "", "", ""}, {"Foxfire", "", "", "", "", ""}, {"Foxfire", "Seafire", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Electro Crash", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Dynamite Rush", "", ""}, {"", "", "", "Bloodsucker Blaze", "", ""}, {"", "", "", "Bloodsucker", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Shell Spin", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Uber Cat Kick", "", ""}, {"", "", "", "Uber Cat Kick", "", ""}, {"", "Hover Strike", "", "", "", ""}, {"", "Hover Strike", "Earsplitting Whoop", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Poison Breath", "", ""}, {"", "", "", "Poison Breath", "Beastprodder", "Beastprodder (Overheat)"}, {"", "", "", "", "", ""}, {"", "", "", "Ring-Around-the-Rosy", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Self-Destruct", "", ""}, {"", "", "", "Self-Destruct", "", ""}, {"", "White Breath", "", "", "", ""}, {"", "Beam Barrage", "White Breath", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Armadillo Attack", "", ""}, {"", "", "", "Armadillo Attack", "", ""}, {"", "Pyromancy", "", "", "", ""}, {"", "Cryomancy", "", "", "", ""}, {"", "Knife Parade", "Crystal Cryomancy", "", "", ""}, {"", "", "", "", "", ""}, {"", "Ice Rubble", "", "", "", ""}, {"", "Thunderbolt", "", "", "", ""}, {"", "All-Or-Nothing Thunder", "", "", "", ""}, {"", "Supersonic Voice", "", "", "", ""}, {"", "Incendiary Voice", "", "", "", ""}, {"", "Supersonic Voice", "Chilling Voice", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Fusillade", "", ""}, {"", "", "Evil Thunder", "", "", ""}, {"", "", "", "Devil Thunder", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Electro Horn", "", ""}, {"", "Numinous Wings", "", "", "", ""}, {"", "Numinous Wings", "", "", "", ""}, {"", "", "", "Crimson Hail", "", ""}, {"", "Hercules Laser", "", "", "", ""}, {"", "Conflagrant Breath", "Skywrenching Roar", "", "", ""}, {"", "", "", "Sinistral Chop", "X-Bluster", ""}, {"", "", "", "Mountainmaker", "", ""}, {"", "", "", "Icy Death", "", ""}, {"", "", "", "Mountainmaker", "Hellion Eye", ""}, {"", "", "", "Feral Death", "", ""}, {"", "", "", "Dark Spawn", "Veinroot's Pulse", ""}, {"", "", "", "Thrashingale", "", ""}, {"", "", "", "Thrashingale Redux", "", ""}, {"", "", "", "Thrashingale Redux", "", ""}, {"", "", "", "Machina Formation", "Deathdealer", ""}, {"", "", "", "Machina Formation", "Deathdealer", ""}, {"", "", "", "Machina Fist", "", ""}, {"", "", "", "Machina Fist", "", ""}, {"", "Stun Grenade", "", "", "", ""}, {"", "Stun Grenade", "", "", "", ""}, {"", "", "", "Arma Cannon", "", ""}, {"", "", "", "Arma Cannon", "Hurricane Punch", ""}, {"", "", "", "Arma Cannon", "Hurricane Punch", ""}, {"", "", "", "Burning Harken", "", ""}, {"", "", "", "Burning Harken", "", ""}, {"", "", "", "Plasma Cannon", "", ""}, {"", "", "", "Plasma Cannon", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Heavenlapse", "Fellstar Gleam", ""}, {"", "", "", "Heavenlapse", "Shadowflame Engine", ""}, {"", "", "", "Paralysis Quills", "Lunchtime", ""}, {"", "", "", "Ovulate", "", ""}, {"", "", "", "Wingflail", "", ""}, {"", "", "", "Wingflail", "Trample", ""}, {"", "", "", "", "", ""}, {"", "", "", "Molten Lunge", "", ""}, {"", "", "", "Heathen Melody", "Feral Proof", ""}, {"", "", "", "Machina Sweep", "", ""}, {"", "", "", "Crimson Catharsis", "", ""}, {"", "Illusory Chaos", "Cast Away Your Carnal Robes", "", "", ""}, {"", "", "", "Hellfire", "Seraphim Soul", ""}, {"", "", "", "Death by Stomping", "", ""}, {"", "", "", "Berserk Tech", "", ""}, {"", "", "", "Berserk Tech", "Hyperslaught Mode (4 enemies)", "Hyperslaught Mode (3 enemies)"}, {"", "Magnus of Life", "Cast Away Your Carnal Robes", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Fryercracker", "", ""}, {"", "", "", "", "", ""}, {"", "", "", "Arma Cannon", "Hurricane Punch", ""}}
 
     ReadOnly attack_data(,) As Double = {{1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {2, 10, 32, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {2, 25, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 40, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 20, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 35, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {2, 30, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {7, 15, 13, 11, 9, 7.5, 5, 45, 0, 0, 0, 0, 0, 0, 30, 20, 20, 10, 5, 5, 0, 0, 0, 0, 0, 0, 0, 2}, {6, 40, 30, 20, 20, 20, 150, 0, 0, 0, 0, 0, 0, 0, 150, 50, 30, 20, 20, 10, 0, 0, 0, 0, 0, 0, 0, 4} _
             , {2, 7, 8, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 18, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 10, 10, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 12.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {1, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 6, 8, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 10, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {2, 10, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {4, 5, 5, 5, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 6, 6, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {3, 6, 8, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 8, 10, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {4, 10, 10, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12.5, 12.5, 17.5, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {4, 10, 10, 15, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 12.5, 12.5, 17.5, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 6}, {4, 5, 8, 10, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 7.5, 10, 12.5, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 7.5, 12.5, 15, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 15, 17.5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 15, 15, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 20, 25, 60, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {4, 15, 5, 5, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 10, 10, 20, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {2, 15, 25, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 22.5, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {3, 8, 8, 29, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 10, 10, 36, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {6, 5, 5, 10, 10, 13, 20, 0, 0, 0, 0, 0, 0, 0, 10, 10, 10, 10, 15, 30, 0, 0, 0, 0, 0, 0, 0, 3}, {1, 35, 35, 35, 35, 35, 0, 0, 0, 0, 0, 0, 0, 0, 40, 40, 40, 40, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0}, {1, 37.5, 37.5, 37.5, 37.5, 37.5, 0, 0, 0, 0, 0, 0, 0, 0, 35, 35, 35, 35, 35, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {1, 33, 33, 33, 33, 33, 0, 0, 0, 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {2, 20, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 45, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}, {3, 15, 17, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 15, 20, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3}, {3, 20, 25, 35, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 30, 40, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}, {3, 18, 22, 30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 25, 40, 50, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3} _
@@ -688,7 +688,7 @@ Public Class Main
         End With
         Controls.Add(E_status)
 
-        For x = 0 To 5
+        For x = 0 To 6
             E_target_data(x) = New Label()
             With E_target_data(x)
                 .Hide()
@@ -699,9 +699,12 @@ Public Class Main
                     Case < 4
                         .Size = New Size(84, 24)
                         .Location = New Point(target_x + 135 + 85 * (x Mod 2), target_y + 100)
-                    Case Else
+                    Case < 6
                         .Size = New Size(84, 24)
                         .Location = New Point(target_x + 135 + 85 * (x Mod 2), target_y + 125)
+                    Case Else
+                        .Size = New Size(84, 24)
+                        .Location = New Point(target_x, target_y + 175)
                 End Select
                 .BackColor = default_color
                 .TextAlign = ContentAlignment.MiddleCenter
@@ -712,6 +715,7 @@ Public Class Main
         E_target_data(0).Text = "HP"
         E_target_data(2).Text = "Knockdown"
         E_target_data(4).Text = "Knockout"
+        E_target_data(6).Text = "Prima Queens"
         AddHandler E_target_data(1).Click, AddressOf E_ResetHP
 
         E_HP_box = New TextBox()
@@ -753,6 +757,20 @@ Public Class Main
             AddHandler .CheckedChanged, AddressOf E_Calculate
         End With
         Controls.Add(E_armor)
+
+        E_prima_queens = New ComboBox()
+        With E_prima_queens
+            .Hide()
+            .Size = New Size(40, 24)
+            .Location = New Point(target_x + 85, target_y + 175)
+            .DropDownStyle = ComboBoxStyle.DropDownList
+            For x = 0 To 3
+                .Items.Add(x)
+            Next
+            .SelectedIndex = 3
+            AddHandler .SelectedIndexChanged, AddressOf E_Calculate
+        End With
+        Controls.Add(E_prima_queens)
 
 
         ' BUTTONS
@@ -1164,7 +1182,9 @@ Public Class Main
                 deck_magnus(139) = "1"      'Vajra the Indestructible
                 deck_magnus(167) = "1"      'Ice Roue
                 deck_magnus(169) = "1"      'Deluge the Seabane
+                deck_magnus(195) = "1"      'Amor Alma
                 deck_magnus(238) = "1"      'Firedrake Regalia
+                deck_magnus(351) = "1"      'Round Shield
                 .MagnusActive.AddRange(deck_magnus)
             End If
             Dim temp() As Char = String.Join("", .MagnusActive.OfType(Of String)).ToCharArray
@@ -1241,12 +1261,13 @@ Public Class Main
             E_target.Hide()
             E_down.Hide()
             E_status.Hide()
-            For x = 0 To 5
+            For x = 0 To 6
                 E_target_data(x).Hide()
             Next
             E_HP_box.Hide()
             E_secondary_target.Hide()
             E_armor.Hide()
+            E_prima_queens.Hide()
             card_panel(2).Hide()
             card_panel(0).Location = New Point(0, 250)
             For x = 1 To 8
@@ -1296,6 +1317,10 @@ Public Class Main
             E_secondary_target.Show()
             If combo_target = 117 Then
                 E_armor.Show()
+            End If
+            If combo_target = 70 Then
+                E_target_data(6).Show()
+                E_prima_queens.Show()
             End If
             E_target.Image = char_icon(character - 1)
             With target_data(0)
@@ -1612,6 +1637,9 @@ Public Class Main
 
             If cards > 0 Then
                 RemoveCard(Me.combo(0), New MouseEventArgs(0, 0, 0, 0, 0))
+                Dim hits_prev As Integer = hits
+                hits = 0
+                Clear(hits_prev)
             End If
 
             Dim length As Integer = Read16(attack_address - 10)
@@ -1619,6 +1647,7 @@ Public Class Main
             For x = 0 To length - 1
                 Dim attack As Integer = Read16(attack_address + x * 268 + 2)
                 Dim card As Integer = -1
+
                 If attack = 0 Then
                     Continue For
                 End If
@@ -1631,6 +1660,20 @@ Public Class Main
                 If card = -1 Then
                     Exit For
                 End If
+
+                Select Case combo_target
+                    Case 64, 65, 66
+                        Dim element As Integer = Read16(attack_address + x * 268 + 14)
+                        If element = 1 Then
+                            card += 3
+                        End If
+                    Case 68
+                        Dim element As Integer = Read16(attack_address + x * 268 + 14)
+                        If element = 1 Then
+                            card = 5
+                        End If
+                End Select
+
                 If E_hand(card).Visible Then
                     E_AddCard(E_hand(card), New MouseEventArgs(0, 0, 0, 0, 0))
                 End If
@@ -1643,6 +1686,9 @@ Public Class Main
         If My.Settings.ReadCombo Then
             If cards > 0 Then
                 RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
+                Dim hits_prev As Integer = hits
+                hits = 0
+                Clear(hits_prev)
             End If
 
             For x = 0 To party_size - 1
@@ -3007,7 +3053,13 @@ Public Class Main
                 attack_crush = enemy_attack_data(combo_target, id, 5 + y * 4)
                 offense_deviation = E_DeviationToNumber(hits + 1, 0)
                 crush_deviation = E_DeviationToNumber(hits + 1, 1)
-                attack_boost_factor = 1 + enemy_offense_boost(attack_element, 0)
+
+                Dim prima_queen_factor As Double = 1
+                If combo_target = 70 And id = 3 Then
+                    prima_queen_factor += 0.75 * E_prima_queens.SelectedIndex
+                End If
+
+                attack_boost_factor = (1 + enemy_offense_boost(attack_element, 0)) * prima_queen_factor
                 Dim crit_bonus As Integer = 0
 
                 'down critical hits
@@ -3187,6 +3239,12 @@ Public Class Main
                 post_combo_down = True    'shock
             Else
                 post_combo_down = False
+            End If
+
+            If combo_target = 135 Or combo_target = 140 Then
+                If combo(cards - 1).Tag = 2 Then        'Cast Away Your Carnal Robes overrides knockdown/knockout prevention
+                    armor_broken = True
+                End If
             End If
 
             If Not armor_broken Then
@@ -3697,16 +3755,17 @@ Public Class Main
         End If
 
         Dim id As Integer = sender.Tag
+        Dim member As Integer = character - 1
 
         'right-click to pre-equip a magnus
-        If e.Button = MouseButtons.Right Then
+        If e.Button = MouseButtons.Right Or enemy_mode Then
             If spirit_number(id) = 0 Or spirit_number(id) = 1 Then
-                AddEquipment(character - 1, id)
+                If equipment(member).Tag <> id Then
+                    AddEquipment(member, id)
+                Else
+                    RemoveEquipment(equipment(member), New EventArgs)
+                End If
             End If
-            Return
-        End If
-        If enemy_mode Then
-            AddEquipment(character - 1, id)
             Return
         End If
 
@@ -3730,7 +3789,7 @@ Public Class Main
             End If
             .Show()
         End With
-        member(cards) = character
+        Me.member(cards) = character
 
         cards += 1
         UpdateTurns()
@@ -4515,6 +4574,13 @@ Public Class Main
             E_armor.Show()
         Else
             E_armor.Hide()
+        End If
+        If enemy_mode And new_target = 70 Then
+            E_target_data(6).Show()
+            E_prima_queens.Show()
+        Else
+            E_target_data(6).Hide()
+            E_prima_queens.Hide()
         End If
         If go Then
             Calculate()
@@ -6092,7 +6158,7 @@ Public Class Main
         E_table(hits, 21).Text = damage_output
         E_table(hits, 22).Text = 0
         E_table(hits, 23).Text = total_damage
-        E_table(hits, 24).Text = E_table(hits - 1, 22).Text
+        E_table(hits, 24).Text = E_table(hits - 1, 24).Text
         E_table(hits, 25).Text = HP_remaining
         E_table(hits, 21).BackColor = element_color(attack_element)
         E_table(hits, 22).BackColor = element_color(attack_element)
