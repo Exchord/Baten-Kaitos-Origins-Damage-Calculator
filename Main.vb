@@ -286,7 +286,7 @@ Public Class Main
     ReadOnly E_clickable_rows() As Integer = {5, 6, 8, 14, 21}
 
     Public ReadOnly variable() As String = {"Base offense", "Attack offense", "Attack crush", "Attack boost factor", "Offense deviation", "Crush deviation", "Electric Helm factor", "Weapon offense", "Weapon crush", "Element compatibility", "Weapon factor", "Quest magnus bonus", "Aura offense", "Aura crush", "EX combo offense factor", "EX combo crush factor", "Critical hit factor", "Base defense", "Crush limit", "Crush status", "Defense boost factor", "Defense deviation", "Total offense", "Total crush", "Total defense", "Armor", "Multiplier", "Damage output", "Crush output", "Total damage output", "Total crush output", "HP remaining"}
-    Public ReadOnly E_variable() As String = {"Base offense", "Base crush", "Attack offense", "Attack crush", "Attack boost factor", "Offense deviation", "Crush deviation", "Armor offense", "Critical hit factor", "Base defense", "Quest magnus defense", "Crush limit", "Crush status", "Defense boost factor", "Defense deviation", "Vanishing Cloak factor", "Aura defense", "Total offense", "Total crush", "Total defense", "Armor", "Damage output", "Crush output", "Total damage output", "Total crush output", "HP remaining"}
+    Public ReadOnly E_variable() As String = {"Base offense", "Base crush", "Attack offense", "Attack crush", "Attack boost factor", "Offense deviation", "Crush deviation", "Armor bonus", "Critical hit factor", "Base defense", "Quest magnus defense", "Crush limit", "Crush status", "Defense boost factor", "Defense deviation", "Vanishing Cloak factor", "Aura defense", "Total offense", "Total crush", "Total defense", "Armor", "Damage output", "Crush output", "Total damage output", "Total crush output", "HP remaining"}
 
     Public ReadOnly version As String = FileVersionInfo.GetVersionInfo(Application.ExecutablePath).FileVersion
 
@@ -1123,7 +1123,7 @@ Public Class Main
         E_description(4) = "Some magnus or abilities alter the enemy's offense for two turns."
         E_description(5) = description(4)
         E_description(6) = description(5)
-        E_description(7) = "Additional offense from Machina Arma: Razer 3's armor."
+        E_description(7) = "Additional power from Machina Arma: Razer 3's armor."
         E_description(8) = "Critical hits will apply a factor to all the above offense and crush values. Which factor is used depends on the party member's status and the attack element." & vbCrLf & "Click any cell in this row to prevent a critical hit with Jiraiya's Robe (80% chance). Click here to remove all random critical hit blocks."
         E_description(9) = "The party member's defense for the element used."
         E_description(10) = "Defense bonus from quest magnus."
@@ -1133,11 +1133,11 @@ Public Class Main
         E_description(14) = description(21)
         E_description(15) = "Vanishing Cloak reduces defense by 50%."
         E_description(16) = "Defense bonus from the party member's aura."
-        E_description(17) = "The total offense after applying all offense factors." & vbCrLf & "total_offense = base_offense * attack_offense * attack_boost_factor * random_offense_factor * critical_hit_factor" & vbCrLf & "Total offense can be negative if attack_boost_factor is negative."
-        E_description(18) = "The total crush after applying all crush factors." & vbCrLf & "total_crush = base_crush * attack_crush * attack_boost_factor * random_crush_factor * critical_hit_factor" & vbCrLf & "Total crush can be negative if attack_boost_factor is negative."
-        E_description(19) = "The total defense after adding up all defense components and applying all their factors." & vbCrLf & "total_defense = (base_defense + quest_magnus_defense + aura_defense) * (1 - crush_status / crush_limit) * defense_boost_factor * random_defense_factor" & vbCrLf & "Total defense can be negative if defense_boost_factor is negative. Total defense is 0 if crush_status >= crush_limit."
+        E_description(17) = "The total offense after applying all offense factors." & vbCrLf & "total_offense = (base_offense * attack_offense * attack_boost_factor * random_offense_factor + armor_bonus) * critical_hit_factor" & vbCrLf & "Total offense can be negative if attack_boost_factor is negative."
+        E_description(18) = "The total crush after applying all crush factors." & vbCrLf & "total_crush = (base_crush * attack_crush * attack_boost_factor * random_crush_factor + armor_bonus) * critical_hit_factor" & vbCrLf & "Total crush can be negative if attack_boost_factor is negative."
+        E_description(19) = "The total defense after adding up all defense components and applying all their factors." & vbCrLf & "total_defense = ((base_defense + quest_magnus_defense) * (1 - crush_status / crush_limit) * defense_boost_factor * random_defense_factor * vanishing_cloak_factor) + aura_defense" & vbCrLf & "Total defense can be negative if defense_boost_factor is negative. Total defense is 0 if crush_status >= crush_limit."
         E_description(20) = "Additional defense from the party member's equipped armor."
-        E_description(21) = "If total_offense > total_defense + armor_defense, then damage_output = total_offense - total_defense * 0.775 - armor_defense" & vbCrLf & "Else damage_output = (total_offense - total_defense * 0.1 - armor_defense) * 0.25" & vbCrLf & "Damage output cannot be negative. If the result is less than 1, there is a 75% chance that damage output will be adjusted to 1, provided that armor_defense = 0." & vbCrLf & "Click any cell in this row to enable a 'minimum 1' hit. Click here to disable all 'minimum 1' hits."
+        E_description(21) = "If total_offense > total_defense + armor_defense, then damage_output = total_offense - total_defense * 0.775 - armor_defense" & vbCrLf & "Else damage_output = (total_offense - total_defense * 0.1 - armor_defense) * 0.25" & vbCrLf & "Damage output cannot be negative. If the result is less than 1, there is a 75% chance that damage output will be adjusted to 1." & vbCrLf & "Click any cell in this row to enable a 'minimum 1' hit. Click here to disable all 'minimum 1' hits."
         E_description(22) = "If total_crush > total_defense * 0.5 + armor_defense, then crush_output = total_crush - total_defense * 0.3875 - armor_defense" & vbCrLf & "Else crush_output = (total_crush - total_defense * 0.05 - armor_defense) * 0.25" & vbCrLf & "Crush output cannot be negative."
         E_description(23) = description(29)
         E_description(24) = description(30)
@@ -1636,10 +1636,9 @@ Public Class Main
             End If
 
             If cards > 0 Then
+                locked = False
                 RemoveCard(Me.combo(0), New MouseEventArgs(0, 0, 0, 0, 0))
-                Dim hits_prev As Integer = hits
-                hits = 0
-                Clear(hits_prev)
+                locked = True
             End If
 
             Dim length As Integer = Read16(attack_address - 10)
@@ -1672,6 +1671,13 @@ Public Class Main
                         If element = 1 Then
                             card = 5
                         End If
+                    Case 70
+                        If attack = 1000 Then
+                            Dim offense As Double = ReadFloat(attack_address + x * 268 + 20)
+                            Dim prima_queens As Integer = (offense - 20) / 15
+                            prima_queens = Clamp(prima_queens, 0, 3)
+                            E_prima_queens.SelectedIndex = prima_queens
+                        End If
                 End Select
 
                 If E_hand(card).Visible Then
@@ -1685,10 +1691,9 @@ Public Class Main
 
         If My.Settings.ReadCombo Then
             If cards > 0 Then
+                locked = False
                 RemoveCard(combo(0), New MouseEventArgs(0, -1, 0, 0, 0))
-                Dim hits_prev As Integer = hits
-                hits = 0
-                Clear(hits_prev)
+                locked = True
             End If
 
             For x = 0 To party_size - 1
@@ -3049,17 +3054,17 @@ Public Class Main
                 E_ShowHitModifiers()
                 hit_element(hits + 1) = attack_element
 
-                attack_offense = enemy_attack_data(combo_target, id, 4 + y * 4)
-                attack_crush = enemy_attack_data(combo_target, id, 5 + y * 4)
-                offense_deviation = E_DeviationToNumber(hits + 1, 0)
-                crush_deviation = E_DeviationToNumber(hits + 1, 1)
-
                 Dim prima_queen_factor As Double = 1
                 If combo_target = 70 And id = 3 Then
                     prima_queen_factor += 0.75 * E_prima_queens.SelectedIndex
                 End If
 
-                attack_boost_factor = (1 + enemy_offense_boost(attack_element, 0)) * prima_queen_factor
+                attack_offense = enemy_attack_data(combo_target, id, 4 + y * 4) * prima_queen_factor
+                attack_crush = enemy_attack_data(combo_target, id, 5 + y * 4) * prima_queen_factor
+                offense_deviation = E_DeviationToNumber(hits + 1, 0)
+                crush_deviation = E_DeviationToNumber(hits + 1, 1)
+                attack_boost_factor = 1 + enemy_offense_boost(attack_element, 0)
+
                 Dim crit_bonus As Integer = 0
 
                 'down critical hits
@@ -6371,7 +6376,7 @@ Public Class Main
                     Case 19     'total defense
                         output &= "=(" & C & "10+" & C & "11)*max(0;1-" & C & "13/" & C & "12)*" & C & "14*(1+0.01*" & C & "15)*" & C & "16+" & C & "17"
                     Case 21     'damage output
-                        If min_one(x) And E_table(x, 18).Text = "" Then
+                        If min_one(x) Then
                             output &= "=max(1;"
                         Else
                             output &= "=max(0;"

@@ -60,7 +60,7 @@
         End With
         Controls.Add(clear)
 
-        Dim variable() As String = {"Physical offense", "Fire offense", "Ice offense", "Lightning offense", "Light offense", "Darkness offense", "Extra hit offense", "Critical hit chance", "Level", "Physical defense", "Knockdown defense", "Knockout defense", "Sagi max HP", "Milly max HP", "Guillo max HP"}
+        Dim variable() As String = {"Physical offense", "Fire offense", "Ice offense", "Lightning offense", "Light offense", "Darkness offense", "Extra hit offense", "Critical hit chance", "Level", "Physical defense", "Knockdown threshold", "Knockout threshold", "Sagi max HP", "Milly max HP", "Guillo max HP"}
 
         For x = 0 To 17
             result(x) = New Label()
