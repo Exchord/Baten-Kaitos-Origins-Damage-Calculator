@@ -1350,6 +1350,7 @@ Public Class Main
         If Settings.Visible Then
             Settings.SwitchMode()
         End If
+        UpdateCharIcons()
         ShowDeck()
         E_ShowDeck()
         ResizePanel()
@@ -1357,6 +1358,16 @@ Public Class Main
         If ActiveForm Is Me Then
             target_image.Focus()
         End If
+    End Sub
+
+    Private Sub UpdateCharIcons()
+        For x = 0 To 2
+            If Not enemy_mode Or x = character - 1 Then
+                char_image(x).Image = char_icon(x)
+            Else
+                char_image(x).Image = MakeTransparent(char_icon(x))
+            End If
+        Next
     End Sub
 
     Private Sub Dolphin()
@@ -3733,6 +3744,7 @@ Public Class Main
                 relay = False
             End If
         Else
+            UpdateCharIcons()
             E_target.Image = char_icon(character - 1)
             GetPartyData()
         End If
@@ -3817,7 +3829,7 @@ Public Class Main
         cards = sender.Name
 
         If enemy_mode Then
-            For x = cards To 9
+            For x = cards To 5
                 combo(x).Hide()
             Next
             E_ShowDeck()
@@ -3864,7 +3876,7 @@ Public Class Main
                 combo(x).Tag = combo(x + 1).Tag
                 combo(x).AccessibleName = combo(x + 1).AccessibleName
             Next
-            For x = cards To 9
+            For x = cards To 5
                 combo(x).Hide()
             Next
             E_ShowDeck()
@@ -4228,7 +4240,13 @@ Public Class Main
 
         'show equipment magnus
         For x = 45 To 452
-            If (magnus_user(x) = 0 Or magnus_user(x) = character) And deck_magnus(x) = "1" And Not IsItem(x) Then
+            If (magnus_user(x) = 0 Or magnus_user(x) = character) And deck_magnus(x) = "1" Then
+                If IsItem(x) Then
+                    Continue For
+                End If
+                If enemy_mode AndAlso (Not IsArmor(x) And Not IsAccessory(x)) Then
+                    Continue For
+                End If
                 hand(y).Image = magnus_image(x)
                 hand(y).Tag = x
                 If Not card_panel(0).Contains(hand(y)) Then
