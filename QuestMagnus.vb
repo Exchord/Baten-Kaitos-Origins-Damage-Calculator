@@ -45,6 +45,7 @@
                 .Tag = Main.QM_inventory(x)
                 AddHandler .Click, AddressOf Remove
                 AddHandler .Click, AddressOf Swap
+                AddHandler .Click, AddressOf RemoveAllInstances
                 AddHandler .Click, AddressOf ChangeFocus
             End With
             Controls.Add(inventory(x))
@@ -123,6 +124,7 @@
                 .Tag = x
                 AddHandler .Click, AddressOf Add
                 AddHandler .Click, AddressOf RemoveLastInstance
+                AddHandler .Click, AddressOf RemoveAllInstances
                 AddHandler .MouseEnter, AddressOf ShowName
                 AddHandler .Click, AddressOf ChangeFocus
             End With
@@ -218,6 +220,18 @@
             If inventory(x).Tag = id Then
                 Remove(inventory(x), New MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0))
                 Exit For
+            End If
+        Next
+    End Sub
+
+    Private Sub RemoveAllInstances(sender As Object, e As MouseEventArgs)
+        If e.Button <> MouseButtons.Middle Then
+            Return
+        End If
+        Dim id As Integer = sender.Tag
+        For x = 0 To 23
+            If inventory(x).Tag = id Then
+                Remove(inventory(x), New MouseEventArgs(MouseButtons.Left, 1, 0, 0, 0))
             End If
         Next
     End Sub
