@@ -6,7 +6,7 @@ Public Class Main
     Dim enemy_HP, E_HP_box As TextBox
     Dim final_phase, shield, secondary_target, down, E_down, E_secondary_target, E_armor As CheckBox
     Dim enemy_status, armor_durability, E_status, E_prima_queens As ComboBox
-    Dim target_image, E_target, button(7), hand(300), E_hand(10) As PictureBox
+    Dim target_image, E_target, button(7), hand(300), E_hand(6) As PictureBox
     Dim enemy_mode_button, MP_button, next_combo, burst As Button
     Dim card_panel(3), output_panel, E_output_panel As CustomPanel
     Dim magnus_image(455) As Bitmap
@@ -873,7 +873,7 @@ Public Class Main
             End With
         Next
 
-        For x = 0 To 9
+        For x = 0 To 5
             E_hand(x) = New PictureBox()
             With E_hand(x)
                 .Hide()
@@ -4414,11 +4414,11 @@ Public Class Main
         QM_total_bonus(7) = Math.Min(crit, 100)
         QM_total_bonus(8) = level
         QM_total_bonus(9) = defense
-        QM_total_bonus(10) = knockdown
-        QM_total_bonus(11) = knockout
-        QM_total_bonus(12) = sagi_HP
-        QM_total_bonus(13) = milly_HP
-        QM_total_bonus(14) = guillo_HP
+        QM_total_bonus(10) = Math.Max(-100, knockdown)
+        QM_total_bonus(11) = Math.Max(-100, knockout)
+        QM_total_bonus(12) = Math.Max(-100, sagi_HP)
+        QM_total_bonus(13) = Math.Max(-100, milly_HP)
+        QM_total_bonus(14) = Math.Max(-100, guillo_HP)
 
         If QuestMagnus.Visible Then
             For x = 0 To 8
@@ -4428,10 +4428,8 @@ Public Class Main
                     QuestMagnus.result(x + 9).Text = AddSign(QM_total_bonus(x))
                 End If
             Next
-            For x = 9 To 11
-                QuestMagnus.E_result(x - 3).Text = AddSign(QM_total_bonus(x))
-            Next
-            For x = 12 To 14
+            QuestMagnus.E_result(6).Text = AddSign(QM_total_bonus(9))
+            For x = 10 To 14
                 QuestMagnus.E_result(x - 3).Text = AddSign(QM_total_bonus(x)) & "%"
             Next
         End If
@@ -5832,15 +5830,26 @@ Public Class Main
         E_target_data(5).Text = Decimals(member_knockout_armor)
     End Sub
 
-    Private Sub E_SwitchTarget()
+    Private Sub E_SwitchTarget(sender As Object, e As MouseEventArgs)
         Dim index As Integer = My.Settings.PartyOrder.IndexOf(character - 1)
-        If index = 2 Then
-            index = 0
-        Else
-            index += 1
-        End If
-        character = My.Settings.PartyOrder.Substring(index, 1) + 1
-        SwitchCharacter(char_image(character - 1), New EventArgs)
+        Select Case e.Button
+            Case MouseButtons.Left
+                If index = 2 Then
+                    index = 0
+                Else
+                    index += 1
+                End If
+            Case MouseButtons.Right
+                If index = 0 Then
+                    index = 2
+                Else
+                    index -= 1
+                End If
+            Case Else
+                Return
+        End Select
+        index = My.Settings.PartyOrder.Substring(index, 1)
+        SwitchCharacter(char_image(index), New EventArgs)
     End Sub
 
     Private Sub E_AddCard(sender As Object, e As MouseEventArgs)
@@ -5860,7 +5869,6 @@ Public Class Main
             .Tag = attack
             .AccessibleName = sender.AccessibleName
             If Not card_panel(1).Contains(combo(cards)) Then
-                '.Left += card_panel(1).AutoScrollPosition.X
                 card_panel(1).Controls.Add(combo(cards))
             End If
             .Show()
@@ -5923,8 +5931,6 @@ Public Class Main
     Private Sub E_ShowAttackName(sender As Object, e As EventArgs)
         Dim name As String = enemy_attack_name(combo_target, sender.Tag)
         hover.SetToolTip(sender, name)
-        If name <> "" Then
-        End If
     End Sub
 
     Private Sub E_HighlightHits(sender As Object, e As EventArgs)
