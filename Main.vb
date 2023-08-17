@@ -4851,6 +4851,10 @@ Public Class Main
             End If
         End If
 
+        If e.KeyCode = Keys.X Then
+            target_image.Focus()
+        End If
+
         Select Case e.KeyCode
             Case Keys.E
                 Dolphin()
