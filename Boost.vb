@@ -577,6 +577,11 @@
                 SwitchCharacter(Me.character(character), e)
                 Return
             End If
+            else
+        End If
+
+        If e.KeyCode = Keys.X Then
+            label(0).Focus()
         End If
 
         Select Case e.KeyCode
