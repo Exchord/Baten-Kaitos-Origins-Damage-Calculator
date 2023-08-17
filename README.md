@@ -315,6 +315,8 @@ Enemies generally use attacks in ascending order of strength (1-2-3) and can ski
 
 Next to the enemy attacks, you can see all armor and accessory magnus available to the current character. Click one of them to equip it, and click it again to unequip it.  
 
+![](https://i.imgur.com/2mQ6cUM.png)
+
 Differences in calculation:
 - Enemies have separate values for their offensive power (base offense) and their destructive power (base crush).
 - Machina Arma Razer 3 has armor equipped until its HP drops below 50%. As long as the armor is active, it has an offense and crush bonus of 20 (armor bonus). You can turn the armor on and off using the checkbox below the enemy name.
@@ -329,8 +331,8 @@ Differences in calculation:
 - Guard aura increases all defenses as well as the knockdown threshold, knockout threshold, and crush limit by a set amount*.
 - Life aura increases HP by a set amount*.
 - Elemental auras increase the defense of their element and reduce the defense of the opposite element by a set amount*.
-- 
-* the amount depends on the aura level and the character's level.
+
+*The amount depends on the aura level and the character's level.
 
 
 ### Quest magnus effects
@@ -368,8 +370,6 @@ Differences in calculation:
 - crush_limit = base_crush_limit * armor_factor + aura_bonus
 
 The rounding of these stats may still differ between the game and this program.
-
-![](https://i.imgur.com/2mQ6cUM.png)
 
 
 
