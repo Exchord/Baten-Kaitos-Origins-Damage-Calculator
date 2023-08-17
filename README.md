@@ -11,12 +11,12 @@ Information on magnus, enemies, and combos: [BKO Documentation](https://docs.goo
 The above screenshot is a simulation of [this combo](https://youtu.be/n9rcfXrhIZE?t=2503).
 
 ## Table of contents <a name="contents"></a>
-- **Party**
+- [**Party**](#party)
     - [Character icons](#character-icons)
     - [Levels](#levels)
     - [Auras](#auras)
     - [Equipped magnus](#equipped-magnus)
-- **Enemy**
+- [**Enemy**](#enemy)
     - [Target](#target)
     - [Knockdown and knockout](#knockdown-and-knockout)
     - [Final phase](#final-phase)
@@ -26,22 +26,30 @@ The above screenshot is a simulation of [this combo](https://youtu.be/n9rcfXrhIZ
     - [Down](#down)
     - [Status](#status)
     - [Armor durability](#armor-durability)
-- **Buttons**
+- [**Buttons**](#buttons)
     - [Deck](#deck)
     - [Quest magnus](#quest-magnus)
     - [Temporary boost](#temporary-boost)
     - [Dolphin](#dolphin)
     - [Spreadsheet](#spreadsheet)
     - [Settings](#settings)
-    - [Combo results](#combo-results)
     - [MP](#mp)
     - [Next combo](#next-combo)
-- **Cards**
+- [**Cards**](#cards)
     - [Hand](#hand)
     - [Combo](#combo)
+- [**Enemy mode**](#enemy-mode)
+    - [Aura effects](#aura-effects)
+    - [Quest magnus effects](#quest-magnus-effects)
+    - [Armor effects](#armor-effects)
+    - [Attack effects](#attack-effects)
+    - [Additional calculations](#additional-calculations)
 - [**Tips**](#tips)
-- [**Output table**](#output-table)
-- **Advanced mechanics**
+    - [Mouse buttons](#mouse-buttons)
+    - [Mouse wheel](#mouse-wheel)
+    - [Keyboard shortcuts](#keyboard-shortcuts)
+- [**Results table**](#output-table)
+- [**Advanced mechanics**](#advanced-mechanics)
     - [Regalia hits](#regalia-hits)
     - [Knockdown hits](#knockdown-hits)
 
@@ -161,7 +169,7 @@ Click the blank magnus to open the quest magnus window. Here, you can add or rem
 
 Clicking the "Reset" button will turn all quest magnus into blank magnus. You can also right-click magnus in your inventory to move them around.
 
-![](https://i.imgur.com/o3lwDWu.png)
+![](https://i.imgur.com/nNtreRJ.png)
 
 ### Temporary boost
 ![](https://i.imgur.com/65ylqfB.png)  
@@ -173,9 +181,10 @@ You can use the mouse wheel to increase or decrease both boost values by 1.
 Notes:  
 - One offense turn is any turn from the action bar in the top left corner of the screen. Selecting or discarding magnus does not count as such.  
 - One defense turn is a combo of any length performed on an enemy, regardless of whether or not it's a relay combo.  
-- Enemies also have offense boosts for every element, but only physical offense can affect damage output on enemies. This comes into play when attacking with Firedrake Regalia or Aetherdrake Regalia equipped.
+- When it comes to enemies' offense boosts, only their physical offense can affect the damage they receive. This comes into play when attacking with Firedrake Regalia or Aetherdrake Regalia equipped.
+- In the game, the effects of Berserker Drink cannot be amplified with multiple uses.
 
-![](https://i.imgur.com/ip8TMgV.png)
+![](https://i.imgur.com/NJDAoYg.png)
 
 ### Dolphin
 ![](https://i.imgur.com/zRxfMiW.png)  
@@ -199,7 +208,7 @@ These are not read from Dolphin:
 
 ### Spreadsheet
 ![](https://i.imgur.com/YcdbLcT.png)  
-Clicking this button will copy the entire output table to the clipboard. You can then paste it into the spreadsheet software of your choice. Note that the copied data is in plain text and contains cell references which only work if pasted at A1. After pasting it, you can move the table anywhere you want.
+Clicking this button will copy the entire results table to the clipboard. You can then paste it into the spreadsheet software of your choice. Note that the copied data is in plain text and contains cell references which only work if pasted at A1. After pasting it, you can move the table anywhere you want.
 
 This feature allows you to experiment beyond the limitations of the calculator and simulate very specific scenarios, such as blindness misses and auras or quest magnus expiring mid-combo. This is also the only way to simulate hacked conditions or unexplored effects.
 
@@ -208,11 +217,11 @@ This feature allows you to experiment beyond the limitations of the calculator a
 ![](https://i.imgur.com/bXoduDy.png)  
 - <i>Auto-close target window:</i> When you choose a target, the target window closes automatically.
 
-- <i>Highlight hits when hovering over an attack card:</i> When you hover over an attack card in your combo, all of its hits in the output table are highlighted in blue.
+- <i>Highlight hits when hovering over an attack card:</i> When you hover over an attack card in your combo, all of its hits in the results table are highlighted in blue.
 
 - <i>Read combo from Dolphin:</i> If this is checked, you can import combos from the game by clicking the Dolphin button.
 
-- <i>Show effective HP remaining:</i> Switch between true HP and effective HP for the last row in the output table. You can also click the row title in the main window to toggle this setting.
+- <i>Show effective HP remaining:</i> Switch between true HP and effective HP for the last row in the results table. You can also click the row title in the main window to toggle this setting.
 
 - <i>Guillo's English EX combos:</i> The following EX combos are stronger in the English version of the game: Black Yang, White Yin, Fiery Ice Queen, Blazing Glacial Queen, Frigid Queen's Parade, Frigid Queen's Festival
 
@@ -223,22 +232,18 @@ For example, if you use Weak Attack, Strong Attack, Icefan, and Sigil Cry in a r
 
 - <i>Saber Dragon Horn:</i> Using this item raises the durability of equipped magnus to their initial durability plus 5. If this setting is checked, the dropdown menus for equipped magnus will allow you to add up to 5 extra durability points.
 
-- <i>Random hits:</i> Heavenlapse and Aphelion Dustwake are multi-target attacks that randomly hit or miss enemies. Here, you can select which of the 9 or 13 projectiles will hit the target.
+- <i>Random hits:</i> The attacks listed here are multi-target attacks that randomly hit or miss targets. Using the checkboxes, you can select which hits should connect.
 
 - <i>Show tooltips</i>
-	- Variables: If you hover over any of the row titles in the output table, a brief explanation will pop up.
+	- Variables: If you hover over any of the row titles in the results table, a brief explanation will pop up.
 	- Enemies, magnus (secondary windows): Shows the name of the enemy or magnus when hovering over it.
 
 - <i>1st member, 2nd member:</i> Changes the order of party members in the main window and in Temporary Boost.
 
 
-The checkboxes on the right side allow you to hide or show any of the rows in the output table. You can also hide a row by middle-clicking its title in the main window.
+The checkboxes on the right side allow you to hide or show any of the rows in the results table. You can also hide a row by middle-clicking its title in the main window.
 
-![](https://i.imgur.com/WNsLdZm.png)
-
-### Combo results
-![](https://i.imgur.com/DAs7OdF.png)  
-In a similar fashion to the in-game text after a combo, this shows the number of cards and hits as well as the total damage and TP bonus of the current combo.
+![](https://i.imgur.com/XYyqoYH.png)
 
 
 ### MP
@@ -266,6 +271,9 @@ Interface elements:
 - <i>Lightning knockdown:</i> Knocking down an enemy with lightning (+) yields between 30 and 50 MP, while getting knocked down by the enemy (-) takes away between 30 and 50 MP. The exact amount is randomly determined by the game. In the MP window, you can change the amount using the dropdown menu at the bottom. Note that lightning knockdowns don't change the enemy's MP value.
 
 
+
+## Cards
+
 ### Next combo
 
 Clicking this button changes the status of your party and the target to what it will be after the current combo. This also clears the combo. You can then move on with the next combo without having to manually adjust the following input data:
@@ -292,27 +300,123 @@ This is the string of cards that makes up your current combo. Click any card to 
 You can also remove a single card anywhere in the combo by right-clicking it.
 
 
+
+## Enemy mode
+
+If you click "Switch to enemy" or press X on any window, the program will switch to "enemy mode", which allows you to analyze enemy combos. This mode largely works same way as party mode, but with a few differences:
+- In the quest magnus window, only magnus with effects relevant to the current mode are opaque.
+- In the temporary boost window, magnus with defense-boosting properties are displayed. Next to the character icons, defense boost values are shown instead of offense boost values.
+- In the settings window, the checkboxes on the right side correspond to the rows shown in the current mode.
+
+You can select a target by clicking one of the party member icons on the left side. Alternatively, left-click or right-click the party member icon next to the enemy picture to switch to the next or previous party member, respectively.
+
+An enemy's regular attacks are displayed as standard attack magnus. Special attacks are displayed as "?" magnus.  
+Enemies generally use attacks in ascending order of strength (1-2-3) and can skip numbers (1-3) just like party members. However, some enemies only have one or two normal attacks, and so those enemies can use the same attack several times per turn.
+
+Next to the enemy attacks, you can see all armor and accessory magnus available to the current character. Click one of them to equip it, and click it again to unequip it.  
+
+Differences in calculation:
+- Enemies have separate values for their offensive power (base offense) and their destructive power (base crush).
+- Machina Arma Razer 3 has armor equipped until its HP drops below 50%. As long as the armor is active, it has an offense and crush bonus of 20 (armor bonus). You can turn the armor on and off using the checkbox below the enemy name.
+- total_offense = (base_offense * attack_offense * attack_boost_factor * random_offense_factor + armor_bonus) * critical_hit_factor
+- total_crush = (base_crush * attack_crush * attack_boost_factor * random_crush_factor + armor_bonus) * critical_hit_factor
+- total_defense = ((base_defense + quest_magnus_defense) * (1 - crush_status / crush_limit) * defense_boost_factor * random_defense_factor * vanishing_cloak_factor) + aura_defense
+- Damage output can still be 1 (75% chance) even if the equipped armor causes the result to be 0.
+
+
+### Aura effects
+
+- Guard aura increases all defenses as well as the knockdown threshold, knockout threshold, and crush limit by a set amount*.
+- Life aura increases HP by a set amount*.
+- Elemental auras increase the defense of their element and reduce the defense of the opposite element by a set amount*.
+- 
+* the amount depends on the aura level and the character's level.
+
+
+### Quest magnus effects
+
+- Some quest magnus increase the physical defense for all characters by a set amount. This bonus is added to the base defense.
+- Some quest magnus increase the knockdown or knockout threshold for all characters by a certain percentage. This does not affect the Guard aura bonus.
+- Some quest magnus increase max HP by a certain percentage. This does not affect the Life aura bonus.
+
+
+### Armor effects
+
+- Some armor magnus (e.g. Round Shield, Osiris Shield) increase or decrease the knockdown threshold, the knockout threshold, and the crush limit by a certain percentage. This does not affect the Guard aura bonus.
+- Vanishing Cloak factor reduces defense by 50%. This does not affect the Guard or elemental aura bonus.
+- Confessional Clothes increases max HP by 20%. This does not affect the Life aura bonus.
+- Jiraiya's Robe has an 80% chance of preventing critical hits. Click any cell in the "Critical hit factor" row to prevent a critical hit.
+- Saizou's Robe prevents all critical hits.
+- Heat Camouflage and Hazyfire Camouflage block fire hits.
+- Aqua Camouflage and Hazyrain Camouflage block ice hits.
+- Heavenbolt Wrap, Heavengale Wrap, and Imperial Ward block all hits.
+- Mephistopheles Cloak and its upgrades block the first hit of a combo.
+
+
+### Attack effects
+
+- Dance King's special attack, "Ring-Around-the-Rosy", has different offense and crush values depending on the number of Prima Queens. You can set this number using the combo box below the enemy name.
+- The attacks "Lunchtime" and "Death by Stomping" force mid-combo knockdowns. This causes all follow-up hits to be critical.
+- There are other attack effects that have not been implemented yet, such as random critical hits. To simulate those effects, you can click the spreadsheet button, paste the contents of the clipboard into a spreadsheet program at cell A1, and modify the calculation table.
+
+
+### Additional calculations
+
+- HP = round(round(base_HP * quest_magnus_factor) * armor_factor) + aura_bonus
+- knockdown_threshold = round(base_knockdown_threshold * quest_magnus_factor) * armor_factor + aura_bonus
+- knockout_threshold = round(base_knockout_threshold * quest_magnus_factor) * armor_factor + aura_bonus
+- crush_limit = base_crush_limit * armor_factor + aura_bonus
+
+The rounding of these stats may still differ between the game and this program.
+
+![](https://i.imgur.com/2mQ6cUM.png)
+
+
+
 ## Tips
+
+### Mouse buttons
+
+Right-clicks and middle-clicks have separate functionality from left-clicks.
+
+Right-click:
+- Hand: equip or unequip magnus (works with opaque and transparent magnus)
+- Combo: remove a single card from mid-combo
+- Quest magnus (inventory): swap positions of two magnus
+- Quest magnus (gathering): remove the last instance of a quest magnus from the inventory
+- Temporary boost: subtract offense/defense bonus
+- MP: subtract MP charge or drain
+
+Middle-click:
+- Hand: remove magnus from hand
+- Quest magnus (inventory or gathering): remove all instances of a quest magnus from the inventory
+- Results table (row title): hide row
+
+
+### Mouse wheel
 
 You can use the mouse wheel to adjust levels, auras, durability, HP, status, boost, and random deviations.
 
-Keyboard shortcuts:
+
+### Keyboard shortcuts
+
 - 1/2/3: switch characters (main window and Temporary Boost)
-- T: open target window
+- X: switch between party and enemy mode (works from any window)
+- T: open target/enemy window
 - D: open deck window
 - Q: open quest magnus window
 - B: open temporary boost window
 - E: import data from emulator
-- C: copy output table to clipboard
+- C: copy results table to clipboard
 - S: open settings window
 - M: open MP window
 - N: next combo
-- R: resize window to fit output table / remove all quest magnus / reset all boost values / reset MP
+- R: resize window to fit results table / remove all quest magnus / reset all boost values / reset MP
 - Backspace: remove last card from combo
 - Escape: close window (can't be used in main window)
 
 
-## Output table
+## Results table
 
 
 <i>Base offense:</i> An offense value based on the party member's level.
